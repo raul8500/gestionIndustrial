@@ -1,0 +1,127 @@
+<% extraStyles=`
+    `; %>
+    <main style="margin-top: 20px">
+        <div class="container pt-4">
+            <h3 class="text-center">
+                <i class="fa-solid fa-paperclip"></i> Registro de oficios
+            </h3>
+
+            <div class="d-flex justify-content-end mb-3">
+                <button id="btnNuevoOficio" class="btn" data-toggle="modal" data-target="#modalOficio" style="background-color: #7c1241; color: white;">
+                    <i class="fas fa-plus"></i> Registrar oficio
+                  </button>
+                  
+            </div>
+            
+
+
+            <div class="tab-content" id="pills-tabContent2">
+                <div class="table-responsive pt-3">
+                    <table id="tablaRegistros" class="table align-middle mb-0 bg-white">
+                        <thead class="bg-light">
+                            <tr class="text-center">
+                                <th>No. de Oficio</th>
+                                <th>Fecha</th>
+                                <th>Tipo de Correspondencia</th>
+                                <th>Institución</th>
+                                <th>Asunto</th>
+                                <th>Tipo de Respuesta</th>
+                                <th>Departamento Turnado</th>
+                                <th>Status</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>                        
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalOficio" tabindex="-1" role="dialog" aria-labelledby="modalOficioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <form id="formOficio" enctype="multipart/form-data">
+            <div class="modal-content">
+              <div class="modal-header text-white">
+                <h5 class="modal-title" id="modalOficioLabel" style="color: black;">Registrar nuevo oficio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </button>
+                
+              </div>
+      
+              <div class="modal-body row g-3">
+                <div class="col-md-6">
+                  <label>No. de Oficio</label>
+                  <input type="text" name="noOficio" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label>Fecha</label>
+                  <input type="date" name="fecha" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label for="tipoCorrespondencia">Tipo de Correspondencia</label>
+                  <select class="form-control" name="tipoCorrespondencia" required>
+                    <option value="" selected>Selecciona una opción</option>
+                    <option value="1">Interna</option>
+                    <option value="2">Externa</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-6">
+                  <label>Institución</label>
+                  <input type="text" name="institucion" class="form-control">
+                </div>
+                <div class="col-md-12">
+                  <label>Asunto</label>
+                  <input type="text" name="asunto" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label>Tipo de Respuesta</label>
+                  <input type="text" name="tipoRespuesta" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label>Departamento Turnado</label>
+                  <input type="text" name="departamentoTurnado" class="form-control">
+                </div>
+                <div class="col-md-12">
+                  <label>Observaciones</label>
+                  <textarea name="observaciones" class="form-control"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label>Tiempo de Respuesta (días)</label>
+                  <input type="number" name="tiempoRespuesta" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label>Status</label>
+                  <input type="number" name="status" class="form-control">
+                </div>
+                <div class="col-md-12">
+                  <label>Archivos (opcional)</label>
+                  <input type="file" name="archivos" class="form-control" multiple>
+                
+                  <div id="archivoActualContainer" class="mt-2" style="display: none;">
+                    <label>Archivos actuales:</label>
+                    <div id="listaArchivosActuales" class="d-flex flex-wrap gap-2 mt-1"></div>
+                  </div>
+                </div>                
+                
+              </div>
+      
+              <div class="modal-footer">
+                <button type="submit" class="btn" style="background-color: #7c1241; color: white;">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+  
+
+<% extraScripts=` 
+    <script src="js/oficios/oficios.js"></script>
+
+    `; %>
+
