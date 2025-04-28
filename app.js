@@ -99,6 +99,6 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Iniciar el servidor
-server.listen(3002, () => {
+server.listen(3000, () => {
     console.log('🚀 Servidor corriendo en el puerto 3000');
 });

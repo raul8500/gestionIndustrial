@@ -54,11 +54,11 @@
               <div class="modal-body row g-3">
                 <div class="col-md-6">
                   <label>No. de Oficio</label>
-                  <input type="text" name="noOficio" class="form-control">
+                  <input type="text" name="noOficio" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label>Fecha</label>
-                  <input type="date" name="fecha" class="form-control">
+                  <input type="date" name="fecha" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label for="tipoCorrespondencia">Tipo de Correspondencia</label>
@@ -71,31 +71,35 @@
                 
                 <div class="col-md-6">
                   <label>Institución</label>
-                  <input type="text" name="institucion" class="form-control">
+                  <input type="text" name="institucion" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-12">
                   <label>Asunto</label>
-                  <input type="text" name="asunto" class="form-control">
+                  <input type="text" name="asunto" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label>Tipo de Respuesta</label>
-                  <input type="text" name="tipoRespuesta" class="form-control">
+                  <input type="text" name="tipoRespuesta" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label>Departamento Turnado</label>
-                  <input type="text" name="departamentoTurnado" class="form-control">
+                  <input type="text" name="departamentoTurnado" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-12">
                   <label>Observaciones</label>
-                  <textarea name="observaciones" class="form-control"></textarea>
+                  <textarea name="observaciones" class="form-control" autocomplete="off"></textarea>
                 </div>
                 <div class="col-md-6">
                   <label>Tiempo de Respuesta (días)</label>
-                  <input type="number" name="tiempoRespuesta" class="form-control">
+                  <input type="number" name="tiempoRespuesta" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label>Status</label>
-                  <input type="number" name="status" class="form-control">
+                  <select class="form-control" name="status" required>
+                    <option value="1">Pendiente</option>
+                    <option value="2">En proceso</option>
+                    <option value="3">Finalizado</option>
+                  </select>
                 </div>
                 <div class="col-md-12">
                   <label>Archivos (opcional)</label>

@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowed = /pdf|docx|doc|jpg|jpeg|png|csv/;
+    const allowed = /pdf|docx|doc|jpg|jpeg|png|csv|xls|xlsx/;
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, allowed.test(ext));
 };

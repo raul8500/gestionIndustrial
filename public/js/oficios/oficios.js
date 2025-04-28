@@ -28,7 +28,21 @@ const tabla = $('#tablaRegistros').DataTable({
       { data: 'asunto', title: 'Asunto' },
       { data: 'tipoRespuesta', title: 'Tipo de Respuesta' },
       { data: 'departamentoTurnado', title: 'Departamento Turnado' },
-      { data: 'status', title: 'Status' },
+      { 
+        data: 'status', 
+        title: 'Status',
+        render: function(data, type, row) {
+          if (data === 1 || data === '1') {
+            return '<span class="badge badge-danger">Pendiente</span>'; // Rojo
+          } else if (data === 2 || data === '2') {
+            return '<span class="badge badge-warning">En proceso</span>'; // Naranja
+          } else if (data === 3 || data === '3') {
+            return '<span class="badge badge-success">Finalizado</span>'; // Verde
+          } else {
+            return '<span class="badge badge-secondary">Sin definir</span>'; // Opcional, por si viene otro valor
+          }
+        }
+      },
       {
           data: 'archivos',
           title: 'Acciones',
