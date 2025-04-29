@@ -52,11 +52,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-// Limpieza de mensajes antiguos
-setInterval(() => {
-    Message.deleteMany({ date: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } })
-        .then(() => console.log('Mensajes antiguos eliminados'));
-}, 24 * 60 * 60 * 1000); // Cada 24 horas
 
 // Manejar errores globales en el servidor
 server.on('error', (err) => {
