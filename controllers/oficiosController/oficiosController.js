@@ -1,6 +1,8 @@
 const Oficio = require('../../schemas/oficiosSchema/oficioSchema');
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment-timezone'); // Asegúrate de tenerlo instalado
+
 
 // Obtener todos los oficios
 exports.getAllOficios = async (req, res) => {
@@ -32,6 +34,9 @@ exports.createOficio = async (req, res) => {
         if (req.files && req.files.length > 0) {
             datos.archivos = req.files.map(file => file.filename);
         }
+        if (datos.fecha) {
+            datos.fecha = moment.tz(datos.fecha, 'America/Mexico_City').startOf('day').toDate();
+          }          
 
         const nuevoOficio = new Oficio(datos);
         await nuevoOficio.save();
@@ -52,6 +57,10 @@ exports.updateOficio = async (req, res) => {
         if (!oficioExistente) {
             return res.status(404).json({ message: 'Oficio no encontrado' });
         }
+
+        if (datosActualizados.fecha) {
+            datosActualizados.fecha = moment.tz(datosActualizados.fecha, 'America/Mexico_City').startOf('day').toDate();
+        }  
 
         const rutaBaseArchivos = path.join(__dirname, '../../public/archivos/');
         let nuevosArchivos = oficioExistente.archivos || [];
