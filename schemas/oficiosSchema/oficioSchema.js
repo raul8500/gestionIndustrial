@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const OficioSchema = new mongoose.Schema({
-    noOficio: { type: String, unique: true },
+    noOficio: { type: String },
     fecha: { type: Date },
     tipoCorrespondencia: { type: Number },
     institucion: { type: String },
