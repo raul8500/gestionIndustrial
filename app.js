@@ -97,3 +97,43 @@ process.on('unhandledRejection', (reason, promise) => {
 server.listen(3000, () => {
     console.log('🚀 Servidor corriendo en el puerto 3000');
 });
+
+
+// BACKUP AUTOMÁTICO DE MONGODB
+const { exec } = require('child_process');
+const cron = require('node-cron');
+const fs = require('fs');
+
+const dbName = 'ua'; // nombre de tu base de datos
+const backupDir = path.join(__dirname, 'backups'); // carpeta para respaldos
+
+// Ruta completa a mongodump.exe
+const mongodumpPath = 'C:\\Program Files\\MongoDB\\Tools\\100\\bin\\mongodump.exe'; // <-- AJUSTA según tu instalación
+
+// Crear la carpeta si no existe
+if (!fs.existsSync(backupDir)) {
+  fs.mkdirSync(backupDir);
+}
+
+// Programar respaldo diario a las 10:43 AM (hora local de Windows Server)
+cron.schedule('43 10 * * *', () => {
+  const fecha = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = path.join(backupDir, `backup-${fecha}`);
+  
+  const cmd = `"${mongodumpPath}" --db=${dbName} --out="${backupPath}"`;
+
+  console.log(`[${new Date().toLocaleString()}] Iniciando respaldo de MongoDB...`);
+
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`❌ Error al respaldar la base de datos: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`⚠️ stderr: ${stderr}`);
+      return;
+    }
+    console.log(`✅ Respaldo completado en: ${backupPath}`);
+  });
+});
+

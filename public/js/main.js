@@ -69,48 +69,46 @@ function obtenerNombreRol(rol) {
     }
 }
 
+
 function mostrarFunciones(data) {
     const rol = data.rol;
-
+  
     fetch(obtenerFunciones + obtenerNombreRol(rol))
-        .then(response => response.json())
-        .then(data => {
-            funciones(data.functions);
-        })
-        .catch(error => console.log(error));
+      .then(response => response.json())
+      .then(data => {
+        renderizarFuncionesEnCards(data.functions);
+      })
+      .catch(error => console.log(error));
 }
-
-async function funciones(data) {
-    let resultados = '';
-
+  
+async function renderizarFuncionesEnCards(data) {
+    const contenedor = document.getElementById('contenedor-funciones');
+    let html = '';
+  
     const fetches = data.map(async item => {
-        if (item.subFunctions && item.subFunctions.length > 0) {
-            // Si hay subfunciones, crea un menú desplegable
-            resultados += `
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenu${item.name.replace(/\s+/g, '')}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        ${item.name}
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenu${item.name.replace(/\s+/g, '')}">
-                        ${item.subFunctions.map(subFunc => `
-                            <li><a class="dropdown-item" href="${subFunc.path}">${subFunc.name}</a></li>
-                        `).join('')}
-                    </ul>
-                </li>
-            `;
-        } else {
-            // Elemento simple sin notificación
-            resultados += `
-                <li class="nav-item">
-                    <a class="nav-link" href="${item.path}">${item.name}</a>
-                </li>
-            `;
-        }
+      // Puedes personalizar descripción y título si lo necesitas
+      const titulo = item.name;
+      const descripcion = item.descripcion || 'Accede y gestiona esta sección del sistema.';
+      const ruta = item.path;
+  
+      html += `
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-lg" style="background-color: #ffffffd1;">
+            <img src="/img/xamoraveracruz.png" class="fondo-imagen" alt="Fondo translúcido">
+            <div class="card-body">
+              <h4 class="card-title" style="color: rgb(0, 0, 0);">${titulo}</h4>
+              <p class="card-text" style="color: rgb(0, 0, 0); font-size: 10pt;">
+                ${descripcion}
+              </p>
+              <a href="${ruta}" class="btn" style="background-color: #7c1241; color: white;">Entrar</a>
+            </div>
+          </div>
+        </div>
+      `;
     });
-
-    // Esperar todos los fetches
+  
     await Promise.all(fetches);
-
-    // Una sola vez se actualiza el DOM
-    document.getElementById('options').innerHTML = resultados;
-}
+  
+    contenedor.innerHTML = html;
+  }
+  

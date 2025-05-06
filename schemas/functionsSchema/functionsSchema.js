@@ -28,6 +28,10 @@ const functionsUserSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
+            description: {
+                type: String,
+                required: true,
+            },
             path: {
                 type: String, // Ruta asociada a la función principal
                 required: false,

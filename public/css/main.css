@@ -1,0 +1,13 @@
+
+  /* Imagen translúcida decorativa, alineada al fondo */
+  .fondo-imagen {
+    position: absolute;
+    bottom: 10px;       /* Pegado al fondo */
+    right: 10px;        /* Pegado al lado derecho */
+    width: 100px;       /* Tamaño ajustable */
+    height: auto;
+    opacity: 0.15;      /* Transparencia */
+    z-index: 0;
+    pointer-events: none; /* No interfiere con clics */
+  }
+  

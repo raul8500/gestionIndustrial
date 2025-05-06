@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const dbconnect = async () => {
     try {
-        await mongoose.connect("mongodb://ua:123@85.31.224.165:27017/ua", {
+        await mongoose.connect("mongodb://localhost:27017/ua", {
             
         });
         console.log('✅ Conexión correcta');
