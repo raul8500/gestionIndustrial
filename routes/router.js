@@ -12,9 +12,10 @@ const adminVerify = require('../middlewares/AdminVerify')
 const userFunctions = require('../controllers/functionsUsers/userFunctions')
 const upload = require('../middlewares/uploads');
 const oficioController = require('../controllers/oficiosController/oficiosController');
+const ticketsController = require('../controllers/ticketsController/ticketsController');
 
 
-//Vistas
+//Vistas generales
 router.get('/login', (req, res) => {    
     res.render('login', { hideHeader: true });
 });
@@ -23,8 +24,19 @@ router.get('/main', authenticated.isAuthenticated, verifyToken.verifyToken, (req
     res.render('main');
 });
 
+//UA
 router.get('/registros', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {    
     res.render('oficios/oficiosRegistros');
+});
+
+
+//Tics
+router.get('/tickets', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {    
+    res.render('tickets/tickets');
+});
+
+router.get('/usuarios', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {    
+    res.render('usuarios/usuarios');
 });
 
 
@@ -66,6 +78,16 @@ router.get('/api/getOficios', oficioController.getAllOficios);
 router.get('/api/getOficio/:id', oficioController.getOficioById);
 router.delete('/api/deleteOficio/:id', oficioController.deleteOficio);
 
+
+
+// Tickets Tics
+
+router.post('/api/tickets/', ticketsController.crearTicket);
+router.get('/api/tickets/', ticketsController.obtenerTickets);
+router.get('/api/tickets/:id', ticketsController.obtenerTicket);
+router.put('/api/tickets/:id', ticketsController.actualizarTicket);
+router.delete('/api/tickets/:id', ticketsController.eliminarTicket);
+router.get('/api/tickets/reporte/:fechaInicio/:fechaFin', ticketsController.generarReporte);
 
 
 router.use((req, res, next) => {

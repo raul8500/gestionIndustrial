@@ -88,7 +88,7 @@ async function renderizarFuncionesEnCards(data) {
     const fetches = data.map(async item => {
       // Puedes personalizar descripción y título si lo necesitas
       const titulo = item.name;
-      const descripcion = item.descripcion || 'Accede y gestiona esta sección del sistema.';
+      const descripcion = item.description || 'Accede y gestiona esta sección del sistema.';
       const ruta = item.path;
   
       html += `
