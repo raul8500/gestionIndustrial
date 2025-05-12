@@ -53,7 +53,7 @@ const tabla = $('#tablaRegistros').DataTable({
         }
       }
     ],
-    order: [[5, 'desc']],
+    order: [[6, 'desc']],
     language: {
       "processing": "Procesando...",
       "lengthMenu": "Mostrar _MENU_ registros",
