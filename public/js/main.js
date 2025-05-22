@@ -60,9 +60,11 @@ function obtenerNombreRol(rol) {
         case 1:
             return "Administrador";
         case 2:
-            return "Supervisor";
+            return "Supervisor UA";
         case 3:
-            return "AuxiliarAdministrativo";
+            return "Supervisor TI";
+        case 4:
+            return "Supervisor Secretaria";
 
         default:
             return "Rol desconocido";
@@ -80,20 +82,31 @@ function mostrarFunciones(data) {
       })
       .catch(error => console.log(error));
 }
-  
+
 async function renderizarFuncionesEnCards(data) {
-    const contenedor = document.getElementById('contenedor-funciones');
-    let html = '';
-  
-    const fetches = data.map(async item => {
-      // Puedes personalizar descripción y título si lo necesitas
-      const titulo = item.name;
-      const descripcion = item.description || 'Accede y gestiona esta sección del sistema.';
-      const ruta = item.path;
-  
+  const contenedor = document.getElementById('contenedor-funciones');
+  let html = '';
+
+  for (const area of data) {
+    const areaNombre = area.area || 'Sin área definida';
+
+    html += `
+      <div class="mb-5 p-4 border shadow-sm" style="background-color: rgb(255, 255, 255); border-radius: 1rem;">
+        <div class="d-flex align-items-center mb-3">
+          <i class="fas fa-layer-group me-2" style="font-size: 1.5rem; color: #7c1241;"></i>
+          <h4 class="mb-0 text-dark fw-bold">${areaNombre}</h4>
+        </div>
+        <div class="row">
+    `;
+
+    area.items.forEach(func => {
+      const titulo = func.name;
+      const descripcion = func.description || 'Accede y gestiona esta sección del sistema.';
+      const ruta = func.path;
+
       html += `
         <div class="col-md-4 mb-4">
-          <div class="card shadow-lg" style="background-color: #ffffffd1;">
+          <div class="card shadow-lg" style="background-color:rgba(255, 255, 255, 0.82);">
             <img src="/img/xamoraveracruz.png" class="fondo-imagen" alt="Fondo translúcido">
             <div class="card-body">
               <h4 class="card-title" style="color: rgb(0, 0, 0);">${titulo}</h4>
@@ -106,9 +119,23 @@ async function renderizarFuncionesEnCards(data) {
         </div>
       `;
     });
-  
-    await Promise.all(fetches);
-  
-    contenedor.innerHTML = html;
+
+    html += `</div></div>`; // Cerrar .row y contenedor del área
   }
-  
+
+  contenedor.innerHTML = html;
+}
+
+
+const notificaciones = [
+  "📄 Se ha generado un nuevo oficio.",
+  "📢 Tienes una actividad pendiente.",
+  "✅ Solicitud #123 aprobada."
+];
+
+const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');
+dropdownMenu.innerHTML = `
+  <li class="dropdown-header text-dark fw-semibold">Notificaciones</li>
+  <li><hr class="dropdown-divider"></li>
+  ${notificaciones.map(n => `<li class="px-2 py-1 small">${n}</li>`).join('')}
+`;

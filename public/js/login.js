@@ -86,4 +86,15 @@ btnLogin.addEventListener('click', (e) => {
         });
     });
   });
+
+  document.getElementById('btnOlvidoContrasena').addEventListener('click', () => {
+  Swal.fire({
+    icon: 'info',
+    title: '¿Olvidaste tu contraseña?',
+    text: 'Por favor comunícate con el equipo de TICs para restablecer tu acceso.',
+    confirmButtonColor: '#7c1241',
+    confirmButtonText: 'Entendido'
+  });
+});
+
   

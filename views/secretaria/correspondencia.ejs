@@ -1,0 +1,120 @@
+<% extraStyles=` `; %>
+    <main style="margin-top: 20px">
+        <div class="container pt-4">
+            <h3 class="text-center">
+                <i class="fa-solid fa-envelope"></i> Registro de correspondencia
+            </h3>
+
+            <div class="d-flex justify-content-end mb-3">
+                <button id="btnNuevoOficio" class="btn" data-bs-toggle="modal" data-bs-target="#modalCorrespondencia"
+                    style="background-color: #7c1241; color: white;">
+                    <i class="fas fa-plus"></i> Registrar correspondencia
+                </button>
+            </div>
+
+            <div class="tab-content" id="pills-tabContent2">
+                <div class="table-responsive pt-3">
+                    <table id="tablaCorrespondencia" class="table align-middle mb-0 bg-white">
+                        <thead class="bg-light text-center">
+                            <tr>
+                                <th>Folio Oficial</th>
+                                <th>Fecha</th>
+                                <th>Fecha del Oficio</th>
+                                <th>No. de Oficio</th>
+                                <th>Remite</th>
+                                <th>Cargo / Dependencia</th>
+                                <th>Asunto</th>
+                                <th>Comentarios / Acuerdo Interno</th>
+                                <th>No. Tarjeta Turno</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Registros dinámicos -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalCorrespondencia" tabindex="-1" role="dialog"
+        aria-labelledby="modalCorrespondenciaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form id="formCorrespondencia" enctype="multipart/form-data">
+                <div class="modal-content">
+                    <div class="modal-header text-white">
+                        <h5 class="modal-title" id="modalCorrespondenciaLabel" style="color: black;">Registrar nueva
+                            correspondencia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6">
+                            <label>Folio Oficial</label>
+                            <input type="text" name="folioOficial" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Fecha</label>
+                            <input type="date" name="fechaRegistro" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Fecha del Oficio</label>
+                            <input type="date" name="fechaOficio" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label>No. de Oficio</label>
+                            <input type="text" name="numeroOficio" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Remite</label>
+                            <input type="text" name="remite" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Cargo / Dependencia</label>
+                            <input type="text" name="cargoDependencia" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-12">
+                            <label>Asunto</label>
+                            <input type="text" name="asunto" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="col-md-12">
+                            <label>Acuerdo Interno / Comentarios</label>
+                            <textarea name="comentarios" class="form-control" autocomplete="off" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label>No. de tarjeta con la que se turnó</label>
+                            <input type="text" name="tarjetaTurno" class="form-control" autocomplete="off">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label>Archivos adjuntos</label>
+                            <input type="file" name="archivos" class="form-control" multiple>
+
+                            <!-- 🔽 Contenedor para archivos actuales editables -->
+                            <div id="archivoActualContainer" class="mt-2" style="display: none;"
+                                data-archivos-a-eliminar="[]">
+                                <label>Archivos actuales:</label>
+                                <div id="listaArchivosActuales" class="d-flex flex-wrap gap-2 mt-1"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn"
+                            style="background-color: #7c1241; color: white;">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <% extraScripts=` <script src="js/correspondencia/correspondencia.js">
+        </script>
+        `; %>

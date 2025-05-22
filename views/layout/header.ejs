@@ -14,7 +14,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Navbar brand -->
                 <a class="navbar-brand mt-2 mt-lg-0" href="/main">
-                    <img src="img/logos.png" height="50" alt="Sedema Logo" loading="lazy" />
+                    <img src="img/logos2.png" height="70" alt="Sedema Logo" loading="lazy" />
                 </a>
                 <!-- Left links -->
                 <ul id="options" class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -22,11 +22,40 @@
                 </ul>
                 <!-- Left links -->
             </div>
-            <!-- Collapsible wrapper -->
 
             <!-- Right elements -->
             <div class="d-flex align-items-center">
                 <!-- Avatar -->
+
+                <!-- Ícono de notificaciones -->
+                <div class="dropdown me-3">
+                <a href="#" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" class="position-relative">
+                    <i class="fas fa-bell text-dark fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                    <span class="visually-hidden">Notificaciones</span>
+                    </span>
+                </a>
+
+                <!-- Menú desplegable -->
+                <ul class="dropdown-menu shadow p-2" style="left: -180px; min-width: 300px; max-height: 300px; overflow-y: auto; position: absolute;">
+                    <li class="dropdown-header text-dark fw-semibold">Notificaciones</li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="px-2 py-1 small text-muted">🔔 No tienes nuevas notificaciones</li>
+                    <!-- Ejemplos de notificación -->
+                    <!--
+                    <li class="px-2 py-1 small"><strong>Solicitud #231</strong> fue aprobada</li>
+                    <li class="px-2 py-1 small"><strong>Nuevo mensaje</strong> del área de TI</li>
+                    -->
+                </ul>
+                </div>
+
+
+                <!-- Grupo de título centrado -->
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                <h1 class="fw-bold fs-2 m-0" style="color: #7c1241;">SEDEMA</h1>
+                <span class="d-block fw-normal" style="color: goldenrod; font-size: 0.9rem;">Secretaría de Medio Ambiente</span>
+                </div>
+
 
                 <div class="info"
                     style="display: flex; flex-direction: column; align-items: flex-end; margin-right: 10px;">

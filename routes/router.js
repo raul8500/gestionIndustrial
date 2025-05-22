@@ -13,6 +13,7 @@ const userFunctions = require('../controllers/functionsUsers/userFunctions')
 const upload = require('../middlewares/uploads');
 const oficioController = require('../controllers/oficiosController/oficiosController');
 const ticketsController = require('../controllers/ticketsController/ticketsController');
+const correspondenciaController = require('../controllers/correspondenciaSecretaria/correspondenciaController');
 
 
 //Vistas generales
@@ -40,6 +41,11 @@ router.get('/usuarios', authenticated.isAuthenticated, verifyToken.verifyToken, 
 });
 
 
+
+//Area de la secretaria
+router.get('/correspondenciaSecretaria', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {    
+    res.render('secretaria/correspondencia');
+});
 
 
 //API
@@ -88,6 +94,19 @@ router.get('/api/tickets/:id', ticketsController.obtenerTicket);
 router.put('/api/tickets/:id', ticketsController.actualizarTicket);
 router.delete('/api/tickets/:id', ticketsController.eliminarTicket);
 router.get('/api/tickets/reporte/:fechaInicio/:fechaFin', ticketsController.generarReporte);
+
+
+
+//Correspondencia
+
+router.post('/api/correspondencia/', upload.array('archivos', 10), correspondenciaController.crearCorrespondencia);
+router.get('/api/correspondencia/', correspondenciaController.obtenerCorrespondencias);
+router.get('/api/correspondencia/:id', correspondenciaController.obtenerCorrespondencia);
+router.put('/api/correspondencia/:id', upload.array('archivos', 10), correspondenciaController.actualizarCorrespondencia);
+router.delete('/api/correspondencia/:id', correspondenciaController.eliminarCorrespondencia);
+
+
+
 
 
 router.use((req, res, next) => {

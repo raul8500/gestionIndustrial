@@ -6,7 +6,7 @@
     right: 10px;        /* Pegado al lado derecho */
     width: 100px;       /* Tamaño ajustable */
     height: auto;
-    opacity: 0.15;      /* Transparencia */
+    opacity: 0.10;      /* Transparencia */
     z-index: 0;
     pointer-events: none; /* No interfiere con clics */
   }
