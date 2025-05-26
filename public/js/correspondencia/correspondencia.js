@@ -7,6 +7,12 @@ const tabla = $('#tablaCorrespondencia').DataTable({
     dataSrc: ''
   },
   columns: [
+    { 
+      title: '#', 
+      data: null,
+      render: (data, type, row, meta) => meta.row + 1,
+      orderable: false 
+    },
     { data: 'folioOficial', title: 'Folio Oficial' },
     {
       data: 'fechaRegistro',
