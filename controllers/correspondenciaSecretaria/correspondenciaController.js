@@ -3,25 +3,6 @@ const moment = require('moment-timezone');
 const fs = require('fs');
 const path = require('path');
 
-// Crear correspondencia
-exports.crearCorrespondencia = async (req, res) => {
-  try {
-    const archivos = req.files?.map(file => file.filename) || [];
-    const fechaCDMX = moment().tz('America/Mexico_City').toDate();
-
-    const nueva = new Correspondencia({
-      ...req.body,
-      archivos,
-      fechaRegistro: fechaCDMX
-    });
-
-    await nueva.save();
-    res.status(201).json({ message: 'Correspondencia registrada correctamente', correspondencia: nueva });
-  } catch (err) {
-    res.status(400).json({ message: 'Error al registrar la correspondencia', error: err.message });
-  }
-};
-
 // Obtener todas
 exports.obtenerCorrespondencias = async (req, res) => {
   try {
@@ -40,6 +21,25 @@ exports.obtenerCorrespondencia = async (req, res) => {
     res.json(registro);
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener la correspondencia', error: err.message });
+  }
+};
+
+// Crear correspondencia
+exports.crearCorrespondencia = async (req, res) => {
+  try {
+    const archivos = req.files?.map(file => file.filename) || [];
+    const fechaCDMX = moment().tz('America/Mexico_City').toDate();
+
+    const nueva = new Correspondencia({
+      ...req.body,
+      archivos,
+      fechaRegistro: fechaCDMX
+    });
+
+    await nueva.save();
+    res.status(201).json({ message: 'Correspondencia registrada correctamente', correspondencia: nueva });
+  } catch (err) {
+    res.status(400).json({ message: 'Error al registrar la correspondencia', error: err.message });
   }
 };
 

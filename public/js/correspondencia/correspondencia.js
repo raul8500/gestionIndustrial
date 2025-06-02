@@ -7,17 +7,25 @@ const tabla = $('#tablaCorrespondencia').DataTable({
     dataSrc: ''
   },
   columns: [
-    { 
-      title: '#', 
+    {
+      title: '#',
       data: null,
-      render: (data, type, row, meta) => meta.row + 1,
-      orderable: false 
+      orderable: false,
+      searchable: false,
+      render: (data, type, row, meta) => meta.row + 1
     },
     { data: 'folioOficial', title: 'Folio Oficial' },
     {
       data: 'fechaRegistro',
       title: 'Fecha',
-      render: data => new Date(data).toLocaleDateString('es-ES')
+      render: data => {
+        const fecha = new Date(data);
+        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const opcionesHora = { hour: '2-digit', minute: '2-digit', hour: '2-digit', hour12: false };
+        const fechaStr = fecha.toLocaleDateString('es-MX', opcionesFecha);
+        const horaStr = fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false });
+        return `${fechaStr} ${horaStr}`;
+      }
     },
     {
       data: 'fechaOficio',
@@ -44,7 +52,6 @@ const tabla = $('#tablaCorrespondencia').DataTable({
       }
     }
   ],
-  order: [[1, 'desc']],
   language: {
       "processing": "Procesando...",
       "lengthMenu": "Mostrar _MENU_ registros",
@@ -66,6 +73,17 @@ const tabla = $('#tablaCorrespondencia').DataTable({
       }
   }
 });
+
+tabla.on('order.dt search.dt draw.dt', function () {
+  const total = tabla.rows({ search: 'applied' }).count();
+  tabla.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+    cell.innerHTML = total - i;
+  });
+});
+
+
+
+
 
 $('#btnNuevoOficio').on('click', function () {
   editandoId = null;
