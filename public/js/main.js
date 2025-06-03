@@ -73,18 +73,20 @@ function obtenerNombreRol(rol) {
 
 
 function mostrarFunciones(data) {
-    const rol = data.rol;
-  
-    fetch(obtenerFunciones + obtenerNombreRol(rol))
-      .then(response => response.json())
-      .then(data => {
-        renderizarFuncionesEnCards(data.functions);
-      })
-      .catch(error => console.log(error));
+  const rol = data.rol;
+
+  fetch(obtenerFunciones + obtenerNombreRol(rol))
+    .then(response => response.json())
+    .then(data => {
+      renderizarFuncionesEnCards(data.functions);
+    })
+    .catch(error => console.log(error));
 }
 
 async function renderizarFuncionesEnCards(data) {
   const contenedor = document.getElementById('contenedor-funciones');
+  if (!contenedor) return; // 🚫 Si no existe, salimos sin hacer nada
+
   let html = '';
 
   for (const area of data) {
@@ -120,17 +122,16 @@ async function renderizarFuncionesEnCards(data) {
       `;
     });
 
-    html += `</div></div>`; // Cerrar .row y contenedor del área
+    html += `</div></div>`;
   }
 
   contenedor.innerHTML = html;
 }
 
 
+
 const notificaciones = [
-  "📄 Se ha generado un nuevo oficio.",
-  "📢 Tienes una actividad pendiente.",
-  "✅ Solicitud #123 aprobada."
+  "En desarrollo"
 ];
 
 const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');

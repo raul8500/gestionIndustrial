@@ -1,0 +1,73 @@
+<% extraStyles = ``; %>
+
+<main style="margin-top: 20px">
+  <div class="container pt-4">
+    <h3 class="text-center">
+      <i class="fas fa-desktop"></i> Inventario de Tecnologías
+    </h3>
+
+    <div class="d-flex justify-content-end mb-3">
+      <button id="btnNuevoEquipo" class="btn" data-toggle="modal" data-target="#modalEquipo" style="background-color: #7c1241; color: white;">
+        <i class="fas fa-plus"></i> Registrar equipo
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <div class="table-responsive pt-3">
+        <table id="tablaInventarioTICs" class="table align-middle mb-0 bg-white">
+          <thead class="bg-light text-center">
+            <tr>
+              <th>No.</th>
+              <th>IP</th>
+              <th>Equipo</th>
+              <th>Área</th>
+              <th>Marca</th>
+              <th>Procesador</th>
+              <th>RAM</th>
+              <th>Disco Duro</th>
+              <th>No. Inventario</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal fade" id="modalEquipo" tabindex="-1" role="dialog" aria-labelledby="modalEquipoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <form id="formEquipo">
+      <div class="modal-content">
+        <div class="modal-header text-white">
+          <h5 class="modal-title" id="modalEquipoLabel" style="color: black;">Registrar nuevo equipo</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+
+        <div class="modal-body row g-3">
+          <input type="hidden" id="equipoId">
+          <div class="col-md-2"><label>No.</label><input type="number" id="numero" class="form-control" required></div>
+          <div class="col-md-3"><label>IP</label><input type="text" id="ip" class="form-control" required></div>
+          <div class="col-md-3"><label>Equipo</label><input type="text" id="equipo" class="form-control" required></div>
+          <div class="col-md-4"><label>Área</label><input type="text" id="area" class="form-control" required></div>
+          <div class="col-md-3"><label>Marca</label><input type="text" id="marca" class="form-control" required></div>
+          <div class="col-md-3"><label>Procesador</label><input type="text" id="procesador" class="form-control" required></div>
+          <div class="col-md-3"><label>RAM</label><input type="text" id="ram" class="form-control" required></div>
+          <div class="col-md-3"><label>Disco Duro</label><input type="text" id="discoDuro" class="form-control" required></div>
+          <div class="col-md-4"><label>No. Inventario</label><input type="text" id="numeroInventario" class="form-control" required></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn" style="background-color: #7c1241; color: white;">Guardar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% extraScripts = `
+<script src="/js/inventario/inventario.js"></script>
+`; %>

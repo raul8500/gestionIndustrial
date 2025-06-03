@@ -5,6 +5,7 @@ const ModelUser = require('../schemas/usersSchema/usersSchema'); // Asegúrate d
 exports.isAuthenticated = async (req, res, next) => {
     if (req.cookies.jwt) {
         try {
+
             const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO);
 
             // Buscar el usuario por su id en la base de datos
