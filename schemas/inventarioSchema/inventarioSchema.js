@@ -45,7 +45,6 @@ const InventarioTecnologiaSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true
   },
   fechaRegistro: {
     type: Date,
