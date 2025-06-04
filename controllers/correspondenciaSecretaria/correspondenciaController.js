@@ -28,7 +28,15 @@ exports.obtenerCorrespondencia = async (req, res) => {
 exports.crearCorrespondencia = async (req, res) => {
   try {
     const archivos = req.files?.map(file => file.filename) || [];
-    const fechaCDMX = moment().tz('America/Mexico_City').toDate();
+
+    // Fecha de registro con hora actual
+    let fechaRegistro;
+    if (req.body.fechaRegistro) {
+      const hoy = moment().tz('America/Mexico_City');
+      fechaRegistro = moment.tz(`${req.body.fechaRegistro}T${hoy.format('HH:mm:ss')}`, 'America/Mexico_City').toDate();
+    } else {
+      fechaRegistro = moment().tz('America/Mexico_City').toDate();
+    }
 
     // Corregir fechaOficio si viene en el body
     let fechaOficio = req.body.fechaOficio;
@@ -39,8 +47,8 @@ exports.crearCorrespondencia = async (req, res) => {
     const nueva = new Correspondencia({
       ...req.body,
       archivos,
-      fechaRegistro: fechaCDMX,
-      fechaOficio // sobrescribe la fecha corregida
+      fechaRegistro,
+      fechaOficio
     });
 
     await nueva.save();
@@ -61,18 +69,26 @@ exports.actualizarCorrespondencia = async (req, res) => {
       return res.status(404).json({ message: 'Correspondencia no encontrada' });
     }
 
-    // Corregir fechaRegistro si viene en el body
+    // ✅ Solo actualizar fechaRegistro si es distinta
     if (datosActualizados.fechaRegistro) {
-      const fechaStr = datosActualizados.fechaRegistro + 'T12:00:00';
-      datosActualizados.fechaRegistro = moment.tz(fechaStr, 'America/Mexico_City').toDate();
+      const fechaNueva = datosActualizados.fechaRegistro;
+      const fechaActual = moment(correspondenciaExistente.fechaRegistro).format('YYYY-MM-DD');
+
+      if (fechaNueva !== fechaActual) {
+        const horaActual = moment().tz('America/Mexico_City').format('HH:mm:ss');
+        datosActualizados.fechaRegistro = moment.tz(`${fechaNueva}T${horaActual}`, 'America/Mexico_City').toDate();
+      } else {
+        // Si no cambió, elimínala del objeto para no actualizarla
+        delete datosActualizados.fechaRegistro;
+      }
     }
 
-    // Corregir fechaOficio si viene en el body
+    // ✅ Ajustar fechaOficio si viene
     if (datosActualizados.fechaOficio) {
-      const fechaStr = datosActualizados.fechaOficio + 'T12:00:00';
-      datosActualizados.fechaOficio = moment.tz(fechaStr, 'America/Mexico_City').toDate();
+      datosActualizados.fechaOficio = moment.tz(datosActualizados.fechaOficio + 'T12:00:00', 'America/Mexico_City').toDate();
     }
 
+    // Archivos
     const rutaBaseArchivos = path.join(__dirname, '../../public/archivos/');
     let nuevosArchivos = correspondenciaExistente.archivos || [];
 
@@ -83,8 +99,6 @@ exports.actualizarCorrespondencia = async (req, res) => {
         const ruta = path.join(rutaBaseArchivos, nombre);
         if (fs.existsSync(ruta)) {
           fs.unlinkSync(ruta);
-        } else {
-          console.log('Ruta no encontrada');
         }
       });
     }
