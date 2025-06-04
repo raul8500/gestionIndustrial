@@ -82,38 +82,38 @@ router.put('/api/auth/functions/:id', userFunctions.updateFunctionById)
 
 //oficios rutas
 
-router.post('/api/createOficio/', rolVerify.isUnidad, upload.array('archivos',10), oficioController.createOficio);
-router.put('/api/updateOficio/:id', rolVerify.isUnidad,  upload.array('archivos',10), oficioController.updateOficio);
-router.get('/api/getOficios', rolVerify.isUnidad,  oficioController.getAllOficios);
-router.get('/api/getOficio/:id', rolVerify.isUnidad, oficioController.getOficioById);
-router.delete('/api/deleteOficio/:id', rolVerify.isUnidad, oficioController.deleteOficio);
+router.post('/api/createOficio/', rolVerify.isUnidad, verifyToken.verifyToken, upload.array('archivos',10), oficioController.createOficio);
+router.put('/api/updateOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, upload.array('archivos',10), oficioController.updateOficio);
+router.get('/api/getOficios', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getAllOficios);
+router.get('/api/getOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getOficioById);
+router.delete('/api/deleteOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.deleteOficio);
 
 
 
 // Tickets Tics
 
-router.post('/api/tickets/', rolVerify.isTecnologias,  ticketsController.crearTicket);
-router.get('/api/tickets/', rolVerify.isTecnologias, ticketsController.obtenerTickets);
-router.get('/api/tickets/:id', rolVerify.isTecnologias,  ticketsController.obtenerTicket);
-router.put('/api/tickets/:id', rolVerify.isTecnologias,  ticketsController.actualizarTicket);
-router.delete('/api/tickets/:id', rolVerify.isTecnologias,  ticketsController.eliminarTicket);
-router.get('/api/tickets/reporte/:fechaInicio/:fechaFin', rolVerify.isTecnologias,  ticketsController.generarReporte);
+router.post('/api/tickets/', rolVerify.isTecnologias, verifyToken.verifyToken,  ticketsController.crearTicket);
+router.get('/api/tickets/', rolVerify.isTecnologias, verifyToken.verifyToken, ticketsController.obtenerTickets);
+router.get('/api/tickets/:id', rolVerify.isTecnologias, verifyToken.verifyToken,  ticketsController.obtenerTicket);
+router.put('/api/tickets/:id', rolVerify.isTecnologias, verifyToken.verifyToken, ticketsController.actualizarTicket);
+router.delete('/api/tickets/:id', rolVerify.isTecnologias, verifyToken.verifyToken,  ticketsController.eliminarTicket);
+router.get('/api/tickets/reporte/:fechaInicio/:fechaFin', rolVerify.isTecnologias, verifyToken.verifyToken,  ticketsController.generarReporte);
 
 
-router.post('/api/inventario/', rolVerify.isTecnologias, inventarioController.crearInventario);
-router.get('/api/inventario/', rolVerify.isTecnologias, inventarioController.obtenerInventario);
-router.get('/api/inventario/:id', rolVerify.isTecnologias, inventarioController.obtenerPorId);
-router.put('/api/inventario/:id', rolVerify.isTecnologias, inventarioController.actualizarInventario);
-router.delete('/api/inventario/:id', rolVerify.isTecnologias, inventarioController.eliminarInventario);
+router.post('/api/inventario/', rolVerify.isTecnologias, verifyToken.verifyToken, inventarioController.crearInventario);
+router.get('/api/inventario/', rolVerify.isTecnologias, verifyToken.verifyToken, inventarioController.obtenerInventario);
+router.get('/api/inventario/:id', rolVerify.isTecnologias, verifyToken.verifyToken, inventarioController.obtenerPorId);
+router.put('/api/inventario/:id', rolVerify.isTecnologias, verifyToken.verifyToken, inventarioController.actualizarInventario);
+router.delete('/api/inventario/:id', rolVerify.isTecnologias, verifyToken.verifyToken, inventarioController.eliminarInventario);
 
 
 //Correspondencia
 
-router.post('/api/correspondencia/', rolVerify.isSecretaria, upload.array('archivos', 10), correspondenciaController.crearCorrespondencia);
-router.get('/api/correspondencia/', rolVerify.isSecretaria, correspondenciaController.obtenerCorrespondencias);
-router.get('/api/correspondencia/:id', rolVerify.isSecretaria, correspondenciaController.obtenerCorrespondencia);
-router.put('/api/correspondencia/:id', rolVerify.isSecretaria, upload.array('archivos', 10), correspondenciaController.actualizarCorrespondencia);
-router.delete('/api/correspondencia/:id', rolVerify.isSecretaria, correspondenciaController.eliminarCorrespondencia);
+router.post('/api/correspondencia/', rolVerify.isSecretaria, verifyToken.verifyToken, upload.array('archivos', 10), correspondenciaController.crearCorrespondencia);
+router.get('/api/correspondencia/', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.obtenerCorrespondencias);
+router.get('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.obtenerCorrespondencia);
+router.put('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, upload.array('archivos', 10), correspondenciaController.actualizarCorrespondencia);
+router.delete('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.eliminarCorrespondencia);
 
 
 
