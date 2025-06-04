@@ -30,10 +30,17 @@ exports.crearCorrespondencia = async (req, res) => {
     const archivos = req.files?.map(file => file.filename) || [];
     const fechaCDMX = moment().tz('America/Mexico_City').toDate();
 
+    // Corregir fechaOficio si viene en el body
+    let fechaOficio = req.body.fechaOficio;
+    if (fechaOficio) {
+      fechaOficio = moment.tz(fechaOficio + 'T12:00:00', 'America/Mexico_City').toDate();
+    }
+
     const nueva = new Correspondencia({
       ...req.body,
       archivos,
-      fechaRegistro: fechaCDMX
+      fechaRegistro: fechaCDMX,
+      fechaOficio // sobrescribe la fecha corregida
     });
 
     await nueva.save();
@@ -54,8 +61,16 @@ exports.actualizarCorrespondencia = async (req, res) => {
       return res.status(404).json({ message: 'Correspondencia no encontrada' });
     }
 
+    // Corregir fechaRegistro si viene en el body
     if (datosActualizados.fechaRegistro) {
-      datosActualizados.fechaRegistro = moment.tz(datosActualizados.fechaRegistro, 'America/Mexico_City').startOf('day').toDate();
+      const fechaStr = datosActualizados.fechaRegistro + 'T12:00:00';
+      datosActualizados.fechaRegistro = moment.tz(fechaStr, 'America/Mexico_City').toDate();
+    }
+
+    // Corregir fechaOficio si viene en el body
+    if (datosActualizados.fechaOficio) {
+      const fechaStr = datosActualizados.fechaOficio + 'T12:00:00';
+      datosActualizados.fechaOficio = moment.tz(fechaStr, 'America/Mexico_City').toDate();
     }
 
     const rutaBaseArchivos = path.join(__dirname, '../../public/archivos/');
