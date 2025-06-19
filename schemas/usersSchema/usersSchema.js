@@ -1,27 +1,38 @@
 const mongoose = require('mongoose');
 
 const userModel = new mongoose.Schema(
-    {
-        name: {
-            type: String
-        },
-        username: {
-            type: String
-        },
-        rol: {
-            type: Number
-        },
-        password: {
-            type: String
-        },
-        status: {
-            type: Number
-        },
+  {
+    name: {
+      type: String
     },
-    {
-        timestamps: true,
-        versionKey: false,
+    username: {
+      type: String
+    },
+    rol: {
+      type: Number
+    },
+    password: {
+      type: String
+    },
+    status: {
+      type: Number
+    },
+
+    // ✅ Puede crear usuarios
+    puedeCrearUsuarios: {
+      type: Boolean,
+      default: false
+    },
+
+    area: {
+      type: Number,
+      default: null
     }
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 const ModelUser = mongoose.model("users", userModel);

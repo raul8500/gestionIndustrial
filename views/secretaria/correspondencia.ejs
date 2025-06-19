@@ -4,6 +4,21 @@
             <h3 class="text-center">
                 <i class="fa-solid fa-envelope"></i> Registro de correspondencia
             </h3>
+            <div class="d-flex justify-content-center gap-3 my-3" id="filtroFolioTipo">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipoFolio" id="folioTodos" value="todos" checked>
+                <label class="form-check-label" for="folioTodos">Todos</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipoFolio" id="folioNumerico" value="numerico">
+                <label class="form-check-label" for="folioNumerico">Solo numéricos</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipoFolio" id="folioTexto" value="texto">
+                <label class="form-check-label" for="folioTexto">Solo letras</label>
+            </div>
+            </div>
+
 
             <div class="d-flex justify-content-end mb-3">
                 <button id="btnNuevoOficio" class="btn" data-bs-toggle="modal" data-bs-target="#modalCorrespondencia"

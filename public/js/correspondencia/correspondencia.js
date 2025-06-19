@@ -74,15 +74,23 @@ const tabla = $('#tablaCorrespondencia').DataTable({
   }
 });
 
+$.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+  const tipoFolio = document.querySelector('input[name="tipoFolio"]:checked')?.value || 'todos';
+  const folio = data[1] || ''; // columna 1: Folio Oficial
+
+  if (tipoFolio === 'todos') return true;
+  if (tipoFolio === 'numerico') return /^[0-9]+$/.test(folio);
+  if (tipoFolio === 'texto') return /^[A-Za-z]+$/.test(folio);
+  return true;
+});
+
+
 tabla.on('order.dt search.dt draw.dt', function () {
   const total = tabla.rows({ search: 'applied' }).count();
   tabla.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
     cell.innerHTML = total - i;
   });
 });
-
-
-
 
 
 $('#btnNuevoOficio').on('click', function () {
@@ -176,18 +184,6 @@ $('#tablaCorrespondencia').on('click', '.btn-editar', async function () {
   }
 });
 
-document.getElementById('listaArchivosActuales').addEventListener('click', function (e) {
-  if (e.target.closest('.btn-eliminar-archivo')) {
-    const item = e.target.closest('.archivo-item');
-    const nombre = item.dataset.nombre;
-    const contenedor = document.getElementById('archivoActualContainer');
-    const aEliminar = JSON.parse(contenedor.dataset.archivosAEliminar || '[]');
-    aEliminar.push(nombre);
-    contenedor.dataset.archivosAEliminar = JSON.stringify(aEliminar);
-    item.remove();
-  }
-});
-
 $('#tablaCorrespondencia').on('click', '.btn-eliminar', function () {
   const id = $(this).data('id');
   Swal.fire({
@@ -212,5 +208,24 @@ $('#tablaCorrespondencia').on('click', '.btn-eliminar', function () {
         Swal.fire('❌ Error', err.message, 'error');
       }
     }
+  });
+});
+
+
+document.getElementById('listaArchivosActuales').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-eliminar-archivo')) {
+    const item = e.target.closest('.archivo-item');
+    const nombre = item.dataset.nombre;
+    const contenedor = document.getElementById('archivoActualContainer');
+    const aEliminar = JSON.parse(contenedor.dataset.archivosAEliminar || '[]');
+    aEliminar.push(nombre);
+    contenedor.dataset.archivosAEliminar = JSON.stringify(aEliminar);
+    item.remove();
+  }
+});
+
+document.querySelectorAll('input[name="tipoFolio"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    tabla.draw();
   });
 });

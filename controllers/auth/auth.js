@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 exports.registerUser = async (req, res) => {
     try {
-        const { name, username, rol, password } = req.body;
+        const { name, username, rol, password, area, puedeCrearUsuarios } = req.body;
         let status = 1;
 
         // Verificar si ya existe un usuario con el mismo nombre
@@ -25,6 +25,8 @@ exports.registerUser = async (req, res) => {
             rol,
             password: passHash,
             status,
+            area,
+            puedeCrearUsuarios
         });
 
         res.status(201).json(newUser);

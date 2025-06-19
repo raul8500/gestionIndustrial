@@ -83,15 +83,31 @@
                 </div>
                 <div class="col-md-6">
                   <label>Departamento Turnado</label>
-                  <input type="text" name="departamentoTurnado" class="form-control" autocomplete="off">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Financieros" id="depFinancieros">
+                    <label class="form-check-label" for="depFinancieros">Recursos Financieros</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Humanos" id="depHumanos">
+                    <label class="form-check-label" for="depHumanos">Recursos Humanos</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Materiales" id="depMateriales">
+                    <label class="form-check-label" for="depMateriales">Recursos Materiales</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Tecnologias" id="depTecnologias">
+                    <label class="form-check-label" for="depTecnologias">Tecnologías</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Archivo" id="depArchivo">
+                    <label class="form-check-label" for="depArchivo">Archivo</label>
+                  </div>
                 </div>
+
                 <div class="col-md-12">
                   <label>Observaciones</label>
                   <textarea name="observaciones" class="form-control" autocomplete="off"></textarea>
-                </div>
-                <div class="col-md-6">
-                  <label>Tiempo de Respuesta (días)</label>
-                  <input type="number" name="tiempoRespuesta" class="form-control" autocomplete="off">
                 </div>
                 <div class="col-md-6">
                   <label>Status</label>

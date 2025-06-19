@@ -8,10 +8,10 @@ const OficioSchema = new mongoose.Schema({
     asunto: { type: String },
     tipoRespuesta: { type: String },
     observaciones: { type: String },
-    departamentoTurnado: { type: String },
+    departamentoTurnado: [{ type: String }], // AHORA es un arreglo de strings
     tiempoRespuesta: { type: Number, default: 0 },
     status: { type: Number, default: 0 },
-    archivos: [String] // AHORA es un array de archivos
+    archivos: [String]
 }, {
     timestamps: true
 });

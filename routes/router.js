@@ -19,6 +19,9 @@ const oficioController = require('../controllers/oficiosController/oficiosContro
 const ticketsController = require('../controllers/ticketsController/ticketsController');
 const correspondenciaController = require('../controllers/correspondenciaSecretaria/correspondenciaController');
 const inventarioController = require('../controllers/inventarioController/inventarioController');
+const financierosController = require('../controllers/financieros/financierosController');
+const financierosCorrespondenciaController = require('../controllers/financieros/correspondenciaController');
+
 
 //Vistas generales
 router.get('/login', (req, res) => {    
@@ -51,6 +54,22 @@ router.get('/inventarioTics', authenticated.isAuthenticated, verifyToken.verifyT
 router.get('/correspondenciaSecretaria', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSecretaria,  (req, res) => {    
     res.render('secretaria/correspondencia');
 });
+
+
+//Recursos financieros
+router.get('/usuariosFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros, rolVerify.puedeCrearUsuarios,  (req, res) => {    
+    res.render('financieros/usuarios');
+});
+
+router.get('/correspondenciaFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros,   (req, res) => {    
+    res.render('financieros/correspondencia');
+});
+
+router.get('/controlViaticos', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros,  (req, res) => {    
+    res.render('financieros/viaticos');
+});
+
+
 
 
 
@@ -114,6 +133,38 @@ router.get('/api/correspondencia/', rolVerify.isSecretaria, verifyToken.verifyTo
 router.get('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.obtenerCorrespondencia);
 router.put('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, upload.array('archivos', 10), correspondenciaController.actualizarCorrespondencia);
 router.delete('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.eliminarCorrespondencia);
+
+
+//Recursos financieros
+
+router.get('/api/financieros/usuarios/', financierosController.obtenerUsuarios);
+router.get('/api/financieros/usuarios/:id', financierosController.obtenerUsuarioPorId);
+router.post('/api/financieros/usuarios/', financierosController.crearUsuario);
+router.put('/api/financieros/usuarios/:id', financierosController.actualizarUsuario);
+router.delete('/api/financieros/usuarios/:id', financierosController.eliminarUsuario);
+router.put('/api/financieros/usuarios/password/:id', financierosController.actualizarPassword);
+
+router.get('/api/financieros/correspondencia/', verificarToken, financierosCorrespondenciaController.obtenerCorrespondencias);
+router.get('/api/financieros/correspondencia/:id', financierosCorrespondenciaController.obtenerCorrespondenciaPorId);
+router.post('/api/financieros/correspondencia/', upload.array('archivos', 10), financierosCorrespondenciaController.crearCorrespondencia);
+router.put('/api/financieros/correspondencia/:id', upload.array('archivos', 10), financierosCorrespondenciaController.actualizarCorrespondencia);
+router.delete('/api/financieros/correspondencia/:id', financierosCorrespondenciaController.eliminarCorrespondencia);
+router.get('/api/financieros/correspondencia/respaldo/:id', financierosCorrespondenciaController.respaldoCorrespondencia);
+router.post('/api/financieros/correspondencia/enviar-revision/:id', financierosCorrespondenciaController.enviarARevision);
+
+const jwt = require('jsonwebtoken');
+
+function verificarToken(req, res, next) {
+  const token = req.cookies.jwt;
+  if (!token) return res.status(401).json({ message: 'Sin token' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRETO);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Token inválido' });
+  }
+}
 
 
 

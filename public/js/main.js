@@ -65,7 +65,8 @@ function obtenerNombreRol(rol) {
             return "Supervisor TI";
         case 4:
             return "Supervisor Secretaria";
-
+        case 5:
+            return "Financieros";
         default:
             return "Rol desconocido";
     }
@@ -84,8 +85,9 @@ function mostrarFunciones(data) {
 }
 
 async function renderizarFuncionesEnCards(data) {
+
   const contenedor = document.getElementById('contenedor-funciones');
-  if (!contenedor) return; // 🚫 Si no existe, salimos sin hacer nada
+  if (!contenedor) return;
 
   let html = '';
 
@@ -102,6 +104,15 @@ async function renderizarFuncionesEnCards(data) {
     `;
 
     area.items.forEach(func => {
+      // Ocultar si es del área 5 y no puede crear usuarios, y el item se llama "Usuarios financieros"
+      if (
+        infoUser.area === 5 &&
+        infoUser.puedeCrearUsuarios === false &&
+        func.name === 'Usuarios financieros'
+      ) {
+        return; // ❌ No renderizar este item
+      }
+
       const titulo = func.name;
       const descripcion = func.description || 'Accede y gestiona esta sección del sistema.';
       const ruta = func.path;
@@ -129,14 +140,26 @@ async function renderizarFuncionesEnCards(data) {
 }
 
 
-
 const notificaciones = [
   "En desarrollo"
 ];
 
+
+/*
 const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');
 dropdownMenu.innerHTML = `
   <li class="dropdown-header text-dark fw-semibold">Notificaciones</li>
   <li><hr class="dropdown-divider"></li>
   ${notificaciones.map(n => `<li class="px-2 py-1 small">${n}</li>`).join('')}
 `;
+
+*/
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('error') === 'acceso') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Acceso denegado',
+      text: 'No tienes permiso para acceder a esta sección.'
+    });
+  }

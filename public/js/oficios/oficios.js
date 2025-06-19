@@ -27,7 +27,17 @@ const tabla = $('#tablaRegistros').DataTable({
       { data: 'institucion', title: 'Institución' },
       { data: 'asunto', title: 'Asunto' },
       { data: 'tipoRespuesta', title: 'Tipo de Respuesta' },
-      { data: 'departamentoTurnado', title: 'Departamento Turnado' },
+      {
+        data: 'departamentoTurnado',
+        title: 'Departamento Turnado',
+        render: function (data) {
+          if (Array.isArray(data)) {
+            return data.map(dep => `<span class="badge badge-secondary mr-1">${dep}</span>`).join(' ');
+          } else {
+            return `<span class="badge badge-secondary">${data || 'N/A'}</span>`;
+          }
+        }
+      },
       { 
         data: 'status', 
         title: 'Status',
@@ -104,7 +114,14 @@ $('#btnNuevoOficio').on('click', function () {
 // Guardar oficio (crear o editar)
 $('#formOficio').on('submit', async function (e) {
   e.preventDefault();
+  // Agregar departamentos seleccionados
   const formData = new FormData(this);
+
+  const departamentos = Array.from(document.querySelectorAll('input[name="departamentoTurnado"]:checked')).map(cb => cb.value);
+  formData.delete('departamentoTurnado'); // Elimina posibles valores individuales anteriores
+  formData.append('departamentoTurnado', JSON.stringify(departamentos));
+
+
   const url = editandoId ? `/api/updateOficio/${editandoId}` : '/api/createOficio';
   const method = editandoId ? 'PUT' : 'POST';
 
@@ -153,8 +170,18 @@ $('#tablaRegistros').on('click', '.btn-editar', async function () {
     form.asunto.value = oficio.asunto || '';
     form.tipoRespuesta.value = oficio.tipoRespuesta || '';
     form.observaciones.value = oficio.observaciones || '';
-    form.departamentoTurnado.value = oficio.departamentoTurnado || '';
-    form.tiempoRespuesta.value = oficio.tiempoRespuesta || '';
+    // Limpiar checkboxes primero
+    document.querySelectorAll('input[name="departamentoTurnado"]').forEach(cb => {
+      cb.checked = false;
+    });
+
+    // Marcar los que correspondan
+    if (Array.isArray(oficio.departamentoTurnado)) {
+      oficio.departamentoTurnado.forEach(dep => {
+        const checkbox = document.querySelector(`input[name="departamentoTurnado"][value="${dep}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+    }
     form.status.value = oficio.status || '';
 
     // Mostrar archivos actuales

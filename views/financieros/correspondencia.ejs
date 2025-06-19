@@ -1,0 +1,96 @@
+<% extraStyles = ``; %>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>📂 Correspondencia Recursos Financieros</h3>
+    <button class="btn" id="btnNuevo" style="background-color: #7c1241; color: white;"><i class="fa-solid fa-plus"></i>Nueva</button>
+  </div>
+
+  <div class="table-responsive">
+      <table id="tablaCorrespondencia" class="table table-bordered table-hover"></table>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalCorrespondencia" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form id="formCorrespondencia" enctype="multipart/form-data" class="modal-content">
+      <input type="hidden" id="idCorrespondencia" name="id">
+      <div class="modal-header">
+        <h5 class="modal-title">📋 Datos de Correspondencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row">
+        <div class="form-group col-md-6">
+          <label>No. de Oficio</label>
+          <input type="text" class="form-control" id="numeroOficio" name="numeroOficio" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Fecha de Oficio</label>
+          <input type="date" class="form-control" id="fechaOficio" name="fechaOficio">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Fecha de Recepción</label>
+          <input type="date" class="form-control" id="fechaRecepcion" name="fechaRecepcion">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Tipo de Correspondencia</label>
+          <select class="form-control" id="tipoCorrespondencia" name="tipoCorrespondencia">
+            <option value="1">Interna</option>
+            <option value="2">Externa</option>
+          </select>
+        </div>
+        <div class="form-group col-md-12">
+          <label>Remitente</label>
+          <input type="text" class="form-control" id="remitente" name="remitente">
+        </div>
+        <div class="form-group col-md-12">
+          <label>Asunto</label>
+          <textarea class="form-control" id="asunto" name="asunto" rows="2"></textarea>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Tipo de Respuesta</label>
+          <input type="text" class="form-control" id="tipoRespuesta" name="tipoRespuesta">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Turnado a</label>
+          <select class="form-control" id="turnadoA" name="turnadoA"></select>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Tiempo de Respuesta (días)</label>
+          <input type="number" class="form-control" id="tiempoRespuesta" name="tiempoRespuesta">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Status</label>
+          <select class="form-control" id="status" name="status">
+            <option value="1">Pendiente</option>
+            <option value="2">Atendido</option>
+          </select>
+        </div>
+        <div class="form-group col-md-12">
+          <label>Observaciones</label>
+          <textarea class="form-control" id="observaciones" name="observaciones"></textarea>
+        </div>
+        <div class="form-group col-md-12">
+          <label>Archivos</label>
+          <input type="file" class="form-control" id="archivos" name="archivos" multiple>
+        </div>
+      </div>
+      <div class="form-group col-md-12" id="archivoActualContainer" style="display: none; margin-left: 20px;" >
+        <label>Archivos actuales</label>
+        <div id="listaArchivosActuales" class="d-flex flex-wrap gap-2 mt-2"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" type="submit" style="color: white; background-color: #7c1241;">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #7c1241;">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% extraScripts = `
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/financieros/correspondencia.js"></script>
+`; %>

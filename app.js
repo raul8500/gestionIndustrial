@@ -18,6 +18,24 @@ const app = express();
 // Crear el servidor HTTP
 let server = http.createServer(app);
 
+// Agrega socket.io
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Puedes restringir a un dominio específico si gustas
+    methods: ["GET", "POST"]
+  }
+});
+
+// Exporta `io` para usarlo en tus controladores o en otro módulo
+app.set('io', io);
+
+// Manejo de conexión
+io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+  });
+});
+
 // Configurar los encabezados CORS para permitir solicitudes desde un origen específico
 app.use(cors());
 
