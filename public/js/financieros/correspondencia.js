@@ -42,7 +42,6 @@ $(document).ready(() => {
         if (typeof infoUser !== 'undefined' && infoUser._id) {
             clearInterval(esperarInfoUser); // detener el intervalo una vez que ya está cargado
 
-            // Inicializar tabla con columnas dinámicas según permisos
             const columnasBase = [
                 { data: 'numeroOficio', title: 'No. Oficio' },
                 { data: 'fechaOficio', title: 'Fecha', render: d => d ? new Date(d).toLocaleDateString() : '' },
@@ -76,29 +75,46 @@ $(document).ready(() => {
                         return badge;
                     }
                 },
-                { data: 'turnadoA', title: 'Turnado a', render: d => d?.name || '' }
+                { data: 'turnadoA', title: 'Turnado a', render: d => d?.name || '' },
+
+                // NUEVA columna "Docs" para descargas (visible para todos)
+                {
+                    data: 'archivos',
+                    title: 'Docs',
+                    orderable: false,
+                    render: function (archivos) {
+                        if (!Array.isArray(archivos) || archivos.length === 0) {
+                            return '<span class="text-muted">Sin archivos</span>';
+                        }
+
+                        return archivos.map(nombre => `
+                            <a href="/archivos/${nombre}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="${nombre}">
+                                <i class="fas fa-file-download"></i>
+                            </a>
+                        `).join('');
+                    }
+                }
             ];
 
-
-            // Agregar columna "Acciones" solo si puede crear usuarios
+            // Columna de acciones según permisos
             if (infoUser.puedeCrearUsuarios) {
                 columnasBase.push({
-                    data: 'archivos',
+                    data: null,
                     title: 'Acciones',
-                    render: function (archivos, type, row) {
-                        const links = Array.isArray(archivos) && archivos.length > 0
-                            ? archivos.map(nombre => `<a href="/archivos/${nombre}" target="_blank" class="btn btn-sm btn-primary me-1"><i class='fas fa-file-download'></i></a>`).join('')
-                            : '';
-                        return `${links}
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return `
                             <button class="btn btn-warning btn-sm editar" data-id="${row._id}"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-danger btn-sm eliminar" data-id="${row._id}"><i class="fas fa-trash-alt"></i></button>
-                            <button class="btn btn-info btn-sm respaldar" data-id="${row._id}"><i class="fas fa-save"></i></button>`;
+                            <button class="btn btn-info btn-sm respaldar" data-id="${row._id}"><i class="fas fa-save"></i></button>
+                        `;
                     }
                 });
             } else {
                 columnasBase.push({
                     data: null,
                     title: 'Acción',
+                    orderable: false,
                     render: function (data, type, row) {
                         if (row.status !== 1) {
                             return `<button class="btn btn-outline-secondary btn-sm" disabled>Sin acciones</button>`;
@@ -107,6 +123,10 @@ $(document).ready(() => {
                     }
                 });
             }
+
+
+
+
 
 
 
