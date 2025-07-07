@@ -1,7 +1,13 @@
+// Variable global para el orden actual
+let ordenActual = 'normal';
+
 // Inicializar DataTable
 const tabla = $('#tablaRegistros').DataTable({
   ajax: {
       url: '/api/getOficios',
+      data: function(d) {
+          d.orden = ordenActual;
+      },
       dataSrc: 'oficios'
   },
   columns: [
@@ -76,7 +82,7 @@ const tabla = $('#tablaRegistros').DataTable({
           }
       }
   ],
-  order: [[1, 'desc']],
+  order: [], // Sin ordenamiento por defecto, se maneja desde el backend
   language: {
       "processing": "Procesando...",
       "lengthMenu": "Mostrar _MENU_ registros",
@@ -256,4 +262,12 @@ $('#tablaRegistros').on('click', '.btn-eliminar', function () {
       }
     }
   });
+});
+
+// Funcionalidad de ordenamiento con radio buttons
+$('input[name="ordenRegistros"]').on('change', function() {
+  ordenActual = $(this).val();
+  
+  // Recargar la tabla con el nuevo orden desde el backend
+  tabla.ajax.reload(null, false);
 });

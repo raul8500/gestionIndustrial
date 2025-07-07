@@ -1,7 +1,8 @@
 <% extraStyles=`
+
     `; %>
     <main style="margin-top: 20px">
-        <div class="container pt-4">
+        <div class="container-xl pt-4">
             <h3 class="text-center">
                 <i class="fa-solid fa-paperclip"></i> Registro de oficios
             </h3>
@@ -13,7 +14,36 @@
                   
             </div>
             
-
+            <!-- Apartado de ordenamiento -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-sort"></i> Ordenar registros</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenNormal" value="normal" checked>
+                                <label class="form-check-label" for="ordenNormal">
+                                    Normal
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenReciente" value="reciente">
+                                <label class="form-check-label" for="ordenReciente">
+                                    Del más reciente al más antiguo
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenAntiguo" value="antiguo">
+                                <label class="form-check-label" for="ordenAntiguo">
+                                    Del más antiguo al más reciente
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="tab-content" id="pills-tabContent2">
                 <div class="table-responsive pt-3">

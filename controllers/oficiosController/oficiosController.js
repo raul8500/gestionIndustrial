@@ -6,7 +6,29 @@ const moment = require('moment-timezone');
 // Obtener todos los oficios
 exports.getAllOficios = async (req, res) => {
   try {
-    const oficios = await Oficio.find().sort({ fecha: -1 });
+    const { orden = 'normal' } = req.query;
+    
+    let sortOption = {};
+    
+    switch(orden) {
+      case 'normal':
+        // Orden normal (sin ordenamiento específico)
+        sortOption = {};
+        break;
+      case 'reciente':
+        // Del más reciente al más antiguo
+        sortOption = { fecha: -1 };
+        break;
+      case 'antiguo':
+        // Del más antiguo al más reciente
+        sortOption = { fecha: 1 };
+        break;
+      default:
+        // Por defecto, orden normal
+        sortOption = {};
+    }
+    
+    const oficios = await Oficio.find().sort(sortOption);
     res.status(200).json({ oficios });
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener los oficios', error: err.message });
