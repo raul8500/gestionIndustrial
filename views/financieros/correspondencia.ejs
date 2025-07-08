@@ -6,6 +6,23 @@
     <button class="btn" id="btnNuevo" style="background-color: #7c1241; color: white;"><i class="fa-solid fa-plus"></i>Nueva</button>
   </div>
 
+  <!-- Apartado de ordenamiento -->
+  <div class="mb-3">
+    <label class="me-3"><i class="fas fa-sort"></i> Ordenar registros:</label>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenNormal" value="normal" checked>
+      <label class="form-check-label" for="ordenNormal">Normal</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenReciente" value="reciente">
+      <label class="form-check-label" for="ordenReciente">Más reciente</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="ordenRegistros" id="ordenAntiguo" value="antiguo">
+      <label class="form-check-label" for="ordenAntiguo">Menos reciente</label>
+    </div>
+  </div>
+
   <div class="table-responsive">
       <table id="tablaCorrespondencia" class="table table-bordered table-hover"></table>
   </div>

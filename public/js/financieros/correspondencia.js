@@ -38,13 +38,16 @@ $(document).ready(() => {
 
     cargarUsuarios();
 
+    // Variable global para el orden actual
+    let ordenActual = 'normal';
+
     const esperarInfoUser = setInterval(() => {
         if (typeof infoUser !== 'undefined' && infoUser._id) {
             clearInterval(esperarInfoUser); // detener el intervalo una vez que ya está cargado
 
             const columnasBase = [
                 { data: 'numeroOficio', title: 'No. Oficio' },
-                { data: 'fechaOficio', title: 'Fecha', render: d => d ? new Date(d).toLocaleDateString() : '' },
+                { data: 'fechaOficio', title: 'Fecha', render: d => d ? new Date(d).toLocaleDateString('es-ES') : '' },
                 { data: 'remitente', title: 'Remitente' },
                 { data: 'asunto', title: 'Asunto' },
                 {
@@ -125,17 +128,16 @@ $(document).ready(() => {
             }
 
 
-
-
-
-
-
             tabla = $('#tablaCorrespondencia').DataTable({
                 ajax: {
                     url: '/api/financieros/correspondencia/',
+                    data: function(d) {
+                        d.orden = ordenActual;
+                    },
                     dataSrc: ''
                 },
                 columns: columnasBase,
+                order: [], // Sin ordenamiento por defecto, se maneja desde el backend
                 language: {
                     "processing": "Procesando...",
                     "lengthMenu": "Mostrar _MENU_ registros",
@@ -159,9 +161,9 @@ $(document).ready(() => {
             });
 
                 $('#btnNuevo').click(() => {
-        $('#formCorrespondencia')[0].reset();
-        $('#idCorrespondencia').val('');
-        $('#modalCorrespondencia').modal('show');
+                $('#formCorrespondencia')[0].reset();
+                $('#idCorrespondencia').val('');
+                $('#modalCorrespondencia').modal('show');
     });
 
         // Enviar a revisión (usuarios sin permisos)
@@ -243,8 +245,8 @@ $(document).ready(() => {
 
         $('#idCorrespondencia').val(data._id);
         $('#numeroOficio').val(data.numeroOficio);
-        $('#fechaOficio').val(data.fechaOficio?.split('T')[0] || '');
-        $('#fechaRecepcion').val(data.fechaRecepcion?.split('T')[0] || '');
+        $('#fechaOficio').val(data.fechaOficio ? new Date(data.fechaOficio).toISOString().split('T')[0] : '');
+        $('#fechaRecepcion').val(data.fechaRecepcion ? new Date(data.fechaRecepcion).toISOString().split('T')[0] : '');
         $('#tipoCorrespondencia').val(data.tipoCorrespondencia);
         $('#remitente').val(data.remitente);
         $('#asunto').val(data.asunto);
@@ -375,6 +377,15 @@ $(document).ready(() => {
         }
     }, 100);
 
+    // Funcionalidad de ordenamiento con radio buttons (después de que la tabla esté inicializada)
+    $('input[name="ordenRegistros"]').off('change').on('change', function() {
+        ordenActual = $(this).val();
+        
+        // Recargar la tabla con el nuevo orden desde el backend
+        if (tabla) {
+            tabla.ajax.reload(null, false);
+        }
+    });
 
 });
 

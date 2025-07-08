@@ -14,13 +14,21 @@ exports.crearCorrespondencia = async (req, res) => {
     const fechaCDMX = moment.tz('America/Mexico_City').format('YYYY-MM-DDTHH:mm:ss');
     const fechaRegistro = moment.utc(fechaCDMX).toDate();
 
-    // Asegurarse de que turnadoA sea null si viene vacío
-    const datos = {
+    // Procesar fechas para evitar problemas de zona horaria
+    let datos = {
       ...req.body,
       archivos,
       turnadoA: req.body.turnadoA === '' ? null : req.body.turnadoA,
       createdAt: fechaRegistro
     };
+
+    // Convertir fechas a zona horaria local
+    if (req.body.fechaOficio) {
+      datos.fechaOficio = moment.tz(req.body.fechaOficio, 'America/Mexico_City').startOf('day').toDate();
+    }
+    if (req.body.fechaRecepcion) {
+      datos.fechaRecepcion = moment.tz(req.body.fechaRecepcion, 'America/Mexico_City').startOf('day').toDate();
+    }
 
     const nueva = new Correspondencia(datos);
     await nueva.save();
@@ -47,6 +55,7 @@ exports.crearCorrespondencia = async (req, res) => {
 exports.obtenerCorrespondencias = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { orden = 'normal' } = req.query;
 
     // Consultar permisos del usuario desde la BD
     const usuario = await Usuario.findById(userId);
@@ -55,9 +64,29 @@ exports.obtenerCorrespondencias = async (req, res) => {
     // Solo ve las que le han sido turnadas si no tiene permiso para crear usuarios
     const filtro = usuario.puedeCrearUsuarios ? {} : { turnadoA: userId };
 
+    let sortOption = {};
+    
+    switch(orden) {
+      case 'normal':
+        // Orden normal (sin ordenamiento específico)
+        sortOption = {};
+        break;
+      case 'reciente':
+        // Del más reciente al más antiguo
+        sortOption = { fechaOficio: -1 };
+        break;
+      case 'antiguo':
+        // Del más antiguo al más reciente
+        sortOption = { fechaOficio: 1 };
+        break;
+      default:
+        // Por defecto, orden normal
+        sortOption = {};
+    }
+
     const correspondencias = await Correspondencia.find(filtro)
       .populate('turnadoA', 'name username')
-      .sort({ createdAt: -1 });
+      .sort(sortOption);
 
     res.json(correspondencias);
   } catch (error) {
@@ -123,9 +152,19 @@ exports.actualizarCorrespondencia = async (req, res) => {
     const nuevoTurnado = req.body.turnadoA === '' ? null : req.body.turnadoA;
     const turnoAnterior = correspondencia.turnadoA?.toString() || null;
 
+    // Procesar fechas para evitar problemas de zona horaria
+    let datosActualizados = { ...req.body, turnadoA: nuevoTurnado, archivos: archivosFinales };
+    
+    if (req.body.fechaOficio) {
+      datosActualizados.fechaOficio = moment.tz(req.body.fechaOficio, 'America/Mexico_City').startOf('day').toDate();
+    }
+    if (req.body.fechaRecepcion) {
+      datosActualizados.fechaRecepcion = moment.tz(req.body.fechaRecepcion, 'America/Mexico_City').startOf('day').toDate();
+    }
+
     const actualizada = await Correspondencia.findByIdAndUpdate(
       id,
-      { ...req.body, turnadoA: nuevoTurnado, archivos: archivosFinales },
+      datosActualizados,
       { new: true }
     );
 
@@ -272,3 +311,5 @@ exports.enviarARevision = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar a revisión' });
   }
 };
+
+
