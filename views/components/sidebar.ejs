@@ -1,0 +1,52 @@
+<!-- Sidebar Component -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <img src="img/logos.png" alt="Logo SEDEMA" class="logo" />
+    </div>
+    <button class="sidebar-toggle" id="sidebarToggle" title="Colapsar/Expandir">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <!-- Navegación principal -->
+    <div class="nav-section">
+      <div class="nav-section-title">Navegación</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="/main" class="nav-link">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+          </a>
+        </li>
+        <!-- Enlaces adicionales según la página -->
+        <% if (typeof additionalNavItems !== 'undefined' && additionalNavItems.length > 0) { %>
+          <% additionalNavItems.forEach(item => { %>
+            <li class="nav-item">
+              <a href="<%= item.href %>" class="nav-link <%= currentPage === item.href ? 'active' : '' %>">
+                <i class="fas <%= item.icon %>"></i>
+                <span><%= item.text %></span>
+              </a>
+            </li>
+          <% }); %>
+        <% } %>
+      </ul>
+    </div>
+
+    <!-- Funciones del usuario (se cargan dinámicamente) -->
+    <div class="nav-section" id="functions-section">
+      <div class="nav-section-title">Funciones</div>
+      <div id="sidebar-functions">
+        <!-- Las funciones se cargarán aquí dinámicamente -->
+      </div>
+    </div>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="logout-btn" id="logoutBtn" title="Cerrar Sesión">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </button>
+  </div>
+</aside>

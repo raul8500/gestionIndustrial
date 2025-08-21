@@ -6,14 +6,17 @@ const nameRol = document.getElementById('name');
 const rol = document.getElementById('rol');
 const options = document.getElementById('options');
 const profilePicture = document.getElementById('profilePicture');
-let infoUser = '';
+
+// Variable para almacenar información del usuario (evitar conflictos)
+let userInfo = '';
+
 verificarTokenYMostrar();
 
 function verificarTokenYMostrar() {
     fetch(verifyToken)
         .then(response => response.json())
         .then(data => {
-            infoUser = data;
+            userInfo = data;
             mostrarRolUsuario(data); // Primero, muestra el rol del usuario
             return data; // Devuelve 'data' para poder usarlo en la siguiente promesa
         })
@@ -25,11 +28,11 @@ function verificarTokenYMostrar() {
 
 function mostrarRolUsuario(data) {
     data.name = capitalizeWords(data.name);
-    nameRol.textContent = data.name;
-    rol.textContent = obtenerNombreRol(data.rol);
-    profilePicture.setAttribute("src", `img/sedemalogo.png`);
+    if (nameRol) nameRol.textContent = data.name;
+    if (rol) rol.textContent = obtenerNombreRol(data.rol);
+    if (profilePicture) profilePicture.setAttribute("src", `img/sedemalogo.png`);
 
-    if (infoUser.rol === 1) {
+    if (userInfo.rol === 1) {
         const estadisticasMain = document.getElementById('estadisticasMain');
 
         if (estadisticasMain != null) {
@@ -75,19 +78,49 @@ function obtenerNombreRol(rol) {
 
 function mostrarFunciones(data) {
   const rol = data.rol;
+  const nombreRol = obtenerNombreRol(rol);
+  
+  console.log('🔍 Obteniendo funciones para rol:', rol, 'nombre:', nombreRol);
+  console.log('👤 Usuario actual:', data);
 
-  fetch(obtenerFunciones + obtenerNombreRol(rol))
+  fetch(obtenerFunciones + nombreRol)
     .then(response => response.json())
     .then(data => {
-      renderizarFuncionesEnCards(data.functions);
+      console.log('📋 Funciones obtenidas del servidor:', data);
+      // Solo mostrar las funciones del rol específico del usuario
+      if (data && data.functions) {
+        console.log('✅ Funciones encontradas:', data.functions);
+        renderizarFuncionesEnCards(data.functions);
+      } else {
+        console.log('❌ No se encontraron funciones para el rol:', nombreRol);
+        renderizarFuncionesEnCards([]);
+      }
     })
-    .catch(error => console.log(error));
+    .catch(error => {
+      console.log('❌ Error al obtener funciones:', error);
+      renderizarFuncionesEnCards([]);
+    });
 }
 
 async function renderizarFuncionesEnCards(data) {
 
   const contenedor = document.getElementById('contenedor-funciones');
   if (!contenedor) return;
+
+  console.log('🎨 Renderizando funciones en cards:', data);
+
+  // Si no hay datos o está vacío, mostrar mensaje
+  if (!data || data.length === 0) {
+    console.log('📝 No hay funciones para renderizar, mostrando mensaje');
+    contenedor.innerHTML = `
+      <div class="text-center p-5">
+        <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No tienes funciones asignadas</h4>
+        <p class="text-muted">Contacta al administrador para que te asigne las funciones correspondientes.</p>
+      </div>
+    `;
+    return;
+  }
 
   let html = '';
 
@@ -106,8 +139,8 @@ async function renderizarFuncionesEnCards(data) {
     area.items.forEach(func => {
       // Ocultar si es del área 5 y no puede crear usuarios, y el item se llama "Usuarios financieros"
       if (
-        infoUser.area === 5 &&
-        infoUser.puedeCrearUsuarios === false &&
+        userInfo.area === 5 &&
+        userInfo.puedeCrearUsuarios === false &&
         func.name === 'Usuarios financieros'
       ) {
         return; // ❌ No renderizar este item

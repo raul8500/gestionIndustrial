@@ -224,17 +224,20 @@ $('#tablaRegistros').on('click', '.btn-editar', async function () {
 });
 
 // Evento delegado para eliminar archivos visualmente
-document.getElementById('listaArchivosActuales').addEventListener('click', function (e) {
-  if (e.target.closest('.btn-eliminar-archivo')) {
-    const item = e.target.closest('.archivo-item');
-    const nombre = item.dataset.nombre;
-    const contenedor = document.getElementById('archivoActualContainer');
-    const aEliminar = JSON.parse(contenedor.dataset.archivosAEliminar || '[]');
-    aEliminar.push(nombre);
-    contenedor.dataset.archivosAEliminar = JSON.stringify(aEliminar);
-    item.remove();
-  }
-});
+const listaArchivosActuales = document.getElementById('listaArchivosActuales');
+if (listaArchivosActuales) {
+  listaArchivosActuales.addEventListener('click', function (e) {
+    if (e.target.closest('.btn-eliminar-archivo')) {
+      const item = e.target.closest('.archivo-item');
+      const nombre = item.dataset.nombre;
+      const contenedor = document.getElementById('archivoActualContainer');
+      const aEliminar = JSON.parse(contenedor.dataset.archivosAEliminar || '[]');
+      aEliminar.push(nombre);
+      contenedor.dataset.archivosAEliminar = JSON.stringify(aEliminar);
+      item.remove();
+    }
+  });
+}
 
 // Eliminar oficio
 $('#tablaRegistros').on('click', '.btn-eliminar', function () {

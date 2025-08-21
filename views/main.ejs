@@ -1,14 +1,47 @@
-<% extraStyles=`
+<% 
+extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+`; 
 
-`; %>
+// Variables para el componente sidebar
+let currentPage = '/main';
+let pageTitle = 'Panel Principal';
+let additionalNavItems = [];
+let isAdmin = true; // Por defecto true para main, se puede cambiar según el usuario
+%>
 
-<main style="margin-top: 20px">
-    <div class="container pt-4">
-      <div class="row" id="contenedor-funciones">
-        <!-- Aquí se inyectarán las tarjetas -->
+<div class="app-container">
+  <!-- Sidebar Component -->
+  <%- include('components/sidebar', { 
+    currentPage: currentPage, 
+    pageTitle: pageTitle, 
+    additionalNavItems: additionalNavItems,
+    isAdmin: isAdmin
+  }) %>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Content Area -->
+    <div class="content-area">
+      <div class="container-fluid">
+        <!-- Información del sistema -->
+        <div class="system-info text-center">
+          <div class="main-logo">
+            <img src="img/sedemalogo.png" alt="Logo SEDEMA" />
+          </div>
+          <h3 class="system-title">SIS Sistema Integral SEDEMA</h3>
+          <div class="datetime-info">
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
+          </div>
+        </div>
       </div>
     </div>
-</main>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="js/components/sidebar.js"></script>
   
 
 

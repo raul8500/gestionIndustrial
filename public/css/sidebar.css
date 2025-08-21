@@ -1,0 +1,405 @@
+/* Estilos para la Sidebar */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: #ffffff;
+  color: #333;
+  position: fixed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid #e9ecef;
+  transition: width 0.3s ease;
+}
+
+/* Sidebar colapsada */
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .function-link span,
+.sidebar.collapsed .logout-btn span {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-toggle i {
+  transform: rotate(180deg);
+}
+
+.sidebar.collapsed .sidebar-nav {
+  padding: 10px 0;
+}
+
+.sidebar.collapsed .nav-link,
+.sidebar.collapsed .function-link {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 10px;
+}
+
+.sidebar.collapsed .logout-btn {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.sidebar-header {
+  padding: 8px 12px;
+  text-align: center;
+  border-bottom: 1px solid #f1f3f4;
+  background: #f8f9fa;
+  position: relative;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  max-height: 80px;
+  overflow: hidden;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.logo-text {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+  color: #495057;
+  line-height: 1.2;
+}
+
+/* Botón de toggle sidebar */
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
+  background: #7c1241;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.sidebar-toggle:hover {
+  background: #9c1d5a;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.sidebar-toggle i {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 20px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #495057;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: #f8f9fa;
+  color: #7c1241;
+  border-left-color: #7c1241;
+}
+
+
+
+.nav-link.active {
+  background: #f8f9fa;
+  color: #7c1241;
+  border-left-color: #7c1241;
+  font-weight: 600;
+}
+
+.nav-link i {
+  font-size: 16px;
+  width: 18px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.nav-link span {
+  flex: 1;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #f1f3f4;
+  margin-top: auto;
+  background: #f8f9fa;
+}
+
+/* Botón de cerrar sesión */
+.logout-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: #7c1241;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.logout-btn:hover {
+  background: #5a0d2f;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 18, 65, 0.3);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(124, 18, 65, 0.2);
+}
+
+.logout-btn i {
+  font-size: 16px;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* Main content cuando sidebar está colapsada */
+.app-container.sidebar-collapsed .main-content {
+  margin-left: 70px;
+}
+
+.content-area {
+  padding: 30px;
+  position: relative;
+  min-height: calc(100vh - 80px); /* Altura completa menos el top-bar */
+}
+
+/* Estilos para las funciones dinámicas */
+.function-item {
+  padding: 10px 20px;
+  margin: 2px 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.function-item:hover {
+  background: #f8f9fa;
+  transform: translateX(4px);
+}
+
+.function-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #495057;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.function-link:hover {
+  color: #7c1241;
+}
+
+.function-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .mobile-toggle {
+    display: block;
+  }
+  
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
+.mobile-toggle {
+  display: none;
+  background: #7c1241;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Información del sistema en el contenido principal */
+.system-info {
+  margin: 0;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.main-logo {
+  margin-bottom: 1.5rem;
+}
+
+.main-logo img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.system-title {
+  color: #7c1241;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Información de fecha y hora en el contenido principal */
+.datetime-info {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.current-date {
+  font-size: 18px;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-family: Arial, sans-serif;
+}
+
+.current-time {
+  font-size: 32px;
+  color: #7c1241;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+}
+
+/* Ajustes para sidebar colapsada */
+.sidebar.collapsed .datetime-info {
+  display: none;
+}
+
+/* Indicador de página actual */
+.current-page-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 8px 0;
+  border-left: 4px solid #7c1241;
+  color: #495057;
+  font-weight: 500;
+}
+
+.current-page-indicator i {
+  color: #7c1241;
+  font-size: 14px;
+}
+
+.current-page-indicator span {
+  font-size: 14px;
+  color: #495057;
+}
