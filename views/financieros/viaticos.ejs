@@ -1,1 +1,143 @@
-<h1>Viaticos en desarrollo</h1>
+<% extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+<style>
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .content-header {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #7c1241;
+  }
+  
+  .content-header h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .content-header .icon {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.2em;
+  }
+  
+  .development-message {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px dashed #7c1241;
+  }
+  
+  .development-icon {
+    font-size: 4rem;
+    color: #7c1241;
+    margin-bottom: 20px;
+  }
+  
+  .development-title {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+  
+  .development-text {
+    color: #6c757d;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  .progress-bar {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    height: 100%;
+    width: 25%;
+    border-radius: 10px;
+    animation: progress 2s ease-in-out infinite;
+  }
+  
+  @keyframes progress {
+    0%, 100% { width: 25%; }
+    50% { width: 35%; }
+  }
+</style>
+`; %>
+
+<div class="app-container">
+  <!-- Sidebar Component -->
+  <%- include('../components/sidebar', { 
+    currentPage: '/controlViaticos', 
+    pageTitle: 'Control de Viáticos', 
+    isAdmin: true
+  }) %>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header Section -->
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3>
+            <i class="fas fa-receipt icon"></i>
+            Control de Viáticos
+          </h3>
+          <p class="text-muted mb-0 mt-2">Sistema de gestión y control de viáticos del área financiera</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Development Message -->
+    <div class="development-message">
+      <div class="development-icon">
+        <i class="fas fa-tools"></i>
+      </div>
+      <div class="development-title">Módulo en Desarrollo</div>
+      <div class="development-text">
+        Estamos trabajando para implementar el sistema completo de control de viáticos.<br>
+        Pronto tendrás acceso a todas las funcionalidades para gestionar solicitudes, 
+        aprobaciones y reportes de viáticos.
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      
+      <div class="development-text">
+        <strong>Progreso actual:</strong> 25% completado
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="js/components/sidebar.js"></script>

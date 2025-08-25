@@ -368,21 +368,21 @@ function inicializarTabla(userInfoData) {
             data: 'status',
             title: 'Estatus',
             render: function (status, type, row) {
-                let badge = '';
-                switch (status) {
-                    case 1:
-                        badge = `<span class="badge bg-warning text-dark fs-6 px-3 py-2">⏳ Pendiente</span>`;
-                        break;
-                    case 2:
-                        badge = `<span class="badge bg-success fs-6 px-3 py-2">✅ Atendido</span>`;
-                        break;
-                    case 3:
-                        badge = `<span class="badge bg-purple text-white fs-6 px-3 py-2" style="background-color: #6f42c1;">🟣 Para revisión</span>`;
-                        break;
-                    default:
-                        badge = `<span class="badge bg-secondary fs-6 px-3 py-2">Desconocido</span>`;
-                        break;
-                }
+                                        let badge = '';
+                        switch (status) {
+                            case 1:
+                                badge = `<span class="status-badge status-pendiente">Pendiente</span>`;
+                                break;
+                            case 2:
+                                badge = `<span class="status-badge status-atendido">Atendido</span>`;
+                                break;
+                            case 3:
+                                badge = `<span class="status-badge status-revision">Para revisión</span>`;
+                                break;
+                            default:
+                                badge = `<span class="status-badge status-desconocido">Desconocido</span>`;
+                                break;
+                        }
 
                 if (userInfoData.puedeCrearUsuarios && status === 3) {
                     return `${badge}<br>

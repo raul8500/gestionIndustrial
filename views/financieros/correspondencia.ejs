@@ -185,6 +185,67 @@
     color: #6c757d;
     font-style: italic;
   }
+  
+  /* Estilos minimalistas para badges de estatus */
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .status-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+  }
+  
+  .status-pendiente:hover {
+    background-color: #ffeaa7;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(133, 100, 4, 0.2);
+  }
+  
+  .status-atendido {
+    background-color: #d1edff;
+    color: #0c5460;
+    border-color: #bee5eb;
+  }
+  
+  .status-atendido:hover {
+    background-color: #bee5eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(12, 84, 96, 0.2);
+  }
+  
+  .status-revision {
+    background-color: #f3e5f5;
+    color: #4a148c;
+    border-color: #e1bee7;
+  }
+  
+  .status-revision:hover {
+    background-color: #e1bee7;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(74, 20, 140, 0.2);
+  }
+  
+  .status-desconocido {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #dee2e6;
+  }
+  
+  .status-desconocido:hover {
+    background-color: #dee2e6;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+  }
 </style>
 `; %>
 
@@ -262,15 +323,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      
-      <!-- Debug Info -->
-      <div class="mt-3 p-3 bg-light rounded">
-        <small class="text-muted">
-          <strong>Debug:</strong> Tabla ID: <code>tablaCorrespondencia</code> | 
-          JavaScript: <code>correspondencia.js</code> | 
-          API: <code>/api/financieros/correspondencia/</code>
-        </small>
       </div>
     </div>
   </main>
@@ -358,6 +410,6 @@
 <!-- Scripts -->
 <script src="js/components/sidebar.js"></script>
 <% extraScripts = `
-  <script src="socket.io/socket.io.js"></script>
+  <script src=" socket.io/socket.io.js"></script>
   <script src="js/financieros/correspondencia.js"></script>
 `; %>
