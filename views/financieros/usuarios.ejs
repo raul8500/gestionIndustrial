@@ -1,36 +1,211 @@
-<% extraStyles=``; %>
+<% extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+<style>
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .content-header {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #7c1241;
+  }
+  
+  .content-header h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .content-header .icon {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.2em;
+  }
+  
+  .action-buttons {
+    margin-top: 20px;
+  }
+  
+  .btn-primary-custom {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(124, 18, 65, 0.3);
+  }
+  
+  .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 18, 65, 0.4);
+    color: white;
+  }
+  
+  .table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .table {
+    margin-bottom: 0;
+  }
+  
+  .table tbody tr {
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .table tbody tr:last-child {
+    border-bottom: none;
+  }
+  
+  .table th {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: center;
+    vertical-align: middle;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .table td {
+    padding: 12px;
+    vertical-align: middle;
+    border-top: none;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(124, 18, 65, 0.15);
+    transition: all 0.2s ease;
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+  }
+  
+  .modal-header .btn-close {
+    filter: invert(1);
+  }
+  
+  .form-check-input:checked {
+    background-color: #7c1241;
+    border-color: #7c1241;
+  }
+  
+  .form-check-label {
+    font-weight: 500;
+    color: #2c3e50;
+  }
+  
+  .btn-group .btn {
+    margin: 0 2px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-group .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .table tbody tr .btn-group {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  
+  .table tbody tr:hover .btn-group {
+    opacity: 1;
+  }
+</style>
+`; %>
 
-    <main style="margin-top: 20px">
-        <div class="container pt-4">
-            <h3 class="text-center">
-                <i class="fas fa-users"></i> Gestión de Usuarios
-            </h3>
+<div class="app-container">
+  <!-- Sidebar Component -->
+  <%- include('../components/sidebar', { 
+    currentPage: '/usuariosFinancieros', 
+    pageTitle: 'Gestión de Usuarios Financieros', 
+    isAdmin: true
+  }) %>
 
-            <div class="d-flex justify-content-end mb-3">
-                <button id="btnNuevoUsuario" class="btn" data-toggle="modal" data-target="#modalUsuario"
-                    style="background-color: #7c1241; color: white;">
-                    <i class="fas fa-user-plus"></i> Registrar usuario
-                </button>
-            </div>
-
-            <div class="tab-content">
-                <div class="table-responsive pt-3">
-                    <table id="tablaUsuarios" class="table align-middle mb-0 bg-white">
-                        <thead class="bg-light text-center">
-                            <tr>
-                                <th>No.</th>
-                                <th>Nombre</th>
-                                <th>Usuario</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header Section -->
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3>
+            <i class="fas fa-users icon"></i>
+            Gestión de Usuarios
+          </h3>
+          <p class="text-muted mb-0 mt-2">Sistema de administración de usuarios del área financiera</p>
         </div>
-    </main>
+        
+        <div class="action-buttons">
+          <button id="btnNuevoUsuario" class="btn btn-primary-custom" data-toggle="modal" data-target="#modalUsuario">
+            <i class="fas fa-user-plus me-2"></i>
+            Registrar Usuario
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+      <div class="tab-content">
+        <div class="table-responsive pt-3">
+          <table id="tablaUsuarios" class="table align-middle mb-0 bg-white">
+            <thead class="bg-light text-center">
+              <tr>
+                <th>No.</th>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+            
 
     <!-- Modal -->
     <div class="modal fade" id="modalUsuario" tabindex="-1" role="dialog" aria-labelledby="modalUsuarioLabel"
@@ -38,8 +213,8 @@
         <div class="modal-dialog" role="document">
             <form id="formUsuario">
                 <div class="modal-content">
-                    <div class="modal-header text-white">
-                        <h5 class="modal-title" id="modalUsuarioLabel" style="color: black;">Registrar usuario</h5>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalUsuarioLabel">Registrar usuario</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -83,8 +258,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn"
-                            style="background-color: #7c1241; color: white;">Guardar</button>
+                        <button type="submit" class="btn btn-primary-custom">Guardar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
@@ -97,8 +271,8 @@
     <div class="modal-dialog" role="document">
         <form id="formPasswordCambio">
         <div class="modal-content">
-            <div class="modal-header text-white">
-            <h5 class="modal-title" id="modalPasswordLabel" style="color: black;">Cambiar contraseña</h5>
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalPasswordLabel">Cambiar contraseña</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -124,7 +298,7 @@
             </div>
 
             <div class="modal-footer">
-            <button type="submit" class="btn" style="background-color: #7c1241; color: white;">Guardar</button>
+            <button type="submit" class="btn btn-primary-custom">Guardar</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
@@ -159,8 +333,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="submit" class="btn" style="background-color: #7c1241; color: white;">Guardar</button>            
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #7c1241;">Cancelar</button>
+            <button type="submit" class="btn btn-primary-custom">Guardar</button>            
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
         </form>
     </div>
@@ -168,6 +342,9 @@
 
 
 
-    <% extraScripts=` <script src="/js/financieros/usuarios.js">
-        </script>
-        `; %>
+    <!-- Scripts -->
+    <script src="js/components/sidebar.js"></script>
+
+    <% extraScripts=` 
+    <script src="/js/financieros/usuarios.js"></script>
+    `; %>

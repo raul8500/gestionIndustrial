@@ -1,10 +1,21 @@
 let tabla;
+// Variable global para el orden actual
+let ordenActual = 'normal';
 
 $(document).ready(() => {
+    console.log('🚀 Correspondencia.js cargado correctamente');
+    console.log('📊 Inicializando tabla de correspondencia...');
+    console.log('🔍 Verificando elementos del DOM...');
+    
+    // Verificar que los elementos existan
+    console.log('Tabla encontrada:', $('#tablaCorrespondencia').length);
+    console.log('Botón nuevo encontrado:', $('#btnNuevo').length);
+    console.log('Modal encontrado:', $('#modalCorrespondencia').length);
+    
     const socket = io();
 
     socket.on('correspondencia-asignada', data => {
-        const usuarioActual = infoUser._id;
+        const usuarioActual = userInfo._id;
         if (usuarioActual === data.para) {
             Swal.fire({
                 icon: 'info',
@@ -24,7 +35,7 @@ $(document).ready(() => {
 
 
     socket.on('correspondencia-enviada-revision', data => {
-        if (infoUser.puedeCrearUsuarios) {
+        if (userInfo.puedeCrearUsuarios) {
             Swal.fire({
             icon: 'info',
             title: '📤 Correspondencia recibida para revisión',
@@ -38,127 +49,39 @@ $(document).ready(() => {
 
     cargarUsuarios();
 
-    // Variable global para el orden actual
-    let ordenActual = 'normal';
-
-    const esperarInfoUser = setInterval(() => {
-        if (typeof infoUser !== 'undefined' && infoUser._id) {
-            clearInterval(esperarInfoUser); // detener el intervalo una vez que ya está cargado
-
-            const columnasBase = [
-                { data: 'numeroOficio', title: 'No. Oficio' },
-                { data: 'fechaOficio', title: 'Fecha', render: d => d ? new Date(d).toLocaleDateString('es-ES') : '' },
-                { data: 'remitente', title: 'Remitente' },
-                { data: 'asunto', title: 'Asunto' },
-                {
-                    data: 'status',
-                    title: 'Estatus',
-                    render: function (status, type, row) {
-                        let badge = '';
-                        switch (status) {
-                            case 1:
-                                badge = `<span class="badge bg-warning text-dark fs-6 px-3 py-2">⏳ Pendiente</span>`;
-                                break;
-                            case 2:
-                                badge = `<span class="badge bg-success fs-6 px-3 py-2">✅ Atendido</span>`;
-                                break;
-                            case 3:
-                                badge = `<span class="badge bg-purple text-white fs-6 px-3 py-2" style="background-color: #6f42c1;">🟣 Para revisión</span>`;
-                                break;
-                            default:
-                                badge = `<span class="badge bg-secondary fs-6 px-3 py-2">Desconocido</span>`;
-                                break;
-                        }
-
-                        if (infoUser.puedeCrearUsuarios && status === 3) {
-                            return `${badge}<br>
-                                <button class="btn btn-outline-success btn-sm mt-1 aprobar-status" data-id="${row._id}"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-outline-danger btn-sm mt-1 rechazar-status" data-id="${row._id}"><i class="fas fa-times"></i></button>`;
-                        }
-                        return badge;
-                    }
-                },
-                { data: 'turnadoA', title: 'Turnado a', render: d => d?.name || '' },
-
-                // NUEVA columna "Docs" para descargas (visible para todos)
-                {
-                    data: 'archivos',
-                    title: 'Docs',
-                    orderable: false,
-                    render: function (archivos) {
-                        if (!Array.isArray(archivos) || archivos.length === 0) {
-                            return '<span class="text-muted">Sin archivos</span>';
-                        }
-
-                        return archivos.map(nombre => `
-                            <a href="/archivos/${nombre}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="${nombre}">
-                                <i class="fas fa-file-download"></i>
-                            </a>
-                        `).join('');
-                    }
-                }
-            ];
-
-            // Columna de acciones según permisos
-            if (infoUser.puedeCrearUsuarios) {
-                columnasBase.push({
-                    data: null,
-                    title: 'Acciones',
-                    orderable: false,
-                    render: function (data, type, row) {
-                        return `
-                            <button class="btn btn-warning btn-sm editar" data-id="${row._id}"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-danger btn-sm eliminar" data-id="${row._id}"><i class="fas fa-trash-alt"></i></button>
-                            <button class="btn btn-info btn-sm respaldar" data-id="${row._id}"><i class="fas fa-save"></i></button>
-                        `;
-                    }
-                });
+    console.log('⏳ Esperando que userInfo esté disponible...');
+    console.log('🔍 Estado actual de userInfo:', typeof userInfo, userInfo);
+    
+    // Timeout de seguridad para evitar esperar indefinidamente
+    setTimeout(() => {
+        if (esperarInfoUser) {
+            clearInterval(esperarInfoUser);
+            console.error('❌ Timeout: userInfo no disponible después de 10 segundos');
+            console.log('🔧 Intentando inicializar con datos por defecto...');
+            // Verificar que la tabla no esté ya inicializada
+            if (!tabla || !tabla.table()) {
+                inicializarTablaConPermisosPorDefecto();
             } else {
-                columnasBase.push({
-                    data: null,
-                    title: 'Acción',
-                    orderable: false,
-                    render: function (data, type, row) {
-                        if (row.status !== 1) {
-                            return `<button class="btn btn-outline-secondary btn-sm" disabled>Sin acciones</button>`;
-                        }
-                        return `<button class="btn btn-outline-primary btn-sm enviar-revision" data-id="${row._id}">📤 Enviar a revisión</button>`;
-                    }
-                });
+                console.log('⚠️ La tabla ya está inicializada, saltando inicialización por defecto...');
             }
+        }
+    }, 10000);
+    
+    const esperarInfoUser = setInterval(() => {
+        console.log('🔄 Verificando userInfo:', typeof userInfo, userInfo);
+        if (typeof userInfo !== 'undefined' && userInfo._id) {
+            clearInterval(esperarInfoUser); // detener el intervalo una vez que ya está cargado
+            console.log('👤 UserInfo cargado:', userInfo);
+            console.log('✅ UserInfo validado, procediendo con la inicialización...');
 
-
-            tabla = $('#tablaCorrespondencia').DataTable({
-                ajax: {
-                    url: '/api/financieros/correspondencia/',
-                    data: function(d) {
-                        d.orden = ordenActual;
-                    },
-                    dataSrc: ''
-                },
-                columns: columnasBase,
-                order: [], // Sin ordenamiento por defecto, se maneja desde el backend
-                language: {
-                    "processing": "Procesando...",
-                    "lengthMenu": "Mostrar _MENU_ registros",
-                    "zeroRecords": "No se encontraron resultados",
-                    "emptyTable": "Ningún dato disponible en esta tabla",
-                    "info": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                    "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-                    "infoFiltered": "(filtrado de un total de _MAX_ registros)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primera",
-                        "previous": "Anterior",
-                        "next": "Siguiente",
-                        "last": "Última"
-                    },
-                    "aria": {
-                        "sortAscending": ": Activar para ordenar la columna de manera ascendente",
-                        "sortDescending": ": Activar para ordenar la columna de manera descendente"
-                    }
-                }
-            });
+            // Verificar que la tabla no esté ya inicializada
+            if (!tabla || !tabla.table()) {
+                // Llamar a la función de inicialización con los datos del usuario
+                console.log('🎯 Llamando a inicializarTabla con:', userInfo);
+                inicializarTabla(userInfo);
+            } else {
+                console.log('⚠️ La tabla ya está inicializada, saltando inicialización...');
+            }
 
                 $('#btnNuevo').click(() => {
                 $('#formCorrespondencia')[0].reset();
@@ -398,6 +321,169 @@ async function cargarUsuarios() {
         $select.append(`<option value="${u._id}">${u.name} (${u.username})</option>`);
     });
 
+}
+
+// Función de inicialización por defecto cuando userInfo no está disponible
+function inicializarTablaConPermisosPorDefecto() {
+    console.log('🔧 Inicializando tabla con permisos por defecto...');
+    
+    // Asumir permisos básicos por defecto
+    const permisosPorDefecto = {
+        puedeCrearUsuarios: false,
+        _id: 'default'
+    };
+    
+    // Crear una variable temporal para la inicialización
+    const userInfoTemp = permisosPorDefecto;
+    
+    // Llamar a la función de inicialización con permisos por defecto
+    inicializarTabla(userInfoTemp);
+}
+
+// Función principal de inicialización de la tabla
+function inicializarTabla(userInfoData) {
+    // Verificar que no se esté ejecutando ya
+    if (window.tablaInicializandose) {
+        console.log('⚠️ La tabla ya se está inicializando, saltando...');
+        return;
+    }
+    
+    window.tablaInicializandose = true;
+    console.log('🔧 Inicializando tabla con datos:', userInfoData);
+    console.log('📊 Variable ordenActual disponible:', ordenActual);
+    
+    // Verificar si la tabla ya está inicializada
+    if (tabla && tabla.table()) {
+        console.log('⚠️ La tabla ya está inicializada, destruyendo antes de reinicializar...');
+        tabla.destroy();
+        tabla = null;
+    }
+    
+    const columnasBase = [
+        { data: 'numeroOficio', title: 'No. Oficio' },
+        { data: 'fechaOficio', title: 'Fecha', render: d => d ? new Date(d).toLocaleDateString('es-ES') : '' },
+        { data: 'remitente', title: 'Remitente' },
+        { data: 'asunto', title: 'Asunto' },
+        {
+            data: 'status',
+            title: 'Estatus',
+            render: function (status, type, row) {
+                let badge = '';
+                switch (status) {
+                    case 1:
+                        badge = `<span class="badge bg-warning text-dark fs-6 px-3 py-2">⏳ Pendiente</span>`;
+                        break;
+                    case 2:
+                        badge = `<span class="badge bg-success fs-6 px-3 py-2">✅ Atendido</span>`;
+                        break;
+                    case 3:
+                        badge = `<span class="badge bg-purple text-white fs-6 px-3 py-2" style="background-color: #6f42c1;">🟣 Para revisión</span>`;
+                        break;
+                    default:
+                        badge = `<span class="badge bg-secondary fs-6 px-3 py-2">Desconocido</span>`;
+                        break;
+                }
+
+                if (userInfoData.puedeCrearUsuarios && status === 3) {
+                    return `${badge}<br>
+                        <button class="btn btn-outline-success btn-sm mt-1 aprobar-status" data-id="${row._id}"><i class="fas fa-check"></i></button>
+                        <button class="btn btn-outline-danger btn-sm mt-1 rechazar-status" data-id="${row._id}"><i class="fas fa-times"></i></button>`;
+                }
+                return badge;
+            }
+        },
+        { data: 'turnadoA', title: 'Turnado a', render: d => d?.name || '' },
+        {
+            data: 'archivos',
+            title: 'Docs',
+            orderable: false,
+            render: function (archivos) {
+                if (!Array.isArray(archivos) || archivos.length === 0) {
+                    return '<span class="text-muted">Sin archivos</span>';
+                }
+
+                return archivos.map(nombre => `
+                    <a href="/archivos/${nombre}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="${nombre}">
+                        <i class="fas fa-file-download"></i>
+                    </a>
+                `).join('');
+            }
+        }
+    ];
+
+    // Columna de acciones según permisos
+    if (userInfoData.puedeCrearUsuarios) {
+        columnasBase.push({
+            data: null,
+            title: 'Acciones',
+            orderable: false,
+            render: function (data, type, row) {
+                return `
+                    <button class="btn btn-warning btn-sm editar" data-id="${row._id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger btn-sm eliminar" data-id="${row._id}"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn btn-info btn-sm respaldar" data-id="${row._id}"><i class="fas fa-save"></i></button>
+                `;
+            }
+        });
+    } else {
+        columnasBase.push({
+            data: null,
+            title: 'Acción',
+            orderable: false,
+            render: function (data, type, row) {
+                if (row.status !== 1) {
+                    return `<button class="btn btn-outline-secondary btn-sm" disabled>Sin acciones</button>`;
+                }
+                return `<button class="btn btn-outline-primary btn-sm enviar-revision" data-id="${row._id}">📤 Enviar a revisión</button>`;
+            }
+        });
+    }
+
+    console.log('🔧 Inicializando DataTable con columnas:', columnasBase.length);
+    
+    try {
+        tabla = $('#tablaCorrespondencia').DataTable({
+            ajax: {
+                url: '/api/financieros/correspondencia/',
+                data: function(d) {
+                    d.orden = ordenActual;
+                },
+                dataSrc: ''
+            },
+            columns: columnasBase,
+            order: [],
+            language: {
+                "processing": "Procesando...",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "zeroRecords": "No se encontraron resultados",
+                "emptyTable": "Ningún dato disponible en esta tabla",
+                "info": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primera",
+                    "previous": "Anterior",
+                    "next": "Siguiente",
+                    "last": "Última"
+                },
+                "aria": {
+                    "sortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error al inicializar DataTable:', error);
+        window.tablaInicializandose = false;
+        return;
+    }
+    
+    console.log('✅ DataTable inicializado correctamente');
+    console.log('📊 Tabla lista para mostrar datos');
+    
+    // Reset de la bandera de inicialización
+    window.tablaInicializandose = false;
 }
 
 
