@@ -2,62 +2,57 @@
 extraStyles=`
 <link rel="stylesheet" href="css/sidebar.css" />
 <style>
-  .page-header {
-    background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-    border-radius: 0 0 20px 20px;
-    box-shadow: 0 4px 20px rgba(124, 18, 65, 0.3);
-    position: relative;
-  }
-  
-  .page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  }
-  
-  .page-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin-top: 0.5rem;
-  }
-
-  .table-type-indicator {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-  }
-
-  .badge {
-    font-size: 0.75rem;
-    padding: 0.5rem 0.75rem;
-  }
-  
-  .action-bar {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
+  .app-container {
     display: flex;
-    justify-content: space-between;
+    min-height: 100vh;
+    flex-direction: row;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .content-header {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #7c1241;
+  }
+  
+  .content-header h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    border: 1px solid #e9ecef;
+    gap: 12px;
+  }
+  
+  .content-header .icon {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.2em;
+  }
+  
+  .action-buttons {
+    margin-top: 20px;
   }
   
   .btn-primary-custom {
-    background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
     border: none;
     color: white;
     padding: 12px 24px;
     border-radius: 25px;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 500;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(124, 18, 65, 0.3);
   }
@@ -68,367 +63,827 @@ extraStyles=`
     color: white;
   }
   
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .stat-card {
+  .filters-section {
     background: white;
-    padding: 1.5rem;
     border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
-    position: relative;
-    overflow: hidden;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
+  .filters-section h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  .filters-section .icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 0.8em;
   }
   
-  .stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #7c1241;
-    margin-bottom: 0.5rem;
+  .form-check {
+    margin-bottom: 8px;
   }
   
-  .stat-label {
-    color: #6c757d;
+  .form-check-input:checked {
+    background-color: #7c1241;
+    border-color: #7c1241;
+  }
+  
+  .form-check-label {
+    color: #34495e;
     font-weight: 500;
-    font-size: 1rem;
+    cursor: pointer;
   }
   
-  .content-card {
+  .table-container {
     background: white;
     border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    border: 1px solid #e9ecef;
   }
   
-  .card-header-custom {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
-    position: relative;
-  }
-  
-  .card-header-custom::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
-  }
-  
-  .card-title-custom {
-    margin: 0;
-    color: #495057;
-    font-weight: 600;
-    font-size: 1.2rem;
-  }
-  
-  .table-custom {
+  .table {
     margin: 0;
   }
   
-  .table-custom thead th {
-    background: #f8f9fa;
+  .table thead th {
+    background: white;
     border: none;
-    padding: 1rem;
+    color: #000000;
     font-weight: 600;
-    color: #495057;
-    font-size: 0.9rem;
+    padding: 15px 12px;
+    text-align: center;
+    font-size: 0.9em;
+  }
+  
+  .table tbody td {
+    padding: 15px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    border-radius: 15px 15px 0 0;
+    padding: 20px 25px;
+  }
+  
+  .modal-title {
+    color: white !important;
+    font-weight: 600;
+  }
+  
+  .modal-body {
+    padding: 25px;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+  
+  .form-control {
+    border-radius: 8px;
+    border: 2px solid #ecf0f1;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #7c1241;
+    box-shadow: 0 0 0 0.2rem rgba(124, 18, 65, 0.25);
+  }
+  
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+  }
+  
+  .btn-close {
+    filter: invert(1);
+  }
+  
+  /* Stats Cards */
+  .stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .stats-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2em;
+  }
+  
+  .stats-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stats-number {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+  }
+  
+  .stats-label {
+    font-size: 0.8em;
+    color: #7f8c8d;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
   
-  .table-custom tbody td {
-    padding: 1rem;
-    border: none;
-    border-bottom: 1px solid #f1f3f4;
-    vertical-align: middle;
-  }
-  
-  .table-custom tbody tr:hover {
-    background: #f8f9fa;
-    transform: scale(1.01);
-    transition: all 0.2s ease;
-  }
-  
-  .table-custom tbody tr {
-    transition: all 0.2s ease;
-  }
-  
-  .status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  
-  .status-pendiente { background: #fff3cd; color: #856404; }
-  .status-proceso { background: #d1ecf1; color: #0c5460; }
-  .status-finalizado { background: #d4edda; color: #155724; }
-  
-  .btn-action {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
+  /* Pagination */
+  .pagination .page-link {
+    border-radius: 6px;
     margin: 0 2px;
+    border: 1px solid #dee2e6;
+    color: #7c1241;
   }
   
-  .btn-edit { background: #17a2b8; color: white; border: none; }
-  .btn-delete { background: #dc3545; color: white; border: none; }
-  .btn-view { background: #28a745; color: white; border: none; }
+  .pagination .page-link:hover {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
   
-  @media (max-width: 768px) {
-    .page-title { font-size: 2rem; }
-    .action-bar { flex-direction: column; align-items: stretch; }
-    .stats-grid { grid-template-columns: 1fr; }
-    .table-type-indicator { 
-      position: static; 
-      margin-top: 1rem; 
-      text-align: center; 
+  .pagination .page-item.active .page-link {
+    background-color: #7c1241;
+    border-color: #7c1241;
+  }
+  
+  /* Loading states */
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Filter buttons */
+  .btn-outline-primary {
+    border-color: #7c1241;
+    color: #7c1241;
+  }
+  
+  .btn-outline-primary:hover,
+  .btn-outline-primary:focus,
+  .btn-outline-primary:active {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
+  
+  .btn-check:checked + .btn-outline-primary {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
+  
+  @media (max-width: 1200px) {
+    .stats-card {
+      margin-bottom: 15px;
     }
   }
+  
+  @media (max-width: 768px) {
+    .main-content {
+      padding: 10px;
+    }
+    
+    .content-header, .filters-section, .table-container {
+      padding: 15px;
+    }
+    
+    .content-header h3 {
+      font-size: 1.5em;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+    
+    .action-buttons {
+      margin-top: 15px;
+      text-align: center;
+    }
+    
+    .btn-primary-custom {
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .filters-section .row {
+      margin: 0;
+    }
+    
+    .filters-section .col-md-4,
+    .filters-section .col-md-2 {
+      margin-bottom: 15px;
+    }
+    
+    .filters-section .d-flex.justify-content-between {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .filters-section .d-flex.justify-content-between > div {
+      width: 100%;
+      text-align: center;
+    }
+    
+    .btn-group {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .btn-group .btn {
+      margin: 2px;
+    }
+    
+    .stats-card {
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .stats-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9em;
+    }
+    
+    .stats-number {
+      font-size: 1.1em;
+    }
+    
+    .stats-label {
+      font-size: 0.7em;
+    }
+    
+    .table-responsive {
+      font-size: 0.8em;
+    }
+    
+    .table thead th,
+    .table tbody td {
+      padding: 8px 6px;
+    }
+    
+    .pagination {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .pagination .page-link {
+      padding: 6px 10px;
+      font-size: 0.9em;
+    }
+    
+    .d-flex.justify-content-between.align-items-center {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+    }
+    
+    .d-flex.justify-content-between.align-items-center > div {
+      width: 100%;
+    }
+    
+    #limitSelect {
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .main-content {
+      padding: 8px;
+    }
+    
+    .content-header, .filters-section, .table-container {
+      padding: 12px;
+    }
+    
+    .content-header h3 {
+      font-size: 1.3em;
+    }
+    
+    .stats-card {
+      padding: 8px;
+    }
+    
+    .stats-icon {
+      width: 25px;
+      height: 25px;
+      font-size: 0.8em;
+    }
+    
+    .stats-number {
+      font-size: 1em;
+    }
+    
+    .stats-label {
+      font-size: 0.65em;
+    }
+    
+    .btn-primary-custom {
+      padding: 10px 16px;
+      font-size: 0.9em;
+    }
+    
+    .table-responsive {
+      font-size: 0.75em;
+    }
+    
+    .table thead th,
+    .table tbody td {
+      padding: 6px 4px;
+    }
+    
+    .btn-group .btn {
+      padding: 4px 6px;
+      font-size: 0.8em;
+    }
+    
+    .content-header h3 {
+      font-size: 1.2em;
+    }
+    
+    .content-header p {
+      font-size: 0.9em;
+    }
+  }
+  
+  /* Asegurar que no haya desbordamiento horizontal */
+  .filters-section,
+  .table-container,
+  .content-header {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Tabla estática sin scroll horizontal */
+  .table-responsive {
+    border: 0;
+    overflow-x: visible;
+    width: 100%;
+  }
+  
+  .table {
+    width: 100%;
+    table-layout: fixed;
+    margin: 0;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  /* Definir anchos específicos para cada columna */
+  .table th:nth-child(1), .table td:nth-child(1) { width: 12%; } /* No. Oficio */
+  .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Fecha */
+  .table th:nth-child(3), .table td:nth-child(3) { width: 8%; }  /* Tipo */
+  .table th:nth-child(4), .table td:nth-child(4) { width: 20%; } /* Institución */
+  .table th:nth-child(5), .table td:nth-child(5) { width: 25%; } /* Asunto */
+  .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Status */
+  .table th:nth-child(7), .table td:nth-child(7) { width: 15%; } /* Acciones */
+  
+  /* Mejorar la apariencia de las celdas */
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+  }
+  
+  .table tbody tr:nth-child(even):hover {
+    background-color: #e9ecef;
+  }
+  
+  /* Ajustar botones de acción en móviles */
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Asegurar que el texto largo se maneje correctamente */
+  .text-truncate {
+    max-width: 100%;
+    display: block;
+  }
 </style>
-`; 
-
-// Variables para el componente sidebar
-let currentPage = '/oficios';
-let pageTitle = 'Registro de Oficios';
-let additionalNavItems = []; // Sin enlaces adicionales ya que la ruta /oficios no existe
-let isAdmin = false; // Usuarios de oficios no son admin por defecto
-%>
+`; %>
 
 <div class="app-container">
   <!-- Sidebar Component -->
   <%- include('../components/sidebar', { 
-    currentPage: currentPage, 
-    pageTitle: pageTitle, 
-    additionalNavItems: additionalNavItems,
-    isAdmin: isAdmin
+    currentPage: '/oficios', 
+    pageTitle: 'Gestión de Oficios', 
+    isAdmin: true
   }) %>
 
   <!-- Main Content -->
   <main class="main-content">
-    <!-- Content Area -->
-    <div class="content-area">
-            <!-- Page Header -->
-      <div class="page-header">
-        <div class="container-fluid">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 class="page-title">
-                <i class="fa-solid fa-paperclip me-3"></i>
-                Gestión de Oficios
-              </h1>
-              <p class="page-subtitle">Administra los oficios de tu departamento</p>
-            </div>
-            <div class="table-type-indicator">
-              <span class="badge bg-success">Bootstrap (Servidor)</span>
-            </div>
+    <!-- Header Section -->
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3>
+            <i class="fas fa-paperclip icon"></i>
+            Gestión de Oficios
+          </h3>
+          <p class="text-muted mb-0 mt-2">Sistema de registro y seguimiento de correspondencia oficial</p>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="btnNuevoOficio" class="btn btn-primary-custom" data-toggle="modal" data-target="#modalOficio">
+            <i class="fas fa-plus me-2"></i>
+            Registrar Nuevo Oficio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filters Section -->
+    <div class="filters-section">
+      <div class="row g-3">
+        <!-- Búsqueda -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <label class="form-label">
+            <i class="fas fa-search me-2"></i>Búsqueda
+          </label>
+          <input type="text" id="searchInput" class="form-control" placeholder="Buscar por número, institución, asunto...">
+        </div>
+        
+        <!-- Tipo de Correspondencia -->
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-filter me-2"></i>Tipo
+          </label>
+          <select id="filterTipo" class="form-control">
+            <option value="">Todos</option>
+            <option value="1">Interna</option>
+            <option value="2">Externa</option>
+          </select>
+        </div>
+        
+        <!-- Status -->
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-info-circle me-2"></i>Estatus
+          </label>
+          <select id="filterStatus" class="form-control">
+            <option value="">Todos</option>
+            <option value="1">Pendiente</option>
+            <option value="2">En proceso</option>
+            <option value="3">Finalizado</option>
+          </select>
+        </div>
+        
+        <!-- Fecha Desde -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-calendar me-2"></i>Desde
+          </label>
+          <input type="date" id="filterFechaDesde" class="form-control">
+        </div>
+        
+        <!-- Fecha Hasta -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-calendar me-2"></i>Hasta
+          </label>
+          <input type="date" id="filterFechaHasta" class="form-control">
+        </div>
+      </div>
+      
+      <!-- Botones de filtros -->
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="d-flex gap-2">
+          <button id="btnAplicarFiltros" class="btn btn-primary-custom btn-sm">
+            <i class="fas fa-filter me-2"></i>Aplicar Filtros
+          </button>
+          <button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-times me-2"></i>Limpiar
+          </button>
+          <button id="btnExportar" class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel me-2"></i>Exportar
+          </button>
+        </div>
+        
+        <!-- Ordenamiento -->
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">Ordenar por:</span>
+          <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="ordenRegistros" id="ordenNormal" value="normal" checked>
+            <label class="btn btn-outline-primary" for="ordenNormal">Normal</label>
+            
+            <input type="radio" class="btn-check" name="ordenRegistros" id="ordenReciente" value="reciente">
+            <label class="btn btn-outline-primary" for="ordenReciente">Reciente</label>
+            
+            <input type="radio" class="btn-check" name="ordenRegistros" id="ordenAntiguo" value="antiguo">
+            <label class="btn btn-outline-primary" for="ordenAntiguo">Antiguo</label>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="container-fluid">
-        <!-- Action Bar -->
-        <div class="action-bar">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="mb-0 text-dark">
-                <i class="fas fa-tasks me-2"></i>
-                Panel de Control
-              </h5>
-            </div>
-            <button id="btnNuevoOficio" class="btn btn-primary-custom" data-toggle="modal" data-target="#modalOficio">
-              <i class="fas fa-plus me-2"></i>
-              Registrar Nuevo Oficio
-            </button>
+    <!-- Stats Cards -->
+    <div class="row mb-3 g-2">
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-primary">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-number" id="totalOficios">-</span>
+            <span class="stats-label">Total</span>
           </div>
         </div>
-
-        <!-- Statistics Grid -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number">24</div>
-            <div class="stat-label">Total de Oficios</div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-warning">
+            <i class="fas fa-clock"></i>
           </div>
-          <div class="stat-card">
-            <div class="stat-number">8</div>
-            <div class="stat-label">Pendientes</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">12</div>
-            <div class="stat-label">En Proceso</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">4</div>
-            <div class="stat-label">Finalizados</div>
+          <div class="stats-info">
+            <span class="stats-number" id="pendientes">-</span>
+            <span class="stats-label">Pendientes</span>
           </div>
         </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-info">
+            <i class="fas fa-spinner"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-number" id="enProceso">-</span>
+            <span class="stats-label">En Proceso</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-number" id="finalizados">-</span>
+            <span class="stats-label">Finalizados</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-secondary">
+            <i class="fas fa-building"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-number" id="internos">-</span>
+            <span class="stats-label">Internos</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+        <div class="stats-card">
+          <div class="stats-icon bg-dark">
+            <i class="fas fa-external-link-alt"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-number" id="externos">-</span>
+            <span class="stats-label">Externos</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Main Content Card -->
-        <div class="content-card">
-          <div class="card-header-custom">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title-custom">
-                <i class="fas fa-list me-2"></i>
-                Lista de Oficios
-              </h5>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary btn-sm">
-                  <i class="fas fa-filter me-1"></i>
-                  Filtros
-                </button>
-                <button class="btn btn-outline-secondary btn-sm">
-                  <i class="fas fa-download me-1"></i>
-                  Exportar
-                </button>
-              </div>
-            </div>
+    <!-- Table Section -->
+    <div class="table-container">
+      <!-- Loading indicator -->
+      <div id="loadingIndicator" class="text-center py-4" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2 text-muted">Cargando oficios...</p>
+      </div>
+      
+      <!-- Table -->
+      <div id="tableContent" style="display: none;">
+        <div class="table-responsive">
+          <table id="tablaRegistros" class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="text-center">No. Oficio</th>
+                <th class="text-center">Fecha</th>
+                <th class="text-center">Tipo</th>
+                <th>Institución</th>
+                <th>Asunto</th>
+                <th class="text-center">Estatus</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>                        
+            <tbody>
+              <!-- Los registros se cargarán dinámicamente aquí -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Mostrando</span>
+            <select id="limitSelect" class="form-select form-select-sm" style="width: auto;">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-muted small">registros por página</span>
           </div>
           
-          <div class="table-responsive">
-            <table id="tablaRegistros" class="table table-custom">
-              <thead>
-                <tr>
-                  <th>No. de Oficio</th>
-                  <th>Fecha</th>
-                  <th>Tipo</th>
-                  <th>Institución</th>
-                  <th>Asunto</th>
-                  <th>Departamento</th>
-                  <th>Status</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>                        
-              <tbody>
-                <!-- Los datos se cargarán dinámicamente -->
-              </tbody>
-            </table>
-          </div>
+          <nav aria-label="Paginación de oficios">
+            <ul class="pagination pagination-sm mb-0" id="pagination">
+              <!-- La paginación se generará dinámicamente -->
+            </ul>
+          </nav>
         </div>
+      </div>
+      
+      <!-- No results message -->
+      <div id="noResults" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No se encontraron resultados</h5>
+        <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
       </div>
     </div>
   </main>
 </div>
 
-<!-- Modal -->
+<!-- Modal para Registrar/Editar Oficio -->
 <div class="modal fade" id="modalOficio" tabindex="-1" role="dialog" aria-labelledby="modalOficioLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <form id="formOficio" enctype="multipart/form-data">
       <div class="modal-content">
-        <div class="modal-header" style="background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%); color: white;">
+        <div class="modal-header">
           <h5 class="modal-title" id="modalOficioLabel">
-            <i class="fas fa-plus-circle me-2"></i>
+            <i class="fas fa-plus me-2"></i>
             Registrar Nuevo Oficio
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-
-        <div class="modal-body row g-3 p-4">
-          <div class="col-md-6">
-            <label class="form-label fw-bold">No. de Oficio</label>
-            <input type="text" name="noOficio" class="form-control" autocomplete="off" placeholder="Ingrese el número de oficio">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Fecha</label>
-            <input type="date" name="fecha" class="form-control" autocomplete="off">
-          </div>
-          <div class="col-md-6">
-            <label for="tipoCorrespondencia" class="form-label fw-bold">Tipo de Correspondencia</label>
-            <select class="form-control" name="tipoCorrespondencia" required>
-              <option value="" selected>Selecciona una opción</option>
-              <option value="1">Interna</option>
-              <option value="2">Externa</option>
-            </select>
-          </div>
-          
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Institución</label>
-            <input type="text" name="institucion" class="form-control" autocomplete="off" placeholder="Nombre de la institución">
-          </div>
-          <div class="col-md-12">
-            <label class="form-label fw-bold">Asunto</label>
-            <input type="text" name="asunto" class="form-control" autocomplete="off" placeholder="Descripción del asunto">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Tipo de Respuesta</label>
-            <input type="text" name="tipoRespuesta" class="form-control" autocomplete="off" placeholder="Tipo de respuesta requerida">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Departamento Turnado</label>
-            <div class="row g-2">
-              <div class="col-6">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Financieros" id="depFinancieros">
-                  <label class="form-check-label" for="depFinancieros">Financieros</label>
+  
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Número de Oficio</label>
+              <input type="text" name="noOficio" class="form-control" autocomplete="off" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" name="fecha" class="form-control" autocomplete="off" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="tipoCorrespondencia">Tipo de Correspondencia</label>
+              <select class="form-control" name="tipoCorrespondencia" required>
+                <option value="" selected>Selecciona una opción</option>
+                <option value="1">Interna</option>
+                <option value="2">Externa</option>
+              </select>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Institución</label>
+              <input type="text" name="institucion" class="form-control" autocomplete="off" required>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Asunto</label>
+              <input type="text" name="asunto" class="form-control" autocomplete="off" required>
+            </div>
+                            <div class="col-md-6">
+                  <label class="form-label">Tipo de Respuesta</label>
+                  <select class="form-control" name="tipoRespuesta" autocomplete="off">
+                    <option value="" selected>Selecciona una opción</option>
+                    <option value="Respuesta firmativa">Respuesta firmativa</option>
+                    <option value="Respuesta negativa">Respuesta negativa</option>
+                    <option value="Respuesta condicional o parcial">Respuesta condicional o parcial</option>
+                    <option value="Canalización o turnado">Canalización o turnado</option>
+                    <option value="Respuesta informativa">Respuesta informativa</option>
+                    <option value="Prorroga">Prorroga</option>
+                    <option value="Acuse de recibo">Acuse de recibo</option>
+                  </select>
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Humanos" id="depHumanos">
-                  <label class="form-check-label" for="depHumanos">Humanos</label>
+            
+            <div class="col-md-6">
+              <label class="form-label">Departamentos Turnados</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Financieros" id="depFinancieros">
+                    <label class="form-check-label" for="depFinancieros">Recursos Financieros</label>
+                  </div>
                 </div>
-              </div>
-              <div class="col-6">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Materiales" id="depMateriales">
-                  <label class="form-check-label" for="depMateriales">Materiales</label>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Humanos" id="depHumanos">
+                    <label class="form-check-label" for="depHumanos">Recursos Humanos</label>
+                  </div>
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Tecnologias" id="depTecnologias">
-                  <label class="form-check-label" for="depTecnologias">Tecnologías</label>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Recursos Materiales" id="depMateriales">
+                    <label class="form-check-label" for="depMateriales">Recursos Materiales</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Tecnologias" id="depTecnologias">
+                    <label class="form-check-label" for="depTecnologias">Tecnologías</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Archivo" id="depArchivo">
+                    <label class="form-check-label" for="depArchivo">Archivo</label>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-md-12">
-            <label class="form-label fw-bold">Observaciones</label>
-            <textarea name="observaciones" class="form-control" autocomplete="off" rows="3" placeholder="Observaciones adicionales"></textarea>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Status</label>
-            <select class="form-control" name="status" required>
-              <option value="1">Pendiente</option>
-              <option value="2">En proceso</option>
-              <option value="3">Finalizado</option>
-            </select>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label fw-bold">Archivos (opcional)</label>
-            <input type="file" name="archivos" class="form-control" multiple>
-          
-            <div id="archivoActualContainer" class="mt-2" style="display: none;">
-              <label class="form-label">Archivos actuales:</label>
-              <div id="listaArchivosActuales" class="d-flex flex-wrap gap-2 mt-1"></div>
+            <div class="col-md-12">
+              <label class="form-label">Observaciones</label>
+              <textarea name="observaciones" class="form-control" autocomplete="off" rows="3"></textarea>
             </div>
-          </div>                
-          
+            <div class="col-md-6">
+              <label class="form-label">Estatus</label>
+              <select class="form-control" name="status" required>
+                <option value="1">Pendiente</option>
+                <option value="2">En proceso</option>
+                <option value="3">Finalizado</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Archivos Adjuntos (Opcional)</label>
+              <input type="file" name="archivos" class="form-control" multiple>
+            
+              <div id="archivoActualContainer" class="mt-2" style="display: none;">
+                <label class="form-label mt-3">Archivos Actuales:</label>
+                <div id="listaArchivosActuales" class="d-flex flex-wrap gap-2 mt-1"></div>
+              </div>
+            </div>                
+          </div>
         </div>
-
+  
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary-custom">
             <i class="fas fa-save me-2"></i>

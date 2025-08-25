@@ -21,6 +21,7 @@ const correspondenciaController = require('../controllers/correspondenciaSecreta
 const inventarioController = require('../controllers/inventarioController/inventarioController');
 const financierosController = require('../controllers/financieros/financierosController');
 const financierosCorrespondenciaController = require('../controllers/financieros/correspondenciaController');
+const calendarController = require('../controllers/calendarController/calendarController');
 
 
 //Vistas generales
@@ -69,6 +70,9 @@ router.get('/controlViaticos', authenticated.isAuthenticated, verifyToken.verify
     res.render('financieros/viaticos');
 });
 
+router.get('/calendario', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {
+    res.render('calendario/calendario');
+});
 
 
 
@@ -103,9 +107,11 @@ router.put('/api/auth/functions/:id', userFunctions.updateFunctionById)
 
 router.post('/api/createOficio/', rolVerify.isUnidad, verifyToken.verifyToken, upload.array('archivos',10), oficioController.createOficio);
 router.put('/api/updateOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, upload.array('archivos',10), oficioController.updateOficio);
-router.get('/api/getOficios', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getAllOficios);
+router.get('/api/oficios', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getAllOficios);
+router.get('/api/oficios/stats', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getOficiosStats);
 router.get('/api/getOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.getOficioById);
 router.delete('/api/deleteOficio/:id', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.deleteOficio);
+router.post('/api/oficios/export', rolVerify.isUnidad, verifyToken.verifyToken, oficioController.exportOficios);
 
 
 
@@ -152,6 +158,20 @@ router.delete('/api/financieros/correspondencia/:id', financierosCorrespondencia
 router.get('/api/financieros/correspondencia/respaldo/:id', financierosCorrespondenciaController.respaldoCorrespondencia);
 router.post('/api/financieros/correspondencia/enviar-revision/:id', financierosCorrespondenciaController.enviarARevision);
 
+
+
+//calendario de salidas (FullCalendar)
+
+router.get('/calendario/salidas', verificarToken, calendarController.getSalidas); // Obtener todas las salidas (eventos)
+router.post('/calendario/salidas', verificarToken, calendarController.createSalida); // Crear nueva salida
+router.get('/calendario/salidas/:id', verificarToken, calendarController.getSalidaById); // Ver salida por ID
+router.put('/calendario/salidas/:id', verificarToken, calendarController.updateSalida); // Actualizar salida
+router.delete('/calendario/salidas/:id', verificarToken, calendarController.deleteSalida); // Eliminar salida solo si el usuario la creó
+router.patch('/calendario/salidas/:id/estado', verificarToken, calendarController.cambiarEstadoSalida); // Cambiar estado de salida
+router.get('/calendario/test-fechas', verificarToken, calendarController.testFechas); // Endpoint de prueba para fechas
+
+
+
 const jwt = require('jsonwebtoken');
 
 function verificarToken(req, res, next) {
@@ -162,12 +182,10 @@ function verificarToken(req, res, next) {
     req.user = decoded;
     next();
   } catch (err) {
+    console.error('Error al verificar token:', err);
     return res.status(403).json({ message: 'Token inválido' });
   }
 }
-
-
-
 
 router.use((req, res, next) => {
     res.status(404).render('404', {

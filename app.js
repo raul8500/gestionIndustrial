@@ -116,42 +116,59 @@ server.listen(3000, () => {
     console.log('🚀 Servidor corriendo en el puerto 3000');
 });
 
-
-// BACKUP AUTOMÁTICO DE MONGODB
+// BACKUP AUTOMÁTICO DE MONGODB EN JSON
 const { exec } = require('child_process');
 const cron = require('node-cron');
 const fs = require('fs');
+const { MongoClient } = require('mongodb');
 
-const dbName = 'ua'; // nombre de tu base de datos
-const backupDir = path.join(__dirname, 'backups'); // carpeta para respaldos
+// Configuraciones
+const dbName = 'ua';
+const mongoUri = 'mongodb://localhost:27017';
+const mongoBinPath = 'C:\\Program Files\\MongoDB\\Server\\7.0\\bin'; // Ajusta según tu instalación
+const backupDir = path.join(__dirname, 'backups');
 
-// Ruta completa a mongodump.exe
-const mongodumpPath = 'C:\\Program Files\\MongoDB\\Tools\\100\\bin\\mongodump.exe'; // <-- AJUSTA según tu instalación
-
-// Crear la carpeta si no existe
+// Crear carpeta si no existe
 if (!fs.existsSync(backupDir)) {
   fs.mkdirSync(backupDir);
 }
 
-// Programar respaldo diario a las 10:43 AM (hora local de Windows Server)
-cron.schedule('43 10 * * *', () => {
-  const fecha = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupPath = path.join(backupDir, `backup-${fecha}`);
-  
-  const cmd = `"${mongodumpPath}" --db=${dbName} --out="${backupPath}"`;
+// Programar respaldo diario a las 17:38
+cron.schedule('44 17 * * *', async () => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const dailyBackupDir = path.join(backupDir, `json-backup-${timestamp}`);
+  fs.mkdirSync(dailyBackupDir, { recursive: true });
 
-  console.log(`[${new Date().toLocaleString()}] Iniciando respaldo de MongoDB...`);
+  console.log(`[${new Date().toLocaleString()}] Iniciando respaldo en JSON...`);
 
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`❌ Error al respaldar la base de datos: ${error.message}`);
+  const client = new MongoClient(mongoUri);
+
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collections = await db.listCollections().toArray();
+
+    if (!collections.length) {
+      console.log('⚠️ No se encontraron colecciones.');
       return;
     }
-    if (stderr) {
-      console.error(`⚠️ stderr: ${stderr}`);
-      return;
-    }
-    console.log(`✅ Respaldo completado en: ${backupPath}`);
-  });
+
+    collections.forEach(({ name }) => {
+      const exportCmd = `"${mongoBinPath}\\mongoexport.exe" --uri="${mongoUri}" --db=${dbName} --collection=${name} --out="${path.join(dailyBackupDir, `${name}.json`)}" --jsonArray`;
+
+      exec(exportCmd, (error, stdout, stderr) => {
+        if (error || stderr) {
+          console.error(`❌ Error exportando ${name}:`, error || stderr);
+        } else {
+          console.log(`✅ Colección exportada: ${name}`);
+        }
+      });
+    });
+
+  } catch (err) {
+    console.error('❌ Error al conectar a MongoDB:', err);
+  } finally {
+    await client.close();
+  }
 });
 

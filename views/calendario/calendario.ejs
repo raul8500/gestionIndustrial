@@ -1,0 +1,1080 @@
+<% 
+extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<style>
+  .page-header {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+    color: #7c1241;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+  }
+  
+  .content-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-header-custom {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .card-title-custom {
+    margin: 0;
+    color: #495057;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .btn-primary-custom {
+    background: #7c1241;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-primary-custom:hover {
+    background: #9a1a52;
+    color: white;
+  }
+  
+  #calendarSalidas {
+    background: white;
+    padding: 1rem;
+    border: none;
+    margin-bottom: 1rem;
+  }
+  
+  .fc-toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #7c1241;
+  }
+  
+  .fc-button-primary {
+    background: #7c1241 !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 4px !important;
+    padding: 0.4rem 0.8rem !important;
+    font-weight: 500 !important;
+  }
+  
+  .fc-button-primary:not(:disabled):hover {
+    background: #9a1a52 !important;
+    color: white !important;
+  }
+  
+  .fc-event {
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+  }
+  
+  .fc-event:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+  }
+  
+  .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem;
+  }
+  
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+  }
+  
+  .modal-body {
+    padding: 2rem;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #7c1241;
+    box-shadow: 0 0 0 0.2rem rgba(124, 18, 65, 0.25);
+  }
+  
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #e9ecef;
+  }
+  
+     .btn-secondary {
+     background: white;
+     border: 2px solid #e9ecef;
+     color: #495057;
+     border-radius: 10px;
+     padding: 0.75rem 1.5rem;
+     font-weight: 500;
+     transition: all 0.3s ease;
+   }
+   
+   .btn-secondary:hover {
+     background: #f8f9fa;
+     border-color: #dee2e6;
+     color: #495057;
+     transform: translateY(-1px);
+   }
+  
+  .event-details {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border: 1px solid #e9ecef;
+  }
+  
+  .event-details h5 {
+    color: #7c1241;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .event-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .event-info i {
+    color: #7c1241;
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .event-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .btn-edit {
+    background: #17a2b8;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-edit:hover {
+    background: #138496;
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  .btn-delete {
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  
+     .btn-delete:hover {
+     background: #c82333;
+     color: white;
+     transform: translateY(-1px);
+   }
+   
+   .btn-status {
+     background: #6f42c1;
+     border: none;
+     color: white;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-size: 0.9rem;
+     transition: all 0.3s ease;
+   }
+   
+   .btn-status:hover {
+     background: #5a32a3;
+     color: white;
+     transform: translateY(-1px);
+   }
+  
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .loading i {
+    font-size: 2rem;
+    color: #7c1241;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+  
+  .toast {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    border: none;
+    margin-bottom: 10px;
+  }
+  
+     .toast-header {
+     background: linear-gradient(135deg, #7c1241 0%, #9a1a52 100%);
+     color: white;
+     border-radius: 10px 10px 0 0;
+     border: none;
+   }
+   
+   /* Estilos para notificaciones WebSocket */
+   .websocket-header {
+     background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+     animation: pulse 2s infinite;
+   }
+   
+   @keyframes pulse {
+     0% { opacity: 1; }
+     50% { opacity: 0.8; }
+     100% { opacity: 1; }
+   }
+  
+     .toast-body {
+     padding: 1rem;
+     color: #495057;
+   }
+   
+   /* Estilo especial para eventos propios */
+   .fc-event.own-event {
+     border: 3px solid #ffc107 !important;
+     box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4) !important;
+   }
+   
+   .fc-event.own-event:hover {
+     transform: scale(1.05) !important;
+     box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6) !important;
+   }
+   
+   /* Indicador visual adicional para eventos propios */
+   .fc-event.own-event::before {
+     content: "👤";
+     position: absolute;
+     top: -8px;
+     right: -8px;
+     background: #ffc107;
+     color: #000;
+     border-radius: 50%;
+     width: 20px;
+     height: 20px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 12px;
+     z-index: 10;
+   }
+ </style>
+`; 
+
+let currentPage = '/calendario';
+let pageTitle = 'Calendario de Salidas';
+let additionalNavItems = [];
+let isAdmin = false;
+%>
+
+<div class="app-container">
+  <!-- Sidebar Component -->
+  <%- include('../components/sidebar', { 
+    currentPage: currentPage, 
+    pageTitle: pageTitle, 
+    additionalNavItems: additionalNavItems,
+    isAdmin: isAdmin
+  }) %>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-area">
+             <!-- Page Header -->
+       <div class="page-header">
+         <div class="container-fluid">
+           <h1 class="page-title">
+             <i class="fa-regular fa-calendar-days me-2"></i>
+             Calendario de Salidas
+           </h1>
+           <p class="page-subtitle">Gestiona y visualiza todas las salidas programadas</p>
+         </div>
+       </div>
+
+      <div class="container-fluid">
+        <div class="content-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5 class="card-title-custom">
+              <i class="fa-regular fa-calendar-days me-2"></i>
+              Calendario de Salidas
+            </h5>
+            <button class="btn btn-primary-custom" id="btnNuevaSalida">
+              <i class="fas fa-plus me-2"></i>
+              Nueva Salida
+            </button>
+          </div>
+          <div id="calendarSalidas"></div>
+          <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Cargando eventos...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal para crear/editar salida -->
+<div class="modal fade" id="modalSalida" tabindex="-1" aria-labelledby="modalSalidaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="formSalida">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalSalidaLabel">
+            <i class="fas fa-plus-circle me-2"></i>
+            Nueva Salida
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="salidaId" id="salidaId">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="mb-3">
+                <label class="form-label">Título de la Salida</label>
+                <input type="text" name="title" id="title" class="form-control" required autocomplete="off" placeholder="Ej: Reunión con proveedores">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Fecha de Salida</label>
+                <input type="date" name="dateSalida" id="dateSalida" class="form-control" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Fecha de Regreso (Opcional)</label>
+                <input type="date" name="dateRegreso" id="dateRegreso" class="form-control">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select name="status" id="status" class="form-control">
+                  <option value="activa">Activa</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea name="description" id="description" class="form-control" rows="3" placeholder="Descripción detallada de la salida (opcional)"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary-custom" id="btnGuardar">
+            <i class="fas fa-save me-2"></i>
+            Guardar
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para ver detalles de salida -->
+<div class="modal fade" id="modalDetalleSalida" tabindex="-1" aria-labelledby="modalDetalleSalidaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetalleSalidaLabel">
+          <i class="fas fa-info-circle me-2"></i>
+          Detalles de la Salida
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="event-details" id="eventDetails">
+          <!-- Los detalles se cargarán dinámicamente -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="js/components/sidebar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/es.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let calendar;
+let salidaEditando = null;
+let modalSalida, modalDetalleSalida;
+let currentUserId = null; // Variable para almacenar el ID del usuario actual
+let socket; // Variable para el WebSocket
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Esperar un momento para asegurar que moment.js esté completamente cargado
+  setTimeout(function() {
+    // Verificar que moment.js esté cargado
+    if (typeof moment === 'undefined') {
+      console.error('Moment.js no está cargado');
+      return;
+    }
+    
+    // Verificar que el locale español esté disponible
+    try {
+      if (!moment.locales().includes('es')) {
+        console.error('Locale español no está disponible');
+      } else {
+        console.log('Locale español está disponible');
+      }
+    } catch (error) {
+      console.log('Verificando disponibilidad del locale español...');
+    }
+    
+    // Configurar moment.js completamente en español
+    moment.locale('es');
+    moment.tz.setDefault('America/Mexico_City');
+    
+    // Verificar que el locale se haya aplicado correctamente
+    console.log('Locale configurado:', moment.locale());
+    console.log('Locale actual:', moment.locale());
+    console.log('Locales disponibles:', moment.locales());
+    
+         obtenerUsuarioActual();
+     inicializarWebSocket();
+     inicializarCalendario();
+     inicializarEventos();
+   }, 100); // Esperar 100ms para asegurar que moment.js esté listo
+});
+
+function inicializarCalendario() {
+  const calendarEl = document.getElementById('calendarSalidas');
+  
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'es',
+    timeZone: 'America/Mexico_City',
+    allDayMaintainDuration: true,
+    displayEventTime: false,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    buttonText: {
+      today: 'Hoy',
+      month: 'Mes',
+      week: 'Semana',
+      day: 'Día'
+    },
+    height: 'auto',
+    events: function(info, successCallback, failureCallback) {
+      fetch('/calendario/salidas')
+        .then(response => response.json())
+        .then(data => {
+                     const events = data.map(salida => {
+             // Crear fechas limpias sin tiempo, solo fecha
+             const startDate = moment.tz(salida.dateSalida, 'America/Mexico_City').startOf('day').toDate();
+             
+             // Para la fecha final, agregar 1 día porque FullCalendar considera 'end' como exclusivo
+             let endDate;
+             if (salida.dateRegreso) {
+               endDate = moment.tz(salida.dateRegreso, 'America/Mexico_City').add(1, 'day').startOf('day').toDate();
+             } else {
+               endDate = moment.tz(salida.dateSalida, 'America/Mexico_City').add(1, 'day').startOf('day').toDate();
+             }
+             
+             // Agregar icono de "propietario" si es tu evento
+             const eventTitle = salida.createdBy?._id === currentUserId ? 
+               `👤 ${salida.title}` : salida.title;
+             
+             return {
+               id: salida._id,
+               title: eventTitle,
+               start: startDate,
+               end: endDate,
+               allDay: true, // Marcar como evento de día completo
+               backgroundColor: getEventColor(salida.status),
+               borderColor: getEventColor(salida.status),
+               extendedProps: {
+                 status: salida.status,
+                 description: salida.description,
+                 isOwner: salida.createdBy?._id === currentUserId // Verificar si es tu evento
+               }
+             };
+           });
+          successCallback(events);
+        })
+        .catch(error => {
+          console.error('Error al cargar eventos:', error);
+          failureCallback(error);
+        });
+    },
+    eventClick: function(info) {
+      mostrarDetalleSalida(info.event);
+    },
+    dateClick: function(info) {
+      // Convertir la fecha del calendario a zona horaria de CDMX
+      const fechaCDMX = moment.tz(info.dateStr, 'America/Mexico_City').format('YYYY-MM-DD');
+      abrirModalNuevaSalida(fechaCDMX);
+    },
+         eventDidMount: function(info) {
+       // Personalizar el estilo de los eventos según el estado
+       if (info.event.extendedProps.status === 'completada') {
+         info.el.style.opacity = '0.6';
+         info.el.style.backgroundColor = '#28a745';
+       } else if (info.event.extendedProps.status === 'cancelada') {
+         info.el.style.opacity = '0.6';
+         info.el.style.backgroundColor = '#dc3545';
+       }
+       
+       // Agregar clase especial para eventos propios
+       if (info.event.extendedProps.isOwner) {
+         info.el.classList.add('own-event');
+       }
+     },
+    loading: function(isLoading) {
+      document.getElementById('loading').style.display = isLoading ? 'block' : 'none';
+    }
+  });
+  
+     calendar.render();
+ }
+ 
+ // Función para inicializar WebSocket
+ function inicializarWebSocket() {
+   try {
+     // Conectar al WebSocket del servidor
+     socket = io();
+     
+     // Escuchar eventos de salidas
+     socket.on('salida:creada', function(data) {
+       console.log('Nueva salida creada:', data);
+       mostrarNotificacionWebSocket('Nueva salida creada', `${data.title} - ${formatearFechaEspanol(data.dateSalida)}`, 'success');
+       calendar.refetchEvents(); // Actualizar el calendario
+     });
+     
+     socket.on('salida:actualizada', function(data) {
+       console.log('Salida actualizada:', data);
+       mostrarNotificacionWebSocket('Salida actualizada', `${data.title} - ${formatearFechaEspanol(data.dateSalida)}`, 'info');
+       calendar.refetchEvents(); // Actualizar el calendario
+     });
+     
+     socket.on('salida:eliminada', function(data) {
+       console.log('Salida eliminada:', data);
+       mostrarNotificacionWebSocket('Salida eliminada', `${data.title}`, 'warning');
+       calendar.refetchEvents(); // Actualizar el calendario
+     });
+     
+     // Escuchar cambios de estado
+     socket.on('salida:estado-cambiado', function(data) {
+       console.log('Estado de salida cambiado:', data);
+       mostrarNotificacionWebSocket('Estado cambiado', `${data.title} - ${data.status}`, 'info');
+       calendar.refetchEvents(); // Actualizar el calendario
+     });
+     
+     // Manejar errores de conexión
+     socket.on('connect_error', function(error) {
+       console.error('Error de conexión WebSocket:', error);
+       mostrarToast('Error de conexión en tiempo real', 'error');
+     });
+     
+     socket.on('disconnect', function(reason) {
+       console.log('Desconectado del WebSocket:', reason);
+       if (reason === 'io server disconnect') {
+         // Reconectar manualmente
+         socket.connect();
+       }
+     });
+     
+     console.log('WebSocket conectado correctamente');
+     
+   } catch (error) {
+     console.error('Error al inicializar WebSocket:', error);
+   }
+ }
+
+function inicializarEventos() {
+  modalSalida = new bootstrap.Modal(document.getElementById('modalSalida'));
+  modalDetalleSalida = new bootstrap.Modal(document.getElementById('modalDetalleSalida'));
+  
+  const formSalida = document.getElementById('formSalida');
+  const btnNuevaSalida = document.getElementById('btnNuevaSalida');
+  
+  btnNuevaSalida.addEventListener('click', function() {
+    abrirModalNuevaSalida();
+  });
+  
+  formSalida.addEventListener('submit', function(e) {
+    e.preventDefault();
+    guardarSalida();
+  });
+  
+  // Establecer fecha mínima como hoy en zona horaria de CDMX
+  const fechaInput = document.getElementById('dateSalida');
+  const hoy = moment.tz('America/Mexico_City').format('YYYY-MM-DD');
+  fechaInput.min = hoy;
+  
+  // Validar que la fecha de regreso no sea anterior a la fecha de salida
+  const fechaRegresoInput = document.getElementById('dateRegreso');
+  fechaInput.addEventListener('change', function() {
+    fechaRegresoInput.min = this.value;
+    if (fechaRegresoInput.value && fechaRegresoInput.value < this.value) {
+      fechaRegresoInput.value = this.value;
+    }
+  });
+}
+
+function abrirModalNuevaSalida(fecha = null) {
+  salidaEditando = null;
+  document.getElementById('formSalida').reset();
+  document.getElementById('salidaId').value = '';
+  document.getElementById('modalSalidaLabel').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Nueva Salida';
+  document.getElementById('btnGuardar').innerHTML = '<i class="fas fa-save me-2"></i>Guardar';
+  
+  if (fecha) {
+    // Asegurar que la fecha esté en zona horaria de CDMX
+    const fechaCDMX = moment.tz(fecha, 'America/Mexico_City').format('YYYY-MM-DD');
+    document.getElementById('dateSalida').value = fechaCDMX;
+  }
+  
+  modalSalida.show();
+}
+
+function abrirModalEditarSalida(salida) {
+  salidaEditando = salida;
+  document.getElementById('salidaId').value = salida._id;
+  document.getElementById('title').value = salida.title;
+  document.getElementById('description').value = salida.description || '';
+  document.getElementById('dateSalida').value = salida.dateSalida ? moment.tz(salida.dateSalida, 'America/Mexico_City').format('YYYY-MM-DD') : '';
+  document.getElementById('dateRegreso').value = salida.dateRegreso ? moment.tz(salida.dateRegreso, 'America/Mexico_City').format('YYYY-MM-DD') : '';
+  document.getElementById('status').value = salida.status || 'activa';
+  
+  document.getElementById('modalSalidaLabel').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Salida';
+  document.getElementById('btnGuardar').innerHTML = '<i class="fas fa-edit me-2"></i>Actualizar';
+  
+  modalSalida.show();
+}
+
+async function guardarSalida() {
+  const formData = new FormData(document.getElementById('formSalida'));
+  const data = {
+    title: formData.get('title'),
+    description: formData.get('description'),
+    dateSalida: formData.get('dateSalida'),
+    dateRegreso: formData.get('dateRegreso'),
+    status: formData.get('status')
+  };
+  
+  console.log('=== DATOS ENVIADOS ===');
+  console.log('Fecha de salida (form):', data.dateSalida);
+  console.log('Tipo de fecha:', typeof data.dateSalida);
+  
+  try {
+    const url = salidaEditando ? `/calendario/salidas/${salidaEditando._id}` : '/calendario/salidas';
+    const method = salidaEditando ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al guardar la salida');
+    }
+    
+    const resultado = await response.json();
+    
+         modalSalida.hide();
+     
+     // Emitir evento WebSocket para notificar a otros usuarios
+     if (socket) {
+       if (salidaEditando) {
+         socket.emit('salida:actualizada', {
+           _id: resultado._id,
+           title: resultado.title,
+           dateSalida: resultado.dateSalida,
+           dateRegreso: resultado.dateRegreso,
+           status: resultado.status,
+           description: resultado.description,
+           updatedBy: currentUserId
+         });
+       } else {
+         socket.emit('salida:creada', {
+           _id: resultado._id,
+           title: resultado.title,
+           dateSalida: resultado.dateSalida,
+           dateRegreso: resultado.dateRegreso,
+           status: resultado.status,
+           description: resultado.description,
+           createdBy: { _id: currentUserId }
+         });
+       }
+     }
+     
+     // No necesitamos refetchEvents aquí porque el WebSocket lo hará automáticamente
+     mostrarToast(
+       salidaEditando ? 'Salida actualizada correctamente' : 'Salida creada correctamente',
+       'success'
+     );
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarToast(error.message, 'error');
+  }
+}
+
+async function mostrarDetalleSalida(event) {
+  try {
+    const response = await fetch(`/calendario/salidas/${event.id}`);
+    if (!response.ok) throw new Error('Error al obtener detalles');
+    
+    const salida = await response.json();
+    console.log(salida);
+    
+         const detallesHTML = `
+       <h5><i class="fas fa-calendar-check me-2"></i>${salida.title}</h5>
+       <div class="event-info">
+         <i class="fas fa-calendar"></i>
+         <span><strong>Fecha de Salida:</strong> ${formatearFechaEspanol(salida.dateSalida)}</span>
+       </div>
+       ${salida.dateRegreso ? `
+         <div class="event-info">
+           <i class="fas fa-calendar-check"></i>
+           <span><strong>Fecha de Regreso:</strong> ${formatearFechaEspanol(salida.dateRegreso)}</span>
+         </div>
+       ` : ''}
+      ${salida.description ? `
+        <div class="event-info">
+          <i class="fas fa-align-left"></i>
+          <span><strong>Descripción:</strong> ${salida.description}</span>
+        </div>
+      ` : ''}
+      <div class="event-info">
+        <i class="fas fa-user"></i>
+        <span><strong>Creado por:</strong> ${salida.createdBy?.name || 'Usuario'}</span>
+      </div>
+      <div class="event-info">
+        <i class="fas fa-info-circle"></i>
+        <span><strong>Estado:</strong> <span class="badge bg-${getStatusColor(salida.status)}">${salida.status}</span></span>
+      </div>
+             <div class="event-actions">
+         <button class="btn btn-edit" onclick="editarSalida('${salida._id}')">
+           <i class="fas fa-edit me-1"></i>Editar
+         </button>
+         <button class="btn btn-delete" onclick="eliminarSalida('${salida._id}')">
+           <i class="fas fa-trash me-1"></i>Eliminar
+         </button>
+         <button class="btn btn-status" onclick="cambiarEstadoSalida('${salida._id}', '${salida.status}')">
+           <i class="fas fa-exchange-alt me-1"></i>Cambiar Estado
+         </button>
+       </div>
+    `;
+    
+    document.getElementById('eventDetails').innerHTML = detallesHTML;
+    modalDetalleSalida.show();
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarToast('Error al cargar los detalles', 'error');
+  }
+}
+
+function getEventColor(status) {
+  switch(status) {
+    case 'activa': return '#007bff';
+    case 'completada': return '#28a745';
+    case 'cancelada': return '#dc3545';
+    default: return '#6c757d';
+  }
+}
+
+function getStatusColor(status) {
+  switch(status) {
+    case 'activa': return 'primary';
+    case 'completada': return 'success';
+    case 'cancelada': return 'danger';
+    default: return 'secondary';
+  }
+}
+
+async function editarSalida(salidaId) {
+  try {
+    const response = await fetch(`/calendario/salidas/${salidaId}`);
+    if (!response.ok) throw new Error('Error al obtener la salida');
+    
+    const salida = await response.json();
+    modalDetalleSalida.hide();
+    abrirModalEditarSalida(salida);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarToast('Error al cargar la salida para editar', 'error');
+  }
+}
+
+async function eliminarSalida(salidaId) {
+  const result = await Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción no se puede deshacer',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  });
+  
+  if (!result.isConfirmed) return;
+  
+  try {
+    const response = await fetch(`/calendario/salidas/${salidaId}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al eliminar la salida');
+    }
+    
+         modalDetalleSalida.hide();
+     
+     // Emitir evento WebSocket para notificar a otros usuarios
+     if (socket) {
+       socket.emit('salida:eliminada', {
+         _id: salidaId,
+         title: 'Salida eliminada',
+         deletedBy: currentUserId
+       });
+     }
+     
+     // No necesitamos refetchEvents aquí porque el WebSocket lo hará automáticamente
+     mostrarToast('Salida eliminada correctamente', 'success');
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarToast(error.message, 'error');
+  }
+}
+
+
+
+function mostrarToast(mensaje, tipo = 'info') {
+  const toastContainer = document.getElementById('toastContainer');
+  const toastId = 'toast-' + Date.now();
+  
+  const toastHTML = `
+    <div class="toast" id="${toastId}" role="alert">
+      <div class="toast-header">
+        <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+        <strong class="me-auto">${tipo === 'success' ? 'Éxito' : tipo === 'error' ? 'Error' : 'Información'}</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">
+        ${mensaje}
+      </div>
+    </div>
+  `;
+  
+  toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+  
+  const toastElement = document.getElementById(toastId);
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+  
+     // Eliminar el toast del DOM después de que se oculte
+   toastElement.addEventListener('hidden.bs.toast', function() {
+     toastElement.remove();
+   });
+ }
+ 
+   // Función para obtener el ID del usuario actual
+  async function obtenerUsuarioActual() {
+    try {
+      const response = await fetch('/api/user/current');
+      if (response.ok) {
+        const userData = await response.json();
+        currentUserId = userData._id || userData.id;
+        console.log('Usuario actual:', currentUserId);
+      }
+    } catch (error) {
+      console.error('Error al obtener usuario actual:', error);
+      // Si no hay endpoint, intentar obtener del localStorage o sessionStorage
+      currentUserId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+    }
+  }
+  
+     // Función auxiliar para formatear fechas en español
+   function formatearFechaEspanol(fecha) {
+     // Asegurar que moment esté en español
+     moment.locale('es');
+     const momentFecha = moment.tz(fecha, 'America/Mexico_City');
+     
+     // Debug: verificar el formato
+     console.log('Fecha original:', fecha);
+     console.log('Moment fecha:', momentFecha.format());
+     console.log('Locale actual:', moment.locale());
+     
+     return momentFecha.format('dddd, D [de] MMMM [de] YYYY');
+   }
+   
+   // Función para mostrar notificaciones WebSocket
+   function mostrarNotificacionWebSocket(titulo, mensaje, tipo = 'info') {
+     const toastContainer = document.getElementById('toastContainer');
+     const toastId = 'websocket-toast-' + Date.now();
+     
+     const toastHTML = `
+       <div class="toast" id="${toastId}" role="alert">
+         <div class="toast-header websocket-header">
+           <i class="fas fa-broadcast-tower me-2"></i>
+           <strong class="me-auto">${titulo}</strong>
+           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+         </div>
+         <div class="toast-body">
+           ${mensaje}
+         </div>
+       </div>
+     `;
+     
+     toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+     
+     const toastElement = document.getElementById(toastId);
+     const toast = new bootstrap.Toast(toastElement);
+     toast.show();
+     
+     // Eliminar el toast del DOM después de que se oculte
+     toastElement.addEventListener('hidden.bs.toast', function() {
+       toastElement.remove();
+     });
+   }
+   
+   // Función para cambiar el estado de una salida
+   async function cambiarEstadoSalida(salidaId, estadoActual) {
+     try {
+       // Determinar el nuevo estado
+       let nuevoEstado;
+       switch(estadoActual) {
+         case 'activa':
+           nuevoEstado = 'completada';
+           break;
+         case 'completada':
+           nuevoEstado = 'cancelada';
+           break;
+         case 'cancelada':
+           nuevoEstado = 'activa';
+           break;
+         default:
+           nuevoEstado = 'activa';
+       }
+       
+       const response = await fetch(`/calendario/salidas/${salidaId}/estado`, {
+         method: 'PATCH',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ status: nuevoEstado })
+       });
+       
+       if (!response.ok) {
+         const errorData = await response.json();
+         throw new Error(errorData.error || 'Error al cambiar el estado');
+       }
+       
+       const resultado = await response.json();
+       
+       // Cerrar el modal de detalles
+       modalDetalleSalida.hide();
+       
+       // Mostrar mensaje de éxito
+       mostrarToast(`Estado cambiado a: ${nuevoEstado}`, 'success');
+       
+       // El WebSocket actualizará automáticamente el calendario
+       
+     } catch (error) {
+       console.error('Error:', error);
+       mostrarToast(error.message, 'error');
+     }
+   }
+ </script>
