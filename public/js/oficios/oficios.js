@@ -54,6 +54,14 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeEventListeners();
   loadOficios();
   loadStats();
+  
+  // Limpiar cualquier padding residual al cargar la página
+  setTimeout(() => {
+    cleanModalBodyPadding();
+  }, 500);
+  
+  // Prevenir cambios de layout desde el inicio
+  preventLayoutChanges();
 });
 
 // Event Listeners
@@ -574,7 +582,7 @@ function viewOficio(id) {
                  <p><strong>No. Oficio:</strong> ${oficio.noOficio || '-'}</p>
                  <p><strong>Fecha:</strong> ${formatDate(oficio.fecha)}</p>
                  <p><strong>Tipo:</strong> ${oficio.tipoCorrespondencia === '1' || oficio.tipoCorrespondencia === 1 ? 'Interno' : 'Externo'}</p>
-                 <p><strong>Status:</strong> ${getStatusText(oficio.status)}</p>
+                 <p><strong>Estatus:</strong> ${getStatusText(oficio.status)}</p>
                </div>
                <div class="col-md-6">
                  <p><strong>Institución:</strong> ${oficio.institucion || '-'}</p>
@@ -1356,9 +1364,8 @@ function openEditModal(oficio) {
     idField.value = oficio._id;
   }
   
-  // Mostrar el modal
-  const bootstrapModal = new bootstrap.Modal(modal);
-  bootstrapModal.show();
+  // Mostrar el modal sin afectar el layout
+  openModalWithoutLayoutChange(modal);
 }
 
 // Función para poblar los campos del formulario
@@ -1631,16 +1638,15 @@ function initializeFormHandlers() {
       // Abrir modal manualmente si es necesario
       const modal = document.getElementById('modalOficio');
       if (modal) {
-        try {
-          const bootstrapModal = new bootstrap.Modal(modal);
-          bootstrapModal.show();
-        } catch (error) {
-          console.error('Error al abrir modal con Bootstrap:', error);
-          // Fallback: mostrar modal manualmente
-          modal.style.display = 'block';
-          modal.classList.add('show');
-          document.body.classList.add('modal-open');
-        }
+               try {
+         openModalWithoutLayoutChange(modal);
+       } catch (error) {
+         console.error('Error al abrir modal con Bootstrap:', error);
+         // Fallback: mostrar modal manualmente sin afectar layout
+         modal.style.display = 'block';
+         modal.classList.add('show');
+         // No agregar modal-open al body para evitar cambios
+       }
       }
     });
   } else {
@@ -1653,6 +1659,10 @@ function initializeFormHandlers() {
     modal.addEventListener('hidden.bs.modal', function() {
       console.log('Modal cerrado, reseteando...');
       resetModal();
+      // Limpiar padding del body inmediatamente después de cerrar
+      setTimeout(() => {
+        cleanModalBodyPadding();
+      }, 100);
     });
     
     // Event listener para cuando se abre el modal
@@ -1664,9 +1674,51 @@ function initializeFormHandlers() {
         firstField.focus();
       }
     });
+    
+    // Event listener adicional para cuando se cierra el modal con el botón X o fuera del modal
+    modal.addEventListener('click', function(event) {
+      if (event.target === modal || event.target.classList.contains('btn-close')) {
+        // Si se hace clic fuera del modal o en el botón de cerrar
+        setTimeout(() => {
+          cleanModalBodyPadding();
+        }, 100);
+      }
+    });
+    
+    // Event listener para el backdrop
+    modal.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        // Si se hace clic en el backdrop, cerrar el modal
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        if (bootstrapModal) {
+          bootstrapModal.hide();
+        }
+      }
+    });
   }
   
   console.log('Manejadores del formulario inicializados');
+  
+  // Event listener global para limpiar padding cuando se cierra cualquier modal
+  document.addEventListener('click', function(event) {
+    // Si se hace clic en un botón que cierra el modal
+    if (event.target.classList.contains('btn-close') || 
+        event.target.classList.contains('btn-secondary') ||
+        event.target.getAttribute('data-bs-dismiss') === 'modal') {
+      setTimeout(() => {
+        cleanModalBodyPadding();
+      }, 150);
+    }
+  });
+  
+  // Event listener para la tecla Escape
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      setTimeout(() => {
+        cleanModalBodyPadding();
+      }, 150);
+    }
+  });
 }
 
 
@@ -1813,6 +1865,11 @@ async function handleFormSubmit(e) {
         modal.hide();
       }
       
+      // Limpiar padding del body después de cerrar el modal
+      setTimeout(() => {
+        cleanModalBodyPadding();
+      }, 100);
+      
       // Recargar tabla y estadísticas
       if (typeof loadOficios === 'function') {
         loadOficios(currentPage);
@@ -1898,8 +1955,115 @@ function resetModal() {
       fileInput.value = '';
     }
     
+    // Limpiar el padding-right del body que Bootstrap agrega
+    cleanModalBodyPadding();
+    
     console.log('Modal reseteado correctamente');
   } else {
     console.error('Modal no encontrado para resetear');
   }
+}
+
+// Función para limpiar el padding del body que Bootstrap agrega
+function cleanModalBodyPadding() {
+  // Solo limpiar estilos relacionados con el modal
+  if (document.body.classList.contains('modal-open')) {
+    document.body.classList.remove('modal-open');
+  }
+  
+  // Limpiar padding-right si existe
+  if (document.body.style.paddingRight) {
+    document.body.style.paddingRight = '';
+  }
+  
+  // Restaurar overflow si fue cambiado por el modal
+  if (document.body.style.overflow === 'hidden') {
+    document.body.style.overflow = '';
+  }
+  
+  console.log('Estilos del modal limpiados');
+}
+
+// Función para abrir modal sin afectar el layout
+function openModalWithoutLayoutChange(modalElement) {
+  // Abrir el modal normalmente
+  const bootstrapModal = new bootstrap.Modal(modalElement, {
+    backdrop: true,
+    keyboard: true,
+    focus: true
+  });
+  
+  // Limpiar el padding después de que se muestre el modal
+  modalElement.addEventListener('shown.bs.modal', function onModalShown() {
+    // Pequeño delay para asegurar que Bootstrap termine sus operaciones
+    setTimeout(() => {
+      if (document.body.style.paddingRight) {
+        document.body.style.paddingRight = '';
+      }
+      if (document.body.classList.contains('modal-open')) {
+        document.body.classList.remove('modal-open');
+      }
+    }, 100);
+    
+    // Remover el event listener para evitar duplicados
+    modalElement.removeEventListener('shown.bs.modal', onModalShown);
+  }, { once: true });
+  
+  bootstrapModal.show();
+  
+  return bootstrapModal;
+}
+
+// Función para prevenir cambios de layout
+function preventLayoutChanges() {
+  // Solo prevenir cambios específicos del modal, no todos los cambios de estilo
+  let isModalOpen = false;
+  
+  // Observar cambios en el body solo cuando sea necesario
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+        const body = mutation.target;
+        
+        // Solo intervenir si es un cambio relacionado con el modal
+        if (isModalOpen || body.classList.contains('modal-open')) {
+          // Si se agrega padding-right al body por el modal, removerlo
+          if (body.style.paddingRight && body.style.paddingRight !== '0px') {
+            body.style.paddingRight = '0px';
+          }
+          
+          // Si se cambia el overflow por el modal, restaurarlo
+          if (body.style.overflow && body.style.overflow !== 'auto') {
+            body.style.overflow = 'auto';
+          }
+        }
+      }
+    });
+  });
+  
+  // Observar cambios en el body
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['style']
+  });
+  
+  // Detectar cuando se abre/cierra un modal
+  document.addEventListener('show.bs.modal', function() {
+    isModalOpen = true;
+  });
+  
+  document.addEventListener('hidden.bs.modal', function() {
+    isModalOpen = false;
+    // Limpiar cualquier estilo residual
+    setTimeout(() => {
+      if (document.body.style.paddingRight) {
+        document.body.style.paddingRight = '';
+      }
+      if (document.body.style.overflow) {
+        document.body.style.overflow = '';
+      }
+    }, 100);
+  });
+  
+  console.log('Observador de layout configurado (solo para modales)');
 }

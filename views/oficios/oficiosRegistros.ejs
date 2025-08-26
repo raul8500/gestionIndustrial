@@ -458,6 +458,74 @@ extraStyles=`
     overflow-x: hidden;
   }
   
+  /* Prevenir padding residual del modal */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Asegurar que el main content mantenga su padding */
+  .main-content {
+    padding-right: 20px;
+  }
+  
+  /* Prevenir scroll horizontal */
+  .app-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Prevenir que Bootstrap modifique el body cuando el modal esté abierto */
+  body.modal-open {
+    padding-right: 0 !important;
+  }
+  
+  /* Asegurar que el modal funcione correctamente */
+  .modal {
+    z-index: 1050;
+  }
+  
+  /* Modal cuando está abierto */
+  .modal.show {
+    display: block !important;
+    pointer-events: auto !important;
+    z-index: 1055 !important;
+  }
+  
+  /* Backdrop del modal */
+  .modal-backdrop.show {
+    opacity: 0.5 !important;
+    pointer-events: auto !important;
+    z-index: 1050 !important;
+  }
+  
+  /* Asegurar que el contenido del modal sea interactivo */
+  .modal-content {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1056 !important;
+  }
+  
+  /* Asegurar que los botones del modal sean clickeables */
+  .modal .btn {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1057 !important;
+  }
+  
+  /* Asegurar que los inputs del modal sean interactivos */
+  .modal input,
+  .modal select,
+  .modal textarea {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1057 !important;
+  }
+  
+  /* Prevenir scroll en el body cuando el modal esté abierto */
+  body:has(.modal.show) {
+    overflow: hidden;
+  }
+  
   /* Tabla estática sin scroll horizontal */
   .table-responsive {
     border: 0;
@@ -820,7 +888,7 @@ extraStyles=`
                     <option value="Canalización o turnado">Canalización o turnado</option>
                     <option value="Respuesta informativa">Respuesta informativa</option>
                     <option value="Prorroga">Prorroga</option>
-                    <option value="Acuse de recibo">Acuse de recibo</option>
+                    <option value="Acuse de recibo">Acuse de recibido</option>
                   </select>
                 </div>
             
