@@ -253,12 +253,12 @@ class Sidebar {
   }
   
   shouldHideFunction(func) {
-    // Ocultar si es del área 5 y no puede crear usuarios, y el item se llama "Usuarios financieros"
+    // Ocultar si es del área 5 o 6 y no puede crear usuarios, y el item se llama "Usuarios" o "Usuarios Financieros"
     if (
       this.infoUser && 
-      this.infoUser.area === 5 &&
+      (this.infoUser.area === 5 || this.infoUser.area === 6) &&
       this.infoUser.puedeCrearUsuarios === false &&
-      func.name === 'Usuarios financieros'
+      (func.name === 'Usuarios' || func.name === 'Usuarios financieros')
     ) {
       return true;
     }
@@ -273,6 +273,7 @@ class Sidebar {
       '/financieros/correspondencia': 'Correspondencia Financieros',
       '/financieros/usuarios': 'Usuarios Financieros',
       '/financieros/viaticos': 'Viáticos',
+      '/usuariosGestionAmbiental': 'Usuarios Gestión Ambiental',
       '/inventariotics': 'Inventario TICS',
       '/secretaria/correspondencia': 'Correspondencia Secretaría',
       '/tickets': 'Tickets'
@@ -289,6 +290,7 @@ class Sidebar {
       'Oficios': 'fa-file-signature',
       'Financieros': 'fa-dollar-sign',
       'Usuarios financieros': 'fa-user-tie',
+      'Usuarios Gestión Ambiental': 'fa-leaf',
       'Viáticos': 'fa-receipt',
       'default': 'fa-cog'
     };

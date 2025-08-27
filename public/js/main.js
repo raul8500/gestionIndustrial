@@ -70,6 +70,8 @@ function obtenerNombreRol(rol) {
             return "Supervisor Secretaria";
         case 5:
             return "Financieros";
+        case 6:
+            return "Gestion Ambiental";
         default:
             return "Rol desconocido";
     }
@@ -137,11 +139,11 @@ async function renderizarFuncionesEnCards(data) {
     `;
 
     area.items.forEach(func => {
-      // Ocultar si es del área 5 y no puede crear usuarios, y el item se llama "Usuarios financieros"
+      // Ocultar si es del área 5 o 6 y no puede crear usuarios, y el item se llama "Usuarios" o "Usuarios Financieros"
       if (
-        userInfo.area === 5 &&
+        (userInfo.area === 5 || userInfo.area === 6) &&
         userInfo.puedeCrearUsuarios === false &&
-        func.name === 'Usuarios financieros'
+        (func.name === 'Usuarios' || func.name === 'Usuarios Financieros')
       ) {
         return; // ❌ No renderizar este item
       }

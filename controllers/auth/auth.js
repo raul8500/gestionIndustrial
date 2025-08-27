@@ -48,12 +48,13 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Nombre de usuario o contraseña incorrectos' });
         }
 
-        // Verificar si el usuario está activo o tiene un rango importante
-        if (userData.status === 2) {
-            return res.status(403).json({ error: 'Tu cuenta está inactiva. Contacta al administrador.' });
+        // Verificar si el usuario está activo (status === 1)
+        if (userData.status === 0) {
+            return res.status(403).json({ error: 'Tu cuenta está inactiva. No tienes acceso al sistema. Contacta al administrador.' });
         }
 
-        const passwordMatch = bcryptjs.compare(password, userData.password);
+        // Verificar la contraseña
+        const passwordMatch = await bcryptjs.compare(password, userData.password);
 
         if (!passwordMatch) {
             return res.status(401).json({ error: 'Nombre de usuario o contraseña incorrectos' });
@@ -94,7 +95,7 @@ exports.login = async (req, res) => {
 // Obtener todos los usuarios
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await ModelUser.find().populate('sucursalId'); // Asegúrate de ajustar 'sucursalId' si es una referencia en tu modelo
+        const users = await ModelUser.find() // Asegúrate de ajustar 'sucursalId' si es una referencia en tu modelo
         res.send(users);
     } catch (error) {
         console.log(error);

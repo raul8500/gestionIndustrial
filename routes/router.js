@@ -21,6 +21,7 @@ const correspondenciaController = require('../controllers/correspondenciaSecreta
 const inventarioController = require('../controllers/inventarioController/inventarioController');
 const financierosController = require('../controllers/financieros/financierosController');
 const financierosCorrespondenciaController = require('../controllers/financieros/correspondenciaController');
+const gestionambientalController = require('../controllers/gestionambiental/gestionambientalController');
 const calendarController = require('../controllers/calendarController/calendarController');
 
 
@@ -70,6 +71,11 @@ router.get('/controlViaticos', authenticated.isAuthenticated, verifyToken.verify
     res.render('financieros/viaticos');
 });
 
+//Gestión Ambiental
+router.get('/usuariosGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, rolVerify.puedeCrearUsuarios,  (req, res) => {    
+    res.render('gestionambiental/usuarios');
+});
+
 router.get('/calendario', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {
     res.render('calendario/calendario');
 });
@@ -79,11 +85,11 @@ router.get('/calendario', authenticated.isAuthenticated, verifyToken.verifyToken
 
 //API
 //Funciones al API
-router.post('/api/auth/register', rolVerify.isAdmin, auth.registerUser)
+router.post('/api/auth/register', auth.registerUser)
 router.post('/api/auth/login', auth.login)
 //Auth
 router.put('/api/auth/users/passwords/:id', rolVerify.isAdmin, auth.updatePassword)
-router.get('/api/auth/users', rolVerify.isAdmin, auth.getAllUsers)
+router.get('/api/auth/users', auth.getAllUsers)
 router.get('/api/auth/users/:id', rolVerify.isAdmin, auth.getUserById)
 router.get('/api/auth/users/:id', rolVerify.isAdmin, auth.getUserById)
 router.put('/api/auth/users/:id', rolVerify.isAdmin, auth.updateUserById)
@@ -149,6 +155,14 @@ router.post('/api/financieros/usuarios/', financierosController.crearUsuario);
 router.put('/api/financieros/usuarios/:id', financierosController.actualizarUsuario);
 router.delete('/api/financieros/usuarios/:id', financierosController.eliminarUsuario);
 router.put('/api/financieros/usuarios/password/:id', financierosController.actualizarPassword);
+
+// Gestión Ambiental - Usuarios
+router.get('/api/gestionambiental/usuarios/', gestionambientalController.obtenerUsuarios);
+router.get('/api/gestionambiental/usuarios/:id', gestionambientalController.obtenerUsuarioPorId);
+router.post('/api/gestionambiental/usuarios/', gestionambientalController.crearUsuario);
+router.put('/api/gestionambiental/usuarios/:id', gestionambientalController.actualizarUsuario);
+router.delete('/api/gestionambiental/usuarios/:id', gestionambientalController.eliminarUsuario);
+router.put('/api/gestionambiental/usuarios/password/:id', gestionambientalController.actualizarPassword);
 
 router.get('/api/financieros/correspondencia/', verificarToken, financierosCorrespondenciaController.obtenerCorrespondencias);
 router.get('/api/financieros/correspondencia/:id', financierosCorrespondenciaController.obtenerCorrespondenciaPorId);

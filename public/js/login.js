@@ -60,7 +60,7 @@ btnLogin.addEventListener('click', (e) => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Acceso denegado',
-                    text: data.error || 'Tu cuenta está inactiva.',
+                    text: data.error || 'Tu cuenta está inactiva. No tienes acceso al sistema.',
                 });
             });
         } else if (statusCode === 401) {
