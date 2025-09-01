@@ -1,0 +1,1189 @@
+<% 
+extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+<style>
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .content-header {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #7c1241;
+  }
+  
+  .content-header h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .content-header .icon {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.2em;
+  }
+  
+  .action-buttons {
+    margin-top: 20px;
+  }
+  
+  .btn-primary-custom {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(124, 18, 65, 0.3);
+  }
+  
+  .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 18, 65, 0.4);
+    color: white;
+  }
+  
+  .filters-section {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filters-section h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filters-section .icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 0.8em;
+  }
+  
+  .form-check {
+    margin-bottom: 8px;
+  }
+  
+  .form-check-input:checked {
+    background-color: #7c1241;
+    border-color: #7c1241;
+  }
+  
+  .form-check-label {
+    color: #34495e;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .table {
+    margin: 0;
+  }
+  
+  .table thead th {
+    background: white;
+    border: none;
+    color: #000000;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: center;
+    font-size: 0.9em;
+  }
+  
+  .table tbody td {
+    padding: 15px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #7c1241, #9c1a5a);
+    border-radius: 15px 15px 0 0;
+    padding: 20px 25px;
+  }
+  
+  .modal-title {
+    color: white !important;
+    font-weight: 600;
+  }
+  
+  .modal-body {
+    padding: 25px;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+  
+  .form-control {
+    border-radius: 8px;
+    border: 2px solid #ecf0f1;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus {
+    border-color: #7c1241;
+    box-shadow: 0 0 0 0.2rem rgba(124, 18, 65, 0.25);
+  }
+  
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+  }
+  
+  .btn-close {
+    filter: invert(1);
+  }
+  
+  /* Stats Cards */
+  .stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .stats-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2em;
+  }
+  
+  .stats-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stats-number {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+  }
+  
+  .stats-label {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Pagination */
+  .pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+    color: #7c1241;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #7c1241;
+    border-color: #7c1241;
+  }
+  
+  /* Loading states */
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Filter buttons */
+  .btn-outline-primary {
+    border-color: #7c1241;
+    color: #7c1241;
+  }
+  
+  .btn-outline-primary:hover,
+  .btn-outline-primary:focus,
+  .btn-outline-primary:active {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
+  
+  .btn-check:checked + .btn-outline-primary {
+    background-color: #7c1241;
+    border-color: #7c1241;
+    color: white;
+  }
+  
+  @media (max-width: 1200px) {
+    .stats-card {
+      margin-bottom: 15px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .main-content {
+      padding: 10px;
+    }
+    
+    .content-header, .filters-section, .table-container {
+      padding: 15px;
+    }
+    
+    .content-header h3 {
+      font-size: 1.5em;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+    
+    .action-buttons {
+      margin-top: 15px;
+      text-align: center;
+    }
+    
+    .btn-primary-custom {
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .filters-section .row {
+      margin: 0;
+    }
+    
+    .filters-section .col-md-4,
+    .filters-section .col-md-2 {
+      margin-bottom: 15px;
+    }
+    
+    .filters-section .d-flex.justify-content-between {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .filters-section .d-flex.justify-content-between > div {
+      width: 100%;
+      text-align: center;
+    }
+    
+    .btn-group {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .btn-group .btn {
+      margin: 2px;
+    }
+    
+    .stats-card {
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .stats-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9em;
+    }
+    
+    .stats-number {
+      font-size: 1.1em;
+    }
+    
+    .stats-label {
+      font-size: 0.7em;
+    }
+    
+    .table-responsive {
+      font-size: 0.8em;
+    }
+    
+    .table thead th,
+    .table tbody td {
+      padding: 8px 6px;
+    }
+    
+    .pagination {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .pagination .page-link {
+      padding: 6px 10px;
+      font-size: 0.9em;
+    }
+    
+    .d-flex.justify-content-between.align-items-center {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+    }
+    
+    .d-flex.justify-content-between.align-items-center > div {
+      width: 100%;
+    }
+    
+    #limitSelect {
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .main-content {
+      padding: 8px;
+    }
+    
+    .content-header, .filters-section, .table-container {
+      padding: 12px;
+    }
+    
+    .content-header h3 {
+      font-size: 1.3em;
+    }
+    
+    .stats-card {
+      padding: 8px;
+    }
+    
+    .stats-icon {
+      width: 25px;
+      height: 25px;
+      font-size: 0.8em;
+    }
+    
+    .stats-number {
+      font-size: 1em;
+    }
+    
+    .stats-label {
+      font-size: 0.65em;
+    }
+    
+    .btn-primary-custom {
+      padding: 10px 16px;
+      font-size: 0.9em;
+    }
+    
+    .table-responsive {
+      font-size: 0.75em;
+    }
+    
+    .table thead th,
+    .table tbody td {
+      padding: 6px 4px;
+    }
+    
+    .btn-group .btn {
+      padding: 4px 6px;
+      font-size: 0.8em;
+    }
+    
+    .content-header h3 {
+      font-size: 1.2em;
+    }
+    
+    .content-header p {
+      font-size: 0.9em;
+    }
+  }
+  
+  /* Asegurar que no haya desbordamiento horizontal */
+  .filters-section,
+  .table-container,
+  .content-header {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Prevenir padding residual del modal */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Asegurar que el main content mantenga su padding */
+  .main-content {
+    padding-right: 20px;
+  }
+  
+  /* Prevenir scroll horizontal */
+  .app-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Prevenir que Bootstrap modifique el body cuando el modal esté abierto */
+  body.modal-open {
+    padding-right: 0 !important;
+  }
+  
+  /* Asegurar que el modal funcione correctamente */
+  .modal {
+    z-index: 1050;
+  }
+  
+  /* Modal cuando está abierto */
+  .modal.show {
+    display: block !important;
+    pointer-events: auto !important;
+    z-index: 1055 !important;
+  }
+  
+  /* Backdrop del modal */
+  .modal-backdrop.show {
+    opacity: 0.5 !important;
+    pointer-events: auto !important;
+    z-index: 1050 !important;
+  }
+  
+  /* Asegurar que el contenido del modal sea interactivo */
+  .modal-content {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1056 !important;
+  }
+  
+  /* Asegurar que los botones del modal sean clickeables */
+  .modal .btn {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1057 !important;
+  }
+  
+  /* Asegurar que los inputs del modal sean interactivos */
+  .modal input,
+  .modal select,
+  .modal textarea {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1057 !important;
+  }
+  
+  /* Prevenir scroll en el body cuando el modal esté abierto */
+  body:has(.modal.show) {
+    overflow: hidden;
+  }
+  
+  /* Tabla estática sin scroll horizontal */
+  .table-responsive {
+    border: 0;
+    overflow-x: visible;
+    width: 100%;
+  }
+  
+  .table {
+    width: 100%;
+    table-layout: fixed;
+    margin: 0;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  /* Definir anchos específicos para cada columna */
+  .table th:nth-child(1), .table td:nth-child(1) { width: 15%; } /* Código */
+  .table th:nth-child(2), .table td:nth-child(2) { width: 30%; } /* Razón Social */
+  .table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* RFC */
+  .table th:nth-child(4), .table td:nth-child(4) { width: 15%; } /* Teléfono */
+  .table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Status */
+  .table th:nth-child(6), .table td:nth-child(6) { width: 15%; } /* Acciones */
+  
+  /* Mejorar la apariencia de las celdas */
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+  }
+  
+  .table tbody tr:nth-child(even):hover {
+    background-color: #e9ecef;
+  }
+  
+  /* Ajustar botones de acción en móviles */
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+     /* Asegurar que el texto largo se maneje correctamente */
+   .text-truncate {
+     max-width: 100%;
+     display: block;
+   }
+   
+   /* Estilos para las secciones del modal */
+   .modal-body h6 {
+     color: #7c1241 !important;
+     font-weight: 600;
+     border-bottom: 2px solid #e9ecef;
+     padding-bottom: 8px;
+   }
+   
+   .modal-body hr {
+     border-color: #7c1241;
+     opacity: 0.3;
+     margin: 2rem 0;
+   }
+   
+       .modal-body .form-label {
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    /* Estilos para el modal de visualización */
+    .form-control-plaintext {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin: 0;
+      color: #495057;
+      font-size: 0.9em;
+    }
+    
+    .form-control-plaintext:empty::before {
+      content: '-';
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .btn-outline-info {
+      border-color: #17a2b8;
+      color: #17a2b8;
+    }
+    
+    .btn-outline-info:hover {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      color: white;
+    }
+  </style>
+`; %>
+
+<div class="app-container">
+  <!-- Sidebar Component -->
+  <%- include('../components/sidebar', { 
+    currentPage: '/gestionambiental/empresas', 
+    pageTitle: 'Gestión de Empresas - Gestión Ambiental', 
+    isAdmin: true
+  }) %>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header Section -->
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3>
+            <i class="fas fa-building icon"></i>
+            Gestión de Empresas
+          </h3>
+          <p class="text-muted mb-0 mt-2">Sistema de administración de empresas del área de gestión ambiental</p>
+        </div>
+        
+        <div class="action-buttons">
+          <button id="btnNuevaEmpresa" class="btn btn-primary-custom" data-toggle="modal" data-target="#modalEmpresa">
+            <i class="fas fa-plus me-2"></i>
+            Nueva Empresa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filters Section -->
+    <div class="filters-section">
+      <div class="row g-3">
+                 <!-- Búsqueda -->
+         <div class="col-lg-6 col-md-6 col-sm-12">
+           <label class="form-label">
+             <i class="fas fa-search me-2"></i>Búsqueda
+           </label>
+             <input type="text" id="searchInput" class="form-control" placeholder="Buscar por código, razón social o RFC...">
+         </div>
+        
+        <!-- Status -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-info-circle me-2"></i>Estatus
+          </label>
+          <select id="filterStatus" class="form-control">
+            <option value="">Todos</option>
+            <option value="1">Activo</option>
+            <option value="0">Inactivo</option>
+          </select>
+        </div>
+        
+        <!-- Límite por página -->
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-list me-2"></i>Por página
+          </label>
+          <select id="limitSelect" class="form-control">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Botones de filtros -->
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="d-flex gap-2">
+          <button id="btnAplicarFiltros" class="btn btn-primary-custom btn-sm">
+            <i class="fas fa-filter me-2"></i>Aplicar Filtros
+          </button>
+          <button id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-times me-2"></i>Limpiar
+          </button>
+        </div>
+        
+        <!-- Ordenamiento -->
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">Ordenar por:</span>
+          <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="ordenEmpresas" id="ordenNormal" value="normal" checked>
+            <label class="btn btn-outline-primary" for="ordenNormal">Normal</label>
+            
+            <input type="radio" class="btn-check" name="ordenEmpresas" id="ordenReciente" value="reciente">
+            <label class="btn btn-outline-primary" for="ordenReciente">Reciente</label>
+            
+            <input type="radio" class="btn-check" name="ordenEmpresas" id="ordenAntiguo" value="antiguo">
+            <label class="btn btn-outline-primary" for="ordenAntiguo">Antiguo</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+         <!-- Stats Cards -->
+     <div class="row mb-3 g-2">
+       <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+         <div class="stats-card">
+           <div class="stats-icon bg-primary">
+             <i class="fas fa-building"></i>
+           </div>
+           <div class="stats-info">
+             <span class="stats-number" id="totalEmpresas">-</span>
+             <span class="stats-label">Total</span>
+           </div>
+         </div>
+       </div>
+       <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+         <div class="stats-card">
+           <div class="stats-icon bg-success">
+             <i class="fas fa-check-circle"></i>
+           </div>
+           <div class="stats-info">
+             <span class="stats-number" id="empresasActivas">-</span>
+             <span class="stats-label">Activas</span>
+           </div>
+         </div>
+       </div>
+     </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+      <!-- Loading indicator -->
+      <div id="loadingIndicator" class="text-center py-4" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2 text-muted">Cargando empresas...</p>
+      </div>
+      
+      <!-- Table -->
+      <div id="tableContent" style="display: none;">
+        <div class="table-responsive">
+          <table id="tablaEmpresas" class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="text-center">Código</th>
+                <th>Razón Social</th>
+                <th class="text-center">RFC</th>
+                <th class="text-center">Teléfono</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>                        
+            <tbody>
+              <!-- Los registros se cargarán dinámicamente aquí -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Mostrando</span>
+            <select id="limitSelect" class="form-select form-select-sm" style="width: auto;">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-muted small">registros por página</span>
+          </div>
+          
+          <nav aria-label="Paginación de empresas">
+            <ul class="pagination pagination-sm mb-0" id="pagination">
+              <!-- La paginación se generará dinámicamente -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+      
+      <!-- No results message -->
+      <div id="noResults" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No se encontraron resultados</h5>
+        <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal para Registrar/Editar Empresa -->
+<div class="modal fade" id="modalEmpresa" tabindex="-1" role="dialog" aria-labelledby="modalEmpresaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <form id="formEmpresa">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEmpresaLabel">
+            <i class="fas fa-plus me-2"></i>
+            Nueva Empresa
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+  
+                 <div class="modal-body">
+           <!-- Información de la Empresa -->
+           <h6 class="text-primary mb-3">
+             <i class="fas fa-building me-2"></i>
+             Información de la Empresa
+           </h6>
+           <div class="row g-3 mb-4">
+             <div class="col-md-6">
+               <label class="form-label">Razón Social *</label>
+               <input type="text" id="razonSocial" class="form-control" required>
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">Sucursal</label>
+               <input type="text" id="sucursal" class="form-control">
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">RFC *</label>
+               <input type="text" id="rfc" class="form-control" required>
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">Teléfono *</label>
+               <input type="tel" id="telefono" class="form-control" required>
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">Correo Electrónico *</label>
+               <input type="email" id="correo" class="form-control" required>
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">Calle *</label>
+               <input type="text" id="calle" class="form-control" required>
+             </div>
+             
+             <div class="col-md-3">
+               <label class="form-label">No. Exterior</label>
+               <input type="text" id="noExterior" class="form-control">
+             </div>
+             
+             <div class="col-md-3">
+               <label class="form-label">No. Interior</label>
+               <input type="text" id="noInterior" class="form-control">
+             </div>
+             
+             <div class="col-md-6">
+               <label class="form-label">Colonia *</label>
+               <input type="text" id="colonia" class="form-control" required>
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Código Postal *</label>
+               <input type="text" id="cp" class="form-control" required>
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Localidad</label>
+               <input type="text" id="localidad" class="form-control">
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Municipio *</label>
+               <input type="text" id="municipio" class="form-control" required>
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Estado *</label>
+               <input type="text" id="estado" class="form-control" required>
+             </div>
+           </div>
+           
+           <!-- Separador -->
+           <hr class="my-4">
+           
+                       <!-- Datos para Notificaciones -->
+            <h6 class="text-primary mb-3">
+              <i class="fas fa-bell me-2"></i>
+              Datos para Notificaciones
+            </h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Calle para Notificaciones</label>
+                <input type="text" id="calleNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">No. Exterior para Notificaciones</label>
+                <input type="text" id="noExteriorNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">No. Interior para Notificaciones</label>
+                <input type="text" id="noInteriorNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label">Colonia para Notificaciones</label>
+                <input type="text" id="coloniaNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">CP para Notificaciones</label>
+                <input type="text" id="cpNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Localidad para Notificaciones</label>
+                <input type="text" id="localidadNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Municipio para Notificaciones</label>
+                <input type="text" id="municipioNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label">Teléfono para Notificaciones</label>
+                <input type="tel" id="telefonoNotificaciones" class="form-control">
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label">Correo para Notificaciones</label>
+                <input type="email" id="correoNotificaciones" class="form-control">
+              </div>
+            </div>
+           
+           <!-- Separador -->
+           <hr class="my-4">
+         
+         <!-- Información del Representante Legal -->
+           <h6 class="text-primary mb-3">
+             <i class="fas fa-user-tie me-2"></i>
+             Información del Representante Legal
+           </h6>
+           <div class="row g-3">
+             <div class="col-md-4">
+               <label class="form-label">Nombre del Representante *</label>
+               <input type="text" id="repNombre" class="form-control" required>
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Correo del Representante *</label>
+               <input type="email" id="repCorreo" class="form-control" required>
+             </div>
+             
+             <div class="col-md-4">
+               <label class="form-label">Teléfono del Representante *</label>
+               <input type="tel" id="repTelefono" class="form-control" required>
+             </div>
+           </div>
+         </div>
+  
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary-custom">
+            <i class="fas fa-save me-2"></i>
+            Guardar Empresa
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para Editar Empresa -->
+<div class="modal fade" id="modalEditarEmpresa" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <form id="formEditarEmpresa" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Empresa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+             <div class="modal-body">
+         <input type="hidden" id="editEmpresaId" name="editEmpresaId">
+         
+         <!-- Información de la Empresa -->
+         <h6 class="text-primary mb-3">
+           <i class="fas fa-building me-2"></i>
+           Información de la Empresa
+         </h6>
+         <div class="row g-3 mb-4">
+           <div class="col-md-6">
+             <label class="form-label">Razón Social</label>
+             <input type="text" id="editRazonSocial" name="editRazonSocial" class="form-control" required>
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Sucursal</label>
+             <input type="text" id="editSucursal" name="editSucursal" class="form-control">
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">RFC</label>
+             <input type="text" id="editRfc" name="editRfc" class="form-control" required>
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Teléfono</label>
+             <input type="tel" id="editTelefono" name="editTelefono" class="form-control" required>
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Correo</label>
+             <input type="email" id="editCorreo" name="editCorreo" class="form-control" required>
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Calle</label>
+             <input type="text" id="editCalle" name="editCalle" class="form-control" required>
+           </div>
+           
+           <div class="col-md-3">
+             <label class="form-label">No. Exterior</label>
+             <input type="text" id="editNoExterior" name="editNoExterior" class="form-control">
+           </div>
+           
+           <div class="col-md-3">
+             <label class="form-label">No. Interior</label>
+             <input type="text" id="editNoInterior" name="editNoInterior" class="form-control">
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Colonia</label>
+             <input type="text" id="editColonia" name="editColonia" class="form-control" required>
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">CP</label>
+             <input type="text" id="editCp" name="editCp" class="form-control" required>
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">Localidad</label>
+             <input type="text" id="editLocalidad" name="editLocalidad" class="form-control">
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">Municipio</label>
+             <input type="text" id="editMunicipio" name="editMunicipio" class="form-control" required>
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">Estado</label>
+             <input type="text" id="editEstado" name="editEstado" class="form-control" required>
+           </div>
+           
+           <div class="col-md-6">
+             <label class="form-label">Estatus</label>
+             <select id="editStatus" name="editStatus" class="form-control">
+               <option value="1">Activo</option>
+               <option value="0">Inactivo</option>
+             </select>
+           </div>
+         </div>
+         
+         <!-- Separador -->
+         <hr class="my-4">
+         
+                   <!-- Datos para Notificaciones -->
+          <h6 class="text-primary mb-3">
+            <i class="fas fa-bell me-2"></i>
+            Datos para Notificaciones
+          </h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Calle para Notificaciones</label>
+              <input type="text" id="editCalleNotificaciones" name="editCalleNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-3">
+              <label class="form-label">No. Exterior para Notificaciones</label>
+              <input type="text" id="editNoExteriorNotificaciones" name="editNoExteriorNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-3">
+              <label class="form-label">No. Interior para Notificaciones</label>
+              <input type="text" id="editNoInteriorNotificaciones" name="editNoInteriorNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Colonia para Notificaciones</label>
+              <input type="text" id="editColoniaNotificaciones" name="editColoniaNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">CP para Notificaciones</label>
+              <input type="text" id="editCpNotificaciones" name="editCpNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Localidad para Notificaciones</label>
+              <input type="text" id="editLocalidadNotificaciones" name="editLocalidadNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Municipio para Notificaciones</label>
+              <input type="text" id="editMunicipioNotificaciones" name="editMunicipioNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Teléfono para Notificaciones</label>
+              <input type="tel" id="editTelefonoNotificaciones" name="editTelefonoNotificaciones" class="form-control">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Correo para Notificaciones</label>
+              <input type="email" id="editCorreoNotificaciones" name="editCorreoNotificaciones" class="form-control">
+            </div>
+          </div>
+         
+         <!-- Separador -->
+         <hr class="my-4">
+         
+         <!-- Información del Representante Legal -->
+         <h6 class="text-primary mb-3">
+           <i class="fas fa-user-tie me-2"></i>
+           Información del Representante Legal
+         </h6>
+         <div class="row g-3">
+           <div class="col-md-4">
+             <label class="form-label">Nombre del Representante</label>
+             <input type="text" id="editRepNombre" name="editRepNombre" class="form-control" required>
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">Correo del Representante</label>
+             <input type="email" id="editRepCorreo" name="editRepCorreo" class="form-control" required>
+           </div>
+           
+           <div class="col-md-4">
+             <label class="form-label">Teléfono del Representante</label>
+             <input type="tel" id="editRepTelefono" name="editRepTelefono" class="form-control" required>
+           </div>
+         </div>
+       </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary-custom">Guardar</button>            
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/components/sidebar.js"></script>
+
+<% extraScripts=` 
+<script src="/js/gestionambiental/empresas.js"></script>
+`; %>

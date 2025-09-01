@@ -22,6 +22,8 @@ const inventarioController = require('../controllers/inventarioController/invent
 const financierosController = require('../controllers/financieros/financierosController');
 const financierosCorrespondenciaController = require('../controllers/financieros/correspondenciaController');
 const gestionambientalController = require('../controllers/gestionambiental/gestionambientalController');
+const empresasController = require('../controllers/gestionambiental/empresasController');
+const tramitesController = require('../controllers/gestionambiental/tramitesController');
 const calendarController = require('../controllers/calendarController/calendarController');
 
 
@@ -76,8 +78,17 @@ router.get('/usuariosGestionAmbiental', authenticated.isAuthenticated, verifyTok
     res.render('gestionambiental/usuarios');
 });
 
+router.get('/empresas', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental,  (req, res) => {    
+    res.render('gestionambiental/empresas');
+});
+
 router.get('/calendario', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {
     res.render('calendario/calendario');
+});
+
+// Trámites - Gestión Ambiental
+router.get('/tramites', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+    res.render('gestionambiental/tramites');
 });
 
 
@@ -163,6 +174,30 @@ router.post('/api/gestionambiental/usuarios/', gestionambientalController.crearU
 router.put('/api/gestionambiental/usuarios/:id', gestionambientalController.actualizarUsuario);
 router.delete('/api/gestionambiental/usuarios/:id', gestionambientalController.eliminarUsuario);
 router.put('/api/gestionambiental/usuarios/password/:id', gestionambientalController.actualizarPassword);
+
+// Gestión Ambiental - Empresas
+router.get('/api/gestionambiental/empresas/', empresasController.obtenerEmpresas);
+router.get('/api/gestionambiental/empresas/buscar', empresasController.buscarEmpresas);
+router.get('/api/gestionambiental/empresas/estadisticas', empresasController.obtenerEstadisticas);
+router.get('/api/gestionambiental/empresas/ver/:id', empresasController.verEmpresa);
+router.get('/api/gestionambiental/empresas/:id', empresasController.obtenerEmpresaPorId);
+router.post('/api/gestionambiental/empresas/', empresasController.crearEmpresa);
+router.put('/api/gestionambiental/empresas/:id', empresasController.actualizarEmpresa);
+router.delete('/api/gestionambiental/empresas/:id', empresasController.eliminarEmpresa);
+
+// Gestión Ambiental - Trámites
+router.get('/api/gestionambiental/tramites/', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerTramites);
+router.get('/api/gestionambiental/tramites/opciones-filtros', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerOpcionesFiltros);
+router.get('/api/gestionambiental/tramites/:id', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerTramitePorId);
+router.post('/api/gestionambiental/tramites/', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.crearTramite);
+router.put('/api/gestionambiental/tramites/:id', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.actualizarTramite);
+router.delete('/api/gestionambiental/tramites/:id', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.eliminarTramite);
+router.post('/api/gestionambiental/tramites/:id/lock', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.bloquearTramite);
+router.post('/api/gestionambiental/tramites/:id/unlock', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.desbloquearTramite);
+router.get('/api/gestionambiental/tramites/empresa/:empresaId', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerTramitesPorEmpresa);
+router.get('/api/gestionambiental/tramites/status/:status', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerTramitesPorStatus);
+router.get('/api/gestionambiental/tramites/buscar', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.buscarTramites);
+router.get('/api/gestionambiental/tramites/estadisticas', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerEstadisticas);
 
 router.get('/api/financieros/correspondencia/', verificarToken, financierosCorrespondenciaController.obtenerCorrespondencias);
 router.get('/api/financieros/correspondencia/:id', financierosCorrespondenciaController.obtenerCorrespondenciaPorId);

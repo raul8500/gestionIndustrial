@@ -274,9 +274,11 @@ class Sidebar {
       '/financieros/usuarios': 'Usuarios Financieros',
       '/financieros/viaticos': 'Viáticos',
       '/usuariosGestionAmbiental': 'Usuarios Gestión Ambiental',
+      '/empresasGestionAmbiental': 'Empresas Gestión Ambiental',
       '/inventariotics': 'Inventario TICS',
       '/secretaria/correspondencia': 'Correspondencia Secretaría',
-      '/tickets': 'Tickets'
+      '/tickets': 'Tickets',
+      '/tramites': 'Trámites - Gestión Ambiental'
     };
     return titles[path] || '';
   }
@@ -292,7 +294,9 @@ class Sidebar {
       'Usuarios financieros': 'fa-user-tie',
       'Usuarios Gestión Ambiental': 'fa-leaf',
       'Viáticos': 'fa-receipt',
-      'default': 'fa-cog'
+      'Tramites': 'fa-folder',
+      'Empresas': 'fa-building',
+      'default': 'fa-leaf'
     };
 
     for (const [key, icono] of Object.entries(iconos)) {
