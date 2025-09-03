@@ -7,6 +7,10 @@ class TramitesManager {
         this.tramiteEditando = null;
         this.paginaActual = 1;
         this.totalPaginas = 1;
+    this.userInfo = null; // info del usuario autenticado (para permisos)
+    this._filterPortal = null; // portal para sugerencias del filtro de empresa
+    this._filterPortalVisible = false;
+    this._onPortalReposition = null;
         // Catálogo local de técnicos: código -> nombre visible
         this.catalogoTecnicos = {
             1: 'QFB Rosa',
@@ -27,10 +31,25 @@ class TramitesManager {
     }
 
     async init() {
+        await this.obtenerUsuarioActual();
         await this.cargarOpcionesFiltros();
         await this.cargarTramites();
         this.setupEventListeners();
     this.setupRealtime();
+    }
+
+    // Obtener info del usuario autenticado para validar permisos de UI
+    async obtenerUsuarioActual() {
+        try {
+            const res = await fetch('/api/verifySesion');
+            if (res.ok) {
+                this.userInfo = await res.json();
+            } else {
+                this.userInfo = {};
+            }
+        } catch (_) {
+            this.userInfo = {};
+        }
     }
 
     setupEventListeners() {
@@ -439,11 +458,48 @@ class TramitesManager {
                         <button class="btn btn-outline-danger btn-sm" onclick="tramitesManager.eliminarTramite('${tramite._id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
+                        ${this.userInfo && this.userInfo.puedeCrearUsuarios ? `
+                        <button class="btn btn-outline-secondary btn-sm" onclick="tramitesManager.verCambiosTramite('${tramite._id}')" title="Ver cambios">
+                            <i class=\"fas fa-history\"></i>
+                        </button>` : ''}
                     </div>
                     ${tramite.lockedBy ? '<div><span class="badge bg-secondary mt-1">Bloqueado</span></div>' : ''}
                 </td>
             </tr>
         `).join('');
+    }
+
+    // Mostrar auditoría del último cambio
+    async verCambiosTramite(id) {
+        // Buscar en memoria primero
+        let t = this.tramites.find(x => x._id === id);
+        try {
+            if (!t) {
+                const res = await fetch(`/api/gestionambiental/tramites/${id}`);
+                if (res.ok) t = await res.json();
+            }
+        } catch (_) {}
+
+        const quien = t?.lastModifiedBy ? (t.lastModifiedBy.name || t.lastModifiedBy.username || '-') : '-';
+        const cuando = t?.lastModifiedAt ? new Date(t.lastModifiedAt).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+        const que = t?.lastChange || 'Sin registros';
+
+        if (window.Swal) {
+            await Swal.fire({
+                title: 'Último cambio',
+                html: `
+                    <div class="text-start">
+                        <p><strong>Quién:</strong> ${this._escapeHtml(quien)}</p>
+                        <p><strong>Cuándo:</strong> ${this._escapeHtml(cuando)}</p>
+                        <p><strong>Qué cambió:</strong><br>${this._escapeHtml(que)}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Cerrar'
+            });
+        } else {
+            alert(`Último cambio\nQuién: ${quien}\nCuándo: ${cuando}\nQué: ${que}`);
+        }
     }
 
     // Obtener clase CSS para el status
@@ -580,7 +636,33 @@ class TramitesManager {
         if (modal) {
             const bootstrapModal = new bootstrap.Modal(modal);
             bootstrapModal.show();
+            // Al cerrarse por cualquier motivo (Cancelar, X, backdrop), liberar el lock
+            const handler = this.onModalHidden.bind(this);
+            // Usamos once:true para evitar múltiple registro en siguientes aperturas
+            modal.addEventListener('hidden.bs.modal', handler, { once: true });
         }
+    }
+
+    // Handler al cerrarse el modal (cualquier vía): liberar bloqueo y limpiar estado
+    onModalHidden() {
+        const id = this.tramiteEditando;
+        if (this._tieneLock && id) {
+            fetch(`/api/gestionambiental/tramites/${id}/unlock`, { method: 'POST' })
+              .then(() => {
+                  const t = this.tramites.find(x => x._id === id);
+                  if (t) {
+                      t.lockedBy = null;
+                      t.lockedAt = null;
+                      this.renderizarTabla();
+                  }
+              })
+              .catch(() => {});
+        }
+        this._tieneLock = false;
+        this.tramiteEditando = null;
+        // Cerrar dropdowns de sugerencias si quedaron abiertos
+        this.ocultarSugerenciasEmpresas('empresaSuggestions');
+        this.ocultarSugerenciasEmpresas('filterEmpresaSuggestions');
     }
 
     // Cerrar modal
@@ -609,7 +691,17 @@ class TramitesManager {
         // Liberar lock si corresponde
         const id = this.tramiteEditando;
         if (this._tieneLock && id) {
-            fetch(`/api/gestionambiental/tramites/${id}/unlock`, { method: 'POST' }).catch(()=>{});
+            fetch(`/api/gestionambiental/tramites/${id}/unlock`, { method: 'POST' })
+              .then(() => {
+                  // Reflejar al instante en la tabla sin esperar al socket
+                  const t = this.tramites.find(x => x._id === id);
+                  if (t) {
+                      t.lockedBy = null;
+                      t.lockedAt = null;
+                      this.renderizarTabla();
+                  }
+              })
+              .catch(()=>{});
         }
         this._tieneLock = false;
         this.tramiteEditando = null;
@@ -985,10 +1077,64 @@ class TramitesManager {
     // Mostrar sugerencias de empresas
     mostrarSugerenciasEmpresas(empresas = [], targetSuggestionsId) {
         const id = targetSuggestionsId || 'empresaSuggestions';
+
+        // Si es el filtro superior, usar portal fijo fuera del contenedor para evitar recortes
+        if (id === 'filterEmpresaSuggestions') {
+            // Ocultar el contenedor original si existe
+            const inlineDiv = document.getElementById(id);
+            if (inlineDiv) inlineDiv.style.display = 'none';
+
+            if (!empresas || empresas.length === 0) {
+                this._hideFilterPortal();
+                return;
+            }
+
+            const input = document.getElementById('filterEmpresaInput');
+            if (!input) return;
+            const html = empresas.map(empresa => `
+                <div class="suggestion-item" data-empresa-id="${empresa._id}" data-empresa-codigo="${empresa.codigo}" data-empresa-nombre="${empresa.razonSocial}">
+                    <div class="empresa-codigo">${empresa.codigo}</div>
+                    <div class="empresa-nombre">${empresa.razonSocial}</div>
+                </div>
+            `).join('');
+
+            this._ensureFilterPortal();
+            this._filterPortal.innerHTML = html;
+            this._positionFilterPortal();
+            this._filterPortal.style.display = 'block';
+            this._filterPortalVisible = true;
+
+            // Delegar clicks
+            this._filterPortal.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => this.seleccionarEmpresa(item, id));
+            });
+
+            // Reposicionar en scroll/resize
+            if (!this._onPortalReposition) {
+                this._onPortalReposition = () => {
+                    if (this._filterPortalVisible) this._positionFilterPortal();
+                };
+                window.addEventListener('scroll', this._onPortalReposition, true);
+                window.addEventListener('resize', this._onPortalReposition, true);
+            }
+
+            // Cerrar si se hace click fuera
+            document.addEventListener('click', (e) => {
+                if (this._filterPortalVisible) {
+                    const container = this._filterPortal;
+                    if (container && !container.contains(e.target) && !input.contains(e.target)) {
+                        this._hideFilterPortal();
+                    }
+                }
+            }, { once: true });
+            return;
+        }
+
+        // Caso normal (modal o formulario de creación): usar el contenedor inline
         const suggestionsDiv = document.getElementById(id);
         if (!suggestionsDiv) return;
 
-        if (empresas.length === 0) {
+        if (!empresas || empresas.length === 0) {
             suggestionsDiv.style.display = 'none';
             return;
         }
@@ -1002,8 +1148,6 @@ class TramitesManager {
 
         suggestionsDiv.innerHTML = html;
         suggestionsDiv.style.display = 'block';
-
-        // Event listeners para las sugerencias
         suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
             item.addEventListener('click', () => this.seleccionarEmpresa(item, id));
         });
@@ -1012,10 +1156,15 @@ class TramitesManager {
     // Ocultar sugerencias de empresas
     ocultarSugerenciasEmpresas(targetSuggestionsId) {
         const id = targetSuggestionsId || 'empresaSuggestions';
-        const suggestionsDiv = document.getElementById(id);
-        if (suggestionsDiv) {
-            suggestionsDiv.style.display = 'none';
+        if (id === 'filterEmpresaSuggestions') {
+            this._hideFilterPortal();
+            // También asegurar oculto el inline
+            const inlineDiv = document.getElementById(id);
+            if (inlineDiv) inlineDiv.style.display = 'none';
+            return;
         }
+        const suggestionsDiv = document.getElementById(id);
+        if (suggestionsDiv) suggestionsDiv.style.display = 'none';
     }
 
     // Seleccionar empresa de las sugerencias
@@ -1031,7 +1180,48 @@ class TramitesManager {
     if (hiddenEmpresaId) hiddenEmpresaId.value = empresaId;
         inputEmpresa.value = `${empresaCodigo} - ${empresaNombre}`;
         
-    this.ocultarSugerenciasEmpresas(targetSuggestionsId);
+        this.ocultarSugerenciasEmpresas(targetSuggestionsId);
+    }
+
+    // Crear (si no existe) el portal fijo para sugerencias del filtro de empresa
+    _ensureFilterPortal() {
+        if (this._filterPortal && document.body.contains(this._filterPortal)) return;
+        const div = document.createElement('div');
+        div.id = 'filterEmpresaPortal';
+        div.style.position = 'fixed';
+        div.style.zIndex = '15000';
+        div.style.background = 'white';
+        div.style.border = '1px solid #dee2e6';
+        div.style.borderTop = 'none';
+        div.style.borderRadius = '0 0 8px 8px';
+        div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        div.style.display = 'none';
+        // Sin max-height para que pueda salirse visualmente; el viewport limita
+        // Añadir clases para heredar estilos de items
+        div.className = 'suggestions-dropdown';
+        document.body.appendChild(div);
+        this._filterPortal = div;
+    }
+
+    // Posicionar el portal justo debajo del input del filtro
+    _positionFilterPortal() {
+        if (!this._filterPortal) return;
+        const input = document.getElementById('filterEmpresaInput');
+        if (!input) return;
+        const rect = input.getBoundingClientRect();
+        this._filterPortal.style.left = `${rect.left}px`;
+        this._filterPortal.style.top = `${rect.bottom}px`;
+        this._filterPortal.style.width = `${rect.width}px`;
+        // Opcional: limitar altura al viewport disponible para evitar cortar por abajo
+        const available = Math.max(100, window.innerHeight - rect.bottom - 10);
+        this._filterPortal.style.maxHeight = `${available}px`;
+        this._filterPortal.style.overflowY = 'auto';
+    }
+
+    // Ocultar y limpiar listeners del portal
+    _hideFilterPortal() {
+        if (this._filterPortal) this._filterPortal.style.display = 'none';
+        this._filterPortalVisible = false;
     }
 }
 

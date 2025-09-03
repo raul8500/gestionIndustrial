@@ -108,10 +108,30 @@ const tramitesSchema = new mongoose.Schema({
       return new Date().getFullYear();
     }
   },
+  // Borrado lógico
   isDeleted: {
     type: Boolean,
     default: false,
     required: true
+  },
+  // Auditoría del último cambio
+  lastModifiedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: false,
+    default: null
+  },
+  lastModifiedAt: {
+    type: Date,
+    required: false,
+    default: null
+  },
+  lastChange: {
+    type: String,
+    required: false,
+    trim: true,
+    default: null,
+    maxlength: 1000
   }
 }, {
   timestamps: true,
@@ -150,6 +170,7 @@ tramitesSchema.index({ status: 1 }, { name: 'statusTramites' });
 tramitesSchema.index({ mesCapturado: 1 }, { name: 'mesCapturadoTramites' });
 tramitesSchema.index({ anioCapturado: 1 }, { name: 'anioCapturadoTramites' });
 tramitesSchema.index({ isDeleted: 1 }, { name: 'isDeletedTramites' });
+tramitesSchema.index({ lastModifiedAt: 1 }, { name: 'lastModifiedAtTramites' });
 tramitesSchema.index({ createdAt: 1 }, { name: 'createdAtTramites' });
 tramitesSchema.index({ lockedAt: 1 }, { name: 'lockedAtTramites' });
 

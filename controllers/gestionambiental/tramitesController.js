@@ -58,6 +58,7 @@ exports.obtenerTramites = async (req, res) => {
     const tramites = await Tramite.find(filtros)
       .populate('empresa', 'codigo razonSocial')
       .populate('lockedBy', 'name username')
+      .populate('lastModifiedBy', 'name username')
       .sort({ fechaEntrada: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -91,7 +92,8 @@ exports.obtenerTramitePorId = async (req, res) => {
 
     const tramite = await Tramite.findById(req.params.id)
       .populate('empresa', 'codigo razonSocial direccion telefono correo representanteLegal')
-      .populate('lockedBy', 'name username');
+      .populate('lockedBy', 'name username')
+      .populate('lastModifiedBy', 'name username');
 
     if (!tramite) {
       return res.status(404).json({ message: 'Trámite no encontrado' });
@@ -165,13 +167,17 @@ exports.crearTramite = async (req, res) => {
       status: status || 'Ingresado al area',
       tecnicos: tecnicos || [],
       numeroPaginas,
-      tiempoEstimadoSalida
+      tiempoEstimadoSalida,
+      lastModifiedBy: usuario._id,
+      lastModifiedAt: new Date(),
+      lastChange: 'Creación de trámite'
     });
 
     await nuevoTramite.save();
 
     // Populate antes de enviar respuesta
   await nuevoTramite.populate('empresa', 'codigo razonSocial');
+  await nuevoTramite.populate('lastModifiedBy', 'name username');
 
     // Emitir evento en tiempo real
     try {
@@ -208,7 +214,7 @@ exports.actualizarTramite = async (req, res) => {
       return res.status(403).json({ message: 'Acceso denegado. Área no autorizada.' });
     }
 
-    const tramite = await Tramite.findById(req.params.id);
+  const tramite = await Tramite.findById(req.params.id);
     if (!tramite) {
       return res.status(404).json({ message: 'Trámite no encontrado' });
     }
@@ -241,6 +247,9 @@ exports.actualizarTramite = async (req, res) => {
         return res.status(400).json({ message: 'La empresa especificada no existe' });
       }
       tramite.empresa = empresaExiste._id;
+      // Auditoría de cambio de empresa
+      // (Se registrará en cambios más abajo)
+      var _cambioEmpresa = true;
     }
 
     // Validar técnicos como números predefinidos en actualización
@@ -254,14 +263,24 @@ exports.actualizarTramite = async (req, res) => {
     }
 
     // Actualizar campos si se proporcionan
-    if (folioOficialia) tramite.folioOficialia = folioOficialia;
-    if (fechaEntrada) tramite.fechaEntrada = fechaEntrada;
-    if (tipoTramite) tramite.tipoTramite = tipoTramite;
-    if (asuntoEspecifico) tramite.asuntoEspecifico = asuntoEspecifico;
-    if (observaciones !== undefined) tramite.observaciones = observaciones;
-    if (status) tramite.status = status;
-    if (numeroPaginas !== undefined) tramite.numeroPaginas = numeroPaginas;
-    if (tiempoEstimadoSalida !== undefined) tramite.tiempoEstimadoSalida = tiempoEstimadoSalida;
+    const cambios = [];
+  if (folioOficialia) { tramite.folioOficialia = folioOficialia; cambios.push('folioOficialia'); }
+  if (typeof _cambioEmpresa !== 'undefined' && _cambioEmpresa) { cambios.push('empresa'); }
+  if (fechaEntrada) { tramite.fechaEntrada = fechaEntrada; cambios.push('fechaEntrada'); }
+    if (tipoTramite) { tramite.tipoTramite = tipoTramite; cambios.push('tipoTramite'); }
+    if (asuntoEspecifico) { tramite.asuntoEspecifico = asuntoEspecifico; cambios.push('asuntoEspecifico'); }
+    if (observaciones !== undefined) { tramite.observaciones = observaciones; cambios.push('observaciones'); }
+    if (status) { tramite.status = status; cambios.push('status'); }
+    if (Array.isArray(tecnicos)) { cambios.push('tecnicos'); }
+    if (numeroPaginas !== undefined) { tramite.numeroPaginas = numeroPaginas; cambios.push('numeroPaginas'); }
+    if (tiempoEstimadoSalida !== undefined) { tramite.tiempoEstimadoSalida = tiempoEstimadoSalida; cambios.push('tiempoEstimadoSalida'); }
+
+    // Marcar auditoría
+    tramite.lastModifiedBy = usuario._id;
+    tramite.lastModifiedAt = new Date();
+    if (cambios.length) {
+      tramite.lastChange = `Actualización de campos: ${cambios.join(', ')}`;
+    }
 
     // Al guardar actualización, liberar el bloqueo si era del usuario
     if (tramite.lockedBy && String(tramite.lockedBy) === String(usuario._id)) {
@@ -273,6 +292,7 @@ exports.actualizarTramite = async (req, res) => {
     // Populate antes de enviar respuesta
   await tramite.populate('empresa', 'codigo razonSocial');
   await tramite.populate('lockedBy', 'name username');
+  await tramite.populate('lastModifiedBy', 'name username');
 
     // Emitir evento en tiempo real
     try {
@@ -318,12 +338,15 @@ exports.eliminarTramite = async (req, res) => {
       return res.status(403).json({ message: 'Acceso denegado. Área no autorizada.' });
     }
 
-    const tramite = await Tramite.findById(req.params.id);
+  const tramite = await Tramite.findById(req.params.id);
     if (!tramite) {
       return res.status(404).json({ message: 'Trámite no encontrado' });
     }
 
-    tramite.isDeleted = true;
+  tramite.isDeleted = true;
+  tramite.lastModifiedBy = usuario._id;
+  tramite.lastModifiedAt = new Date();
+  tramite.lastChange = 'Eliminación lógica (soft delete)';
     await tramite.save();
 
     // Emitir evento en tiempo real

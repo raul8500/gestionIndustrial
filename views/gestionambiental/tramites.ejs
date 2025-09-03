@@ -69,7 +69,9 @@ extraStyles=`
     border-radius: 15px;
     padding: 20px;
     margin-bottom: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Permitir que el dropdown de sugerencias del filtro salga del contenedor */
+  overflow: visible;
   }
   
   .filters-section h6 {
@@ -686,9 +688,14 @@ extraStyles=`
      border-top: none;
      border-radius: 0 0 8px 8px;
      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-     z-index: 1049; /* debajo de modales (1050+) y SweetAlert */
+  z-index: 1200; /* por encima de tarjetas y secciones; debajo de modales (1050+) y SweetAlert */
      max-height: 200px;
      overflow-y: auto;
+   }
+
+   /* Dentro del modal, las sugerencias deben ir por encima de los campos */
+   .modal .suggestions-dropdown {
+     z-index: 20000 !important;
    }
    
    .suggestion-item {
