@@ -72,6 +72,8 @@ function obtenerNombreRol(rol) {
             return "Financieros";
         case 6:
             return "Gestion Ambiental";
+        case 7:
+            return "Transparencia";
         default:
             return "Rol desconocido";
     }

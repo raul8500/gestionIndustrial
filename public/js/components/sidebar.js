@@ -296,6 +296,9 @@ class Sidebar {
       'Viáticos': 'fa-receipt',
       'Tramites': 'fa-folder',
       'Empresas': 'fa-building',
+      'Solicitudes': 'fa-paste',
+      'Registros UA': 'fa-paste',
+      'Calendario': 'fa-calendar-days',
       'default': 'fa-leaf'
     };
 

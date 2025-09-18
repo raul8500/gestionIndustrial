@@ -18,6 +18,7 @@ const upload = require('../middlewares/uploads');
 const oficioController = require('../controllers/oficiosController/oficiosController');
 const ticketsController = require('../controllers/ticketsController/ticketsController');
 const correspondenciaController = require('../controllers/correspondenciaSecretaria/correspondenciaController');
+const solicitudesController = require('../controllers/transparencia/solicitudesController');
 const inventarioController = require('../controllers/inventarioController/inventarioController');
 const financierosController = require('../controllers/financieros/financierosController');
 const financierosCorrespondenciaController = require('../controllers/financieros/correspondenciaController');
@@ -25,6 +26,7 @@ const gestionambientalController = require('../controllers/gestionambiental/gest
 const empresasController = require('../controllers/gestionambiental/empresasController');
 const tramitesController = require('../controllers/gestionambiental/tramitesController');
 const calendarController = require('../controllers/calendarController/calendarController');
+const migrationController = require('../controllers/tools/migrationController');
 
 
 //Vistas generales
@@ -57,6 +59,11 @@ router.get('/inventarioTics', authenticated.isAuthenticated, verifyToken.verifyT
 //Area de la secretaria
 router.get('/correspondenciaSecretaria', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSecretaria,  (req, res) => {    
     res.render('secretaria/correspondencia');
+});
+
+// Transparencia - Solicitudes (ruta corta)
+router.get('/solicitudesInfo', authenticated.isAuthenticated, verifyToken.verifyToken, (req, res) => {    
+    res.render('transparencia/solicitudes');
 });
 
 
@@ -157,6 +164,18 @@ router.get('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verif
 router.put('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, upload.array('archivos', 10), correspondenciaController.actualizarCorrespondencia);
 router.delete('/api/correspondencia/:id', rolVerify.isSecretaria, verifyToken.verifyToken, correspondenciaController.eliminarCorrespondencia);
 
+// Transparencia - API Solicitudes
+router.get('/api/transparencia/solicitudes', verifyToken.verifyToken, solicitudesController.obtenerSolicitudes);
+// Stats DEBE ir antes de ":id" para no ser capturada como id
+router.get('/api/transparencia/solicitudes/stats', verifyToken.verifyToken, solicitudesController.obtenerStatsSolicitudes);
+router.get('/api/transparencia/solicitudes/:id', verifyToken.verifyToken, solicitudesController.obtenerSolicitud);
+router.post('/api/transparencia/solicitudes', verifyToken.verifyToken, upload.array('archivos', 10), solicitudesController.crearSolicitud);
+router.put('/api/transparencia/solicitudes/:id', verifyToken.verifyToken, upload.array('archivos', 10), solicitudesController.actualizarSolicitud);
+router.delete('/api/transparencia/solicitudes/:id', verifyToken.verifyToken, solicitudesController.eliminarSolicitud);
+router.post('/api/transparencia/solicitudes/export', verifyToken.verifyToken, solicitudesController.exportarSolicitudes);
+// Importar desde Excel a Solicitudes (Postman: form-data -> key "excel": File)
+router.post('/api/transparencia/solicitudes/import-excel', upload.single('excel'), solicitudesController.importarSolicitudesDesdeExcel);
+
 
 //Recursos financieros
 
@@ -218,6 +237,8 @@ router.put('/calendario/salidas/:id', verificarToken, calendarController.updateS
 router.delete('/calendario/salidas/:id', verificarToken, calendarController.deleteSalida); // Eliminar salida solo si el usuario la creó
 router.patch('/calendario/salidas/:id/estado', verificarToken, calendarController.cambiarEstadoSalida); // Cambiar estado de salida
 router.get('/calendario/test-fechas', verificarToken, calendarController.testFechas); // Endpoint de prueba para fechas
+// Herramientas / Migración
+router.post('/api/tools/migrate/mysql-to-mongo',migrationController.migrateMySQLToMongo);
 
 
 
