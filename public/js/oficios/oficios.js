@@ -6,6 +6,7 @@ let currentFilters = {
   busqueda: '',
   tipoCorrespondencia: '',
   status: '',
+  departamentoTurnado: '',
   fechaDesde: '',
   fechaHasta: ''
 };
@@ -22,6 +23,7 @@ const elements = {
   searchInput: document.getElementById('searchInput'),
   filterTipo: document.getElementById('filterTipo'),
   filterStatus: document.getElementById('filterStatus'),
+  filterDepartamento: document.getElementById('filterDepartamento'),
   filterFechaDesde: document.getElementById('filterFechaDesde'),
   filterFechaHasta: document.getElementById('filterFechaHasta'),
   btnAplicarFiltros: document.getElementById('btnAplicarFiltros'),
@@ -126,6 +128,7 @@ function initializeEventListeners() {
   // Filtros individuales
   elements.filterTipo.addEventListener('change', handleFilterChange);
   elements.filterStatus.addEventListener('change', handleFilterChange);
+  if (elements.filterDepartamento) elements.filterDepartamento.addEventListener('change', handleFilterChange);
   elements.filterFechaDesde.addEventListener('change', handleFilterChange);
   elements.filterFechaHasta.addEventListener('change', handleFilterChange);
   
@@ -152,6 +155,7 @@ async function loadOficios(page = 1) {
       busqueda: currentFilters.busqueda,
       tipoCorrespondencia: currentFilters.tipoCorrespondencia,
       status: currentFilters.status,
+      departamentoTurnado: currentFilters.departamentoTurnado,
       fechaDesde: currentFilters.fechaDesde,
       fechaHasta: currentFilters.fechaHasta
     });
@@ -314,6 +318,7 @@ function applyFilters() {
     busqueda: elements.searchInput.value.trim(),
     tipoCorrespondencia: elements.filterTipo.value,
     status: elements.filterStatus.value,
+    departamentoTurnado: elements.filterDepartamento ? elements.filterDepartamento.value : '',
     fechaDesde: elements.filterFechaDesde.value,
     fechaHasta: elements.filterFechaHasta.value
   };
@@ -331,6 +336,7 @@ function clearFilters() {
   elements.searchInput.value = '';
   elements.filterTipo.value = '';
   elements.filterStatus.value = '';
+  if (elements.filterDepartamento) elements.filterDepartamento.value = '';
   elements.filterFechaDesde.value = '';
   elements.filterFechaHasta.value = '';
   
@@ -339,6 +345,7 @@ function clearFilters() {
     busqueda: '',
     tipoCorrespondencia: '',
     status: '',
+    departamentoTurnado: '',
     fechaDesde: '',
     fechaHasta: ''
   };
@@ -524,7 +531,8 @@ function getStatusBadge(status) {
   const statusMap = {
     '1': { text: 'Pendiente', class: 'bg-warning' },
     '2': { text: 'En Proceso', class: 'bg-info' },
-    '3': { text: 'Finalizado', class: 'bg-success' }
+    '3': { text: 'Finalizado', class: 'bg-success' },
+    '4': { text: 'En Revisión', class: 'bg-primary' }
   };
   
   const statusInfo = statusMap[status] || { text: 'Desconocido', class: 'bg-secondary' };
@@ -535,7 +543,8 @@ function getStatusText(status) {
   const statusMap = {
     '1': 'Pendiente',
     '2': 'En Proceso',
-    '3': 'Finalizado'
+    '3': 'Finalizado',
+    '4': 'En Revisión'
   };
   
   return statusMap[status] || 'Desconocido';

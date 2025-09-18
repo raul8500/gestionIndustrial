@@ -13,6 +13,7 @@ exports.getAllOficios = async (req, res) => {
       busqueda = '',
       tipoCorrespondencia = '',
       status = '',
+      departamentoTurnado = '',
       fechaDesde = '',
       fechaHasta = ''
     } = req.query;
@@ -25,8 +26,9 @@ exports.getAllOficios = async (req, res) => {
     console.log('Búsqueda:', busqueda);
     console.log('Tipo:', tipoCorrespondencia);
     console.log('Status:', status);
-    console.log('Fecha desde:', fechaDesde);
+  console.log('Fecha desde:', fechaDesde);
     console.log('Fecha hasta:', fechaHasta);
+  console.log('Departamento turnado:', departamentoTurnado);
     
     // Convertir a números
     const paginaNum = parseInt(pagina);
@@ -42,7 +44,8 @@ exports.getAllOficios = async (req, res) => {
         { noOficio: { $regex: busqueda, $options: 'i' } },
         { institucion: { $regex: busqueda, $options: 'i' } },
         { asunto: { $regex: busqueda, $options: 'i' } },
-        { tipoRespuesta: { $regex: busqueda, $options: 'i' } }
+        { tipoRespuesta: { $regex: busqueda, $options: 'i' } },
+        { observaciones: { $regex: busqueda, $options: 'i' } }
       ];
     }
     
@@ -55,9 +58,23 @@ exports.getAllOficios = async (req, res) => {
       console.log('No se aplicó filtro de tipo (valor vacío)');
     }
     
-    // Filtro por status
+    // Filtro por status (aceptar string o número)
     if (status) {
-      filtros.status = status;
+      const statusNum = parseInt(status);
+      if (!isNaN(statusNum)) {
+        filtros.status = { $in: [status, statusNum] };
+      } else {
+        filtros.status = status; // fallback
+      }
+    }
+
+    // Filtro por departamento turnado (el campo puede ser array o string)
+    if (departamentoTurnado) {
+      filtros.$or = filtros.$or || [];
+      filtros.$or.push(
+        { departamentoTurnado: departamentoTurnado },
+        { departamentoTurnado: { $in: [departamentoTurnado] } }
+      );
     }
     
     // Filtros de fecha
@@ -190,6 +207,15 @@ exports.getOficiosStats = async (req, res) => {
                 0 
               ] 
             } 
+          },
+          enRevision: {
+            $sum: {
+              $cond: [
+                { $or: [{ $eq: ['$status', '4'] }, { $eq: ['$status', 4] }] },
+                1,
+                0
+              ]
+            }
           },
           // Tipo de correspondencia - manejar tanto strings como números
           internos: { 
@@ -390,9 +416,10 @@ exports.exportOficios = async (req, res) => {
     oficios.forEach(oficio => {
       const fecha = moment.tz(oficio.fecha, 'America/Mexico_City').format('DD/MM/YYYY');
       const tipoCorrespondencia = oficio.tipoCorrespondencia === '1' || oficio.tipoCorrespondencia === 1 ? 'Interno' : 'Externo';
-      const status = oficio.status === '1' || oficio.status === 1 ? 'Pendiente' : 
-                     oficio.status === '2' || oficio.status === 2 ? 'En Proceso' : 
-                     oficio.status === '3' || oficio.status === 3 ? 'Finalizado' : 'Desconocido';
+  const status = oficio.status === '1' || oficio.status === 1 ? 'Pendiente' : 
+         oficio.status === '2' || oficio.status === 2 ? 'En Proceso' : 
+         oficio.status === '3' || oficio.status === 3 ? 'Finalizado' :
+         oficio.status === '4' || oficio.status === 4 ? 'En Revisión' : 'Desconocido';
       const departamentos = Array.isArray(oficio.departamentoTurnado) ? oficio.departamentoTurnado.join('; ') : oficio.departamentoTurnado || '';
       const observaciones = oficio.observaciones || '';
       

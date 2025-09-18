@@ -626,11 +626,11 @@ extraStyles=`
     <div class="filters-section">
       <div class="row g-3">
         <!-- Búsqueda -->
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="col-lg-2 col-md-6 col-sm-12">
           <label class="form-label">
             <i class="fas fa-search me-2"></i>Búsqueda
           </label>
-          <input type="text" id="searchInput" class="form-control" placeholder="Buscar por número, institución, asunto...">
+          <input type="text" id="searchInput" class="form-control" style="font-size: 13px;" placeholder="Buscar por número, institución, asunto...">
         </div>
         
         <!-- Tipo de Correspondencia -->
@@ -655,6 +655,23 @@ extraStyles=`
             <option value="1">Pendiente</option>
             <option value="2">En proceso</option>
             <option value="3">Finalizado</option>
+            <option value="4">En revisión</option>
+          </select>
+        </div>
+
+        <!-- Área Turnada -->
+        <div class="col-lg-2 col-md-4 col-sm-6">
+          <label class="form-label">
+            <i class="fas fa-building me-2"></i>Área turnada
+          </label>
+          <select id="filterDepartamento" class="form-control">
+            <option value="">Todas</option>
+            <option value="Recursos Financieros">Recursos Financieros</option>
+            <option value="Recursos Humanos">Recursos Humanos</option>
+            <option value="Recursos Materiales">Recursos Materiales</option>
+            <option value="Tecnologias">Tecnologías</option>
+            <option value="Archivo">Archivo</option>
+            <option value="Unidad Administrativa">Unidad Administrativa</option>
           </select>
         </div>
         
@@ -925,6 +942,12 @@ extraStyles=`
                     <label class="form-check-label" for="depArchivo">Archivo</label>
                   </div>
                 </div>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="departamentoTurnado" value="Unidad Administrativa" id="depUnidadAdm">
+                    <label class="form-check-label" for="depUnidadAdm">Unidad Administrativa</label>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -938,6 +961,7 @@ extraStyles=`
                 <option value="1">Pendiente</option>
                 <option value="2">En proceso</option>
                 <option value="3">Finalizado</option>
+                <option value="4">En revisión</option>
               </select>
             </div>
             <div class="col-md-12">
