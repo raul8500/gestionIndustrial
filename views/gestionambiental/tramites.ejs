@@ -878,8 +878,9 @@ extraStyles=`
     <!-- Stats por Status -->
     <div class="row mb-4 g-2">
       <div class="col-12">
-        <div class="d-flex flex-wrap gap-2">
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+        <div class="row g-2">
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#dbeafe;color:#1e40af;">
               <i class="fas fa-inbox"></i>
             </div>
@@ -887,8 +888,11 @@ extraStyles=`
               <span class="stats-number" id="statIngresado">-</span>
               <span class="stats-label">Ingresado al área</span>
             </div>
+            </div>
           </div>
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#fef3c7;color:#d97706;">
               <i class="fas fa-people-arrows"></i>
             </div>
@@ -896,8 +900,11 @@ extraStyles=`
               <span class="stats-number" id="statTurnado">-</span>
               <span class="stats-label">Turnado a técnico</span>
             </div>
+            </div>
           </div>
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#fce7f3;color:#be185d;">
               <i class="fas fa-pen-fancy"></i>
             </div>
@@ -905,8 +912,11 @@ extraStyles=`
               <span class="stats-number" id="statFirma">-</span>
               <span class="stats-label">En firma (Jefe Dpto.)</span>
             </div>
+            </div>
           </div>
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#e0e7ff;color:#7c3aed;">
               <i class="fas fa-share-square"></i>
             </div>
@@ -914,8 +924,11 @@ extraStyles=`
               <span class="stats-number" id="statDireccion">-</span>
               <span class="stats-label">Turnado a dirección</span>
             </div>
+            </div>
           </div>
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#f3e8ff;color:#a855f7;">
               <i class="fas fa-archive"></i>
             </div>
@@ -923,14 +936,18 @@ extraStyles=`
               <span class="stats-number" id="statResguardo">-</span>
               <span class="stats-label">Resguardo para notificar</span>
             </div>
+            </div>
           </div>
-          <div class="stats-card flex-grow-1" style="min-width: 220px;">
+
+          <div class="col-12 col-sm-6 col-md-2">
+            <div class="stats-card">
             <div class="stats-icon" style="background:#dcfce7;color:#15803d;">
               <i class="fas fa-flag-checkered"></i>
             </div>
             <div class="stats-info">
               <span class="stats-number" id="statNotificado">-</span>
               <span class="stats-label">Notificado</span>
+            </div>
             </div>
           </div>
         </div>
@@ -1079,80 +1096,7 @@ extraStyles=`
           <div class="row g-3">
             <div class="col-md-12">
               <label class="form-label">Técnicos Asignados</label>
-              <div id="tecnicosLista" class="row g-2">
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecRosa" name="tecnicosCodes" value="1">
-                    <label class="form-check-label" for="tecRosa">QFB Rosa</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecAgustin" name="tecnicosCodes" value="2">
-                    <label class="form-check-label" for="tecAgustin">Lic Agustin</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecSandra" name="tecnicosCodes" value="3">
-                    <label class="form-check-label" for="tecSandra">Ing. Sandra</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecAnahi" name="tecnicosCodes" value="4">
-                    <label class="form-check-label" for="tecAnahi">Ing. Anahi</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecDiana" name="tecnicosCodes" value="5">
-                    <label class="form-check-label" for="tecDiana">Ing. Diana</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecDaniel" name="tecnicosCodes" value="6">
-                    <label class="form-check-label" for="tecDaniel">Ing. Daniel</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecHector" name="tecnicosCodes" value="7">
-                    <label class="form-check-label" for="tecHector">Ing. hector</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecGustavo" name="tecnicosCodes" value="8">
-                    <label class="form-check-label" for="tecGustavo">Ing. Gustavo</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecAlma" name="tecnicosCodes" value="9">
-                    <label class="form-check-label" for="tecAlma">Lic. Alma</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecJonathan" name="tecnicosCodes" value="10">
-                    <label class="form-check-label" for="tecJonathan">Ing. Jonathan</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecAline" name="tecnicosCodes" value="11">
-                    <label class="form-check-label" for="tecAline">Ing Aline</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tecIvan" name="tecnicosCodes" value="12">
-                    <label class="form-check-label" for="tecIvan">Ing. Ivan</label>
-                  </div>
-                </div>
-              </div>
+              <div id="tecnicosLista" class="row g-2"></div>
             </div>
             
             <div class="col-md-12">

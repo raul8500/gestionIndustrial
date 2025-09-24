@@ -11,8 +11,10 @@ class TramitesManager {
     this._filterPortal = null; // portal para sugerencias del filtro de empresa
     this._filterPortalVisible = false;
     this._onPortalReposition = null;
-        // Catálogo local de técnicos: código -> nombre visible
-        this.catalogoTecnicos = {
+        // Catálogo dinámico de técnicos (se carga desde API)
+        this.catalogoTecnicos = []; // [{_id, nombre, status}]
+        // Mapa legado para mostrar nombres de registros antiguos que usan códigos numéricos
+        this.legacyTecnicosMap = {
             1: 'QFB Rosa',
             2: 'Lic Agustin',
             3: 'Ing. Sandra',
@@ -32,7 +34,8 @@ class TramitesManager {
 
     async init() {
         await this.obtenerUsuarioActual();
-        await this.cargarOpcionesFiltros();
+    await this.cargarOpcionesFiltros();
+    await this.cargarTecnicosDinamicos();
         await this.cargarTramites();
         this.setupEventListeners();
     this.setupRealtime();
@@ -146,6 +149,23 @@ class TramitesManager {
                 this.ocultarSugerenciasEmpresas('filterEmpresaSuggestions');
             }
         });
+
+        // Auto-cálculo: tiempoEstimadoSalida = fechaEntrada + 60 días hábiles
+        const fechaEntradaInput = document.getElementById('fechaEntrada');
+        const tiempoEstimadoSalidaInput = document.getElementById('tiempoEstimadoSalida');
+        if (fechaEntradaInput && tiempoEstimadoSalidaInput) {
+            const actualizarSalida = () => {
+                const val = fechaEntradaInput.value;
+                if (val) {
+                    const out = this.calcularFechaSalida(val, 60);
+                    tiempoEstimadoSalidaInput.value = out || '';
+                } else {
+                    tiempoEstimadoSalidaInput.value = '';
+                }
+            };
+            fechaEntradaInput.addEventListener('change', actualizarSalida);
+            fechaEntradaInput.addEventListener('input', actualizarSalida);
+        }
     }
 
     // Conexión a WebSocket para actualizaciones en tiempo real
@@ -310,7 +330,7 @@ class TramitesManager {
         selectAsunto.innerHTML = '<option value="">Seleccionar asunto</option>';
         selectStatus.innerHTML = '<option value="">Seleccionar status</option>';
         
-    // Técnicos ahora se eligen con checkboxes, no con input de texto
+    // Técnicos ahora se eligen con checkboxes dinámicos, no con input de texto
 
         // Llenar tipos de trámite
         this.opcionesFiltros.tiposTramite?.forEach(tipo => {
@@ -335,6 +355,45 @@ class TramitesManager {
             option.textContent = status;
             selectStatus.appendChild(option);
         });
+    }
+
+    // Cargar técnicos dinámicos y pintar checkboxes en el formulario
+    async cargarTecnicosDinamicos() {
+        try {
+            const res = await fetch('/api/gestionambiental/tecnicos-ambientales?soloActivos=1');
+            if (!res.ok) throw new Error('No se pudieron cargar técnicos');
+            const lista = await res.json();
+            this.catalogoTecnicos = Array.isArray(lista) ? lista : [];
+            this.renderizarCheckboxTecnicos();
+        } catch (e) {
+            console.warn('Técnicos dinámicos no disponibles:', e?.message);
+            this.catalogoTecnicos = [];
+            this.renderizarCheckboxTecnicos();
+        }
+    }
+
+    // Pintar checkboxes de técnicos en el contenedor del formulario
+    renderizarCheckboxTecnicos(seleccionados = []) {
+        const cont = document.getElementById('tecnicosLista');
+        if (!cont) return;
+        const setSel = new Set(seleccionados.map(String));
+        if (!this.catalogoTecnicos.length) {
+            cont.innerHTML = '<div class="col-12"><em class="text-muted">No hay técnicos activos disponibles</em></div>';
+            return;
+        }
+        const cols = this.catalogoTecnicos.map(tec => {
+            const id = String(tec._id);
+            const checked = setSel.has(id) ? 'checked' : '';
+            const inputId = `tec_${id}`;
+            return `
+                <div class="col-md-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="${inputId}" name="tecnicosIds" value="${id}" ${checked}>
+                    <label class="form-check-label" for="${inputId}">${this._escapeHtml(tec.nombre || '')}</label>
+                  </div>
+                </div>`;
+        }).join('');
+        cont.innerHTML = cols;
     }
 
     // Cargar trámites
@@ -441,10 +500,18 @@ class TramitesManager {
                 </td>
                 <td class="text-center">
                     ${(() => {
-                        const arr = Array.isArray(tramite.tecnicos) ? tramite.tecnicos.filter(c => typeof c === 'number') : [];
-                        return arr.length > 0
-                          ? arr.map(c => this.catalogoTecnicos[c] || String(c)).join(', ')
-                          : '<em class="text-muted">Sin asignar</em>';
+                        const arr = Array.isArray(tramite.tecnicos) ? tramite.tecnicos : [];
+                        // si viene poblado: objetos con nombre, si no: ids
+                        if (arr.length === 0) return '<em class="text-muted">Sin asignar</em>';
+                        const etiquetas = arr.map(t => {
+                            if (typeof t === 'object') return t.nombre || '';
+                            const found = this.catalogoTecnicos.find(x => String(x._id)===String(t));
+                            if (found) return found.nombre || '';
+                            const num = Number(t);
+                            if (!Number.isNaN(num) && this.legacyTecnicosMap[num]) return this.legacyTecnicosMap[num];
+                            return String(t);
+                        });
+                        return etiquetas.filter(Boolean).join(', ');
                     })()}
                 </td>
                 <td class="text-center">
@@ -455,7 +522,7 @@ class TramitesManager {
                         <button class="btn btn-outline-warning btn-sm" ${tramite.lockedBy ? 'disabled title="Bloqueado"' : ''} onclick="tramitesManager.editarTramite('${tramite._id}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-outline-danger btn-sm" onclick="tramitesManager.eliminarTramite('${tramite._id}')" title="Eliminar">
+                        <button class="btn btn-outline-danger btn-sm" ${tramite.lockedBy ? 'disabled title="Bloqueado"' : ''} onclick="tramitesManager.eliminarTramite('${tramite._id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                         ${this.userInfo && this.userInfo.puedeCrearUsuarios ? `
@@ -522,6 +589,31 @@ class TramitesManager {
             month: 'short',
             day: 'numeric'
         });
+    }
+
+    // Calcular fecha de salida sumando días hábiles (excluye sábados y domingos)
+    // Entrada y salida en formato 'YYYY-MM-DD'. Si la entrada es inválida, regresa ''
+    calcularFechaSalida(fechaEntradaStr, diasHabiles = 60) {
+        if (!fechaEntradaStr) return '';
+        const d = new Date(fechaEntradaStr + 'T00:00:00');
+        if (isNaN(d.getTime())) return '';
+        let added = 0;
+        // No contamos el día de entrada; empezamos en el siguiente día calendario
+        const cur = new Date(d);
+        cur.setDate(cur.getDate() + 1);
+        while (added < diasHabiles) {
+            const day = cur.getDay(); // 0=Dom, 6=Sáb
+            if (day !== 0 && day !== 6) {
+                added++;
+                if (added === diasHabiles) break;
+            }
+            cur.setDate(cur.getDate() + 1);
+        }
+        // Formato YYYY-MM-DD
+        const yyyy = cur.getFullYear();
+        const mm = String(cur.getMonth() + 1).padStart(2, '0');
+        const dd = String(cur.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
     }
 
     // Renderizar paginación
@@ -625,7 +717,7 @@ class TramitesManager {
         if (hiddenEmpresaId) hiddenEmpresaId.value = '';
 
     // Limpiar checkboxes de técnicos
-    document.querySelectorAll('#tecnicosLista input[name="tecnicosCodes"]').forEach(ch => ch.checked = false);
+    document.querySelectorAll('#tecnicosLista input[name="tecnicosIds"]').forEach(ch => ch.checked = false);
 
         this.mostrarModal();
     }
@@ -747,9 +839,9 @@ class TramitesManager {
             data.tiempoEstimadoSalida = d2.toISOString();
         }
 
-    // Técnicos seleccionados (checkboxes): enviar códigos numéricos
-    const tecSel = Array.from(document.querySelectorAll('#tecnicosLista input[name="tecnicosCodes"]:checked')).map(ch => parseInt(ch.value, 10));
-    data.tecnicos = tecSel;
+        // Técnicos seleccionados (checkboxes dinámicos): enviar IDs
+        const tecSel = Array.from(document.querySelectorAll('#tecnicosLista input[name="tecnicosIds"]:checked')).map(ch => ch.value);
+        data.tecnicos = tecSel;
 
         try {
             const url = this.tramiteEditando 
@@ -804,9 +896,16 @@ class TramitesManager {
             this.ocultarSugerenciasEmpresas('empresaSuggestions');
             this.ocultarSugerenciasEmpresas('filterEmpresaSuggestions');
             const empresa = tramite.empresa || {};
-            const tecnicos = Array.isArray(tramite.tecnicos) ? tramite.tecnicos.filter(c => typeof c === 'number') : [];
-            const tecnicosTexto = tecnicos.length
-                ? tecnicos.map(c => this.catalogoTecnicos[c] || String(c)).join(', ')
+            const tecnicosArr = Array.isArray(tramite.tecnicos) ? tramite.tecnicos : [];
+            const tecnicosTexto = tecnicosArr.length
+                ? tecnicosArr.map(t => {
+                    if (typeof t === 'object') return t.nombre || '';
+                    const found = this.catalogoTecnicos.find(x => String(x._id)===String(t));
+                    if (found) return found.nombre || '';
+                    const num = Number(t);
+                    if (!Number.isNaN(num) && this.legacyTecnicosMap[num]) return this.legacyTecnicosMap[num];
+                    return String(t);
+                  }).filter(Boolean).join(', ')
                 : 'Sin asignar';
 
                         const fechaEntrada = tramite.fechaEntrada ? this.formatearFecha(tramite.fechaEntrada) : '-';
@@ -829,7 +928,8 @@ class TramitesManager {
                                             </div>
                                             <div class="col-md-6"><strong>Número de páginas:</strong> ${tramite.numeroPaginas ?? '-'}</div>
                                             <div class="col-md-6"><strong>Tiempo estimado de salida:</strong> ${fechaSalida}</div>
-                                            <div class="col-12"><strong>Observaciones:</strong><br>${tramite.observaciones ? this._escapeHtml(tramite.observaciones) : '<em class="text-muted">Sin observaciones</em>'}</div>
+                                            <div class="col-12"><strong>Observaciones del trámite:</strong><br>${tramite.observaciones ? this._escapeHtml(tramite.observaciones) : '<em class="text-muted">Sin observaciones</em>'}</div>
+                                            <div class="col-12"><strong>Observaciones de notificación:</strong><br>${tramite.observacionesNotificacion ? this._escapeHtml(tramite.observacionesNotificacion) : '<em class="text-muted">Sin observaciones de notificación</em>'}</div>
                                             <div class="col-12"><strong>Técnicos:</strong> ${this._escapeHtml(tecnicosTexto)}</div>
                                         </div>
                                     </div>
@@ -939,15 +1039,19 @@ class TramitesManager {
         if (status) status.value = tramite.status;
         if (numeroPaginas) numeroPaginas.value = tramite.numeroPaginas || '';
         if (tiempoEstimadoSalida) {
-            tiempoEstimadoSalida.value = tramite.tiempoEstimadoSalida ? new Date(tramite.tiempoEstimadoSalida).toISOString().slice(0,10) : '';
+            const salidaStr = tramite.tiempoEstimadoSalida ? new Date(tramite.tiempoEstimadoSalida).toISOString().slice(0,10) : '';
+            // Si viene vacío pero hay fechaEntrada, calcularla automáticamente
+            if (!salidaStr && fechaEntrada && fechaEntrada.value) {
+                tiempoEstimadoSalida.value = this.calcularFechaSalida(fechaEntrada.value, 60);
+            } else {
+                tiempoEstimadoSalida.value = salidaStr;
+            }
         }
         if (observaciones) observaciones.value = tramite.observaciones || '';
         // Marcar técnicos seleccionados por código numérico
-        const tecChecks = document.querySelectorAll('#tecnicosLista input[name="tecnicosCodes"]');
-        if (tecChecks && Array.isArray(tramite.tecnicos)) {
-            const codigos = tramite.tecnicos.map(Number);
-            tecChecks.forEach(ch => { ch.checked = codigos.includes(parseInt(ch.value, 10)); });
-        }
+        // Marcar técnicos seleccionados por ID (si vienen poblados son objetos con _id)
+        const seleccionados = Array.isArray(tramite.tecnicos) ? tramite.tecnicos.map(t => typeof t === 'object' ? String(t._id) : String(t)) : [];
+        this.renderizarCheckboxTecnicos(seleccionados);
     }
 
     // Eliminar trámite

@@ -91,7 +91,12 @@ exports.obtenerTramitePorId = async (req, res) => {
     }
 
     const tramite = await Tramite.findById(req.params.id)
-      .populate('empresa', 'codigo razonSocial direccion telefono correo representanteLegal')
+      .populate({
+        path: 'empresa',
+        // Traer toda la información relevante de la empresa y su tipo
+        select: 'codigo razonSocial sucursal rfc direccion telefono correo tipo notificaciones representanteLegal status area createdAt updatedAt',
+        populate: { path: 'tipo', select: 'nombre status' }
+      })
       .populate('lockedBy', 'name username')
       .populate('lastModifiedBy', 'name username');
 
@@ -126,6 +131,7 @@ exports.crearTramite = async (req, res) => {
       tipoTramite,
       asuntoEspecifico,
       observaciones,
+      observacionesNotificacion,
       status,
       tecnicos,
       numeroPaginas,
@@ -145,10 +151,10 @@ exports.crearTramite = async (req, res) => {
       return res.status(400).json({ message: 'La empresa especificada no existe' });
     }
 
-    // Validar técnicos como números predefinidos
-    if (tecnicos && tecnicos.length > 0) {
-      const validos = new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
-      const invalidos = tecnicos.filter(t => typeof t !== 'number' || !validos.has(t));
+    // Validar técnicos: aceptar ObjectId válidos o códigos numéricos legados
+    if (Array.isArray(tecnicos) && tecnicos.length > 0) {
+      const esValido = (t) => mongoose.Types.ObjectId.isValid(t) || (typeof t === 'number' && t >= 1 && t <= 9999) || (!Number.isNaN(Number(t)) && Number(t) >= 1);
+      const invalidos = tecnicos.filter(t => !esValido(t));
       if (invalidos.length) {
         return res.status(400).json({ message: `Técnicos inválidos: ${invalidos.join(', ')}` });
       }
@@ -165,7 +171,7 @@ exports.crearTramite = async (req, res) => {
       asuntoEspecifico,
       observaciones,
       status: status || 'Ingresado al area',
-      tecnicos: tecnicos || [],
+  tecnicos: Array.isArray(tecnicos) ? tecnicos : [],
       numeroPaginas,
       tiempoEstimadoSalida,
       lastModifiedBy: usuario._id,
@@ -234,6 +240,7 @@ exports.actualizarTramite = async (req, res) => {
       tipoTramite,
       asuntoEspecifico,
       observaciones,
+      observacionesNotificacion,
       status,
       tecnicos,
       numeroPaginas,
@@ -252,10 +259,10 @@ exports.actualizarTramite = async (req, res) => {
       var _cambioEmpresa = true;
     }
 
-    // Validar técnicos como números predefinidos en actualización
-    if (tecnicos && tecnicos.length > 0) {
-      const validos = new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
-      const invalidos = tecnicos.filter(t => typeof t !== 'number' || !validos.has(t));
+    // Validar técnicos en actualización
+    if (Array.isArray(tecnicos)) {
+      const esValido = (t) => mongoose.Types.ObjectId.isValid(t) || (typeof t === 'number' && t >= 1 && t <= 9999) || (!Number.isNaN(Number(t)) && Number(t) >= 1);
+      const invalidos = tecnicos.filter(t => !esValido(t));
       if (invalidos.length) {
         return res.status(400).json({ message: `Técnicos inválidos: ${invalidos.join(', ')}` });
       }
@@ -270,7 +277,15 @@ exports.actualizarTramite = async (req, res) => {
     if (tipoTramite) { tramite.tipoTramite = tipoTramite; cambios.push('tipoTramite'); }
     if (asuntoEspecifico) { tramite.asuntoEspecifico = asuntoEspecifico; cambios.push('asuntoEspecifico'); }
     if (observaciones !== undefined) { tramite.observaciones = observaciones; cambios.push('observaciones'); }
-    if (status) { tramite.status = status; cambios.push('status'); }
+    if (observacionesNotificacion !== undefined) { tramite.observacionesNotificacion = observacionesNotificacion; cambios.push('observacionesNotificacion'); }
+    if (status) {
+      tramite.status = status; cambios.push('status');
+      if (status === 'Notificado') {
+        // setear marca de tiempo de notificación si no estaba o si cambia a Notificado
+        tramite.notificadoAt = new Date();
+        cambios.push('notificadoAt');
+      }
+    }
     if (Array.isArray(tecnicos)) { cambios.push('tecnicos'); }
     if (numeroPaginas !== undefined) { tramite.numeroPaginas = numeroPaginas; cambios.push('numeroPaginas'); }
     if (tiempoEstimadoSalida !== undefined) { tramite.tiempoEstimadoSalida = tiempoEstimadoSalida; cambios.push('tiempoEstimadoSalida'); }
@@ -341,6 +356,14 @@ exports.eliminarTramite = async (req, res) => {
   const tramite = await Tramite.findById(req.params.id);
     if (!tramite) {
       return res.status(404).json({ message: 'Trámite no encontrado' });
+    }
+
+    // Evitar eliminar si está bloqueado por otro usuario y no ha expirado el TTL del lock
+    if (tramite.lockedBy && String(tramite.lockedBy) !== String(usuario._id)) {
+      const expiro = tramite.lockedAt && (Date.now() - new Date(tramite.lockedAt).getTime() > LOCK_TTL_MS);
+      if (!expiro) {
+        return res.status(423).json({ message: 'Actualmente está siendo editado por otra persona' });
+      }
     }
 
   tramite.isDeleted = true;

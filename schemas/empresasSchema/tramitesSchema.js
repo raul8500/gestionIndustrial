@@ -63,6 +63,13 @@ const tramitesSchema = new mongoose.Schema({
     required: false,
     trim: true
   },
+  // Observaciones específicas al momento de notificar (separadas de las observaciones del trámite)
+  observacionesNotificacion: {
+    type: String,
+    required: false,
+    trim: true,
+    default: ''
+  },
   status: {
     type: String,
     required: true,
@@ -76,8 +83,9 @@ const tramitesSchema = new mongoose.Schema({
     ],
     default: 'Ingresado al area'
   },
+  // Técnicos asignados: soporta IDs (ObjectId) del catálogo y códigos numéricos legados
   tecnicos: [{
-    type: Number,
+    type: mongoose.Schema.Types.Mixed,
     required: false
   }],
   numeroPaginas: {
@@ -88,6 +96,12 @@ const tramitesSchema = new mongoose.Schema({
   tiempoEstimadoSalida: {
     type: Date,
     required: false
+  },
+  // Fecha en que se marcó como Notificado
+  notificadoAt: {
+    type: Date,
+    required: false,
+    default: null
   },
   mesCapturado: {
     type: String,

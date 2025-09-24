@@ -76,6 +76,12 @@ const empresasSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  // Tipo de empresa (catálogo gestionable)
+  tipo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TipoEmpresa',
+    required: false
+  },
   // Datos para notificaciones
   notificaciones: {
     calle: {

@@ -3,7 +3,9 @@ const Empresa = require('../../schemas/empresasSchema/empresasSchema');
 // Obtener todas las empresas con paginación y filtros
 exports.obtenerEmpresas = async (req, res) => {
   try {
-    const { page = 1, limit = 10, busqueda = '', estado = '', status = '', orden = 'normal' } = req.query;
+  const { busqueda = '', estado = '', status = '', orden = 'normal' } = req.query;
+  const page = parseInt(req.query.page ?? req.query.pagina ?? 1);
+  const limit = parseInt(req.query.limit ?? req.query.limite ?? 10);
     
     // Construir filtros
     let filtros = { 
@@ -27,6 +29,10 @@ exports.obtenerEmpresas = async (req, res) => {
     if (estado) {
       filtros['direccion.estado'] = { $regex: estado, $options: 'i' };
     }
+    if (status !== '' && status !== undefined) {
+      const st = parseInt(status);
+      if (!isNaN(st)) filtros.status = st;
+    }
     
     // Aplicar ordenamiento
     let ordenamiento = {};
@@ -41,29 +47,30 @@ exports.obtenerEmpresas = async (req, res) => {
         ordenamiento = { codigo: 1 };
     }
     
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+  const skip = (page - 1) * limit;
     
     // Obtener empresas con filtros
     const empresas = await Empresa.find(filtros)
       .sort(ordenamiento)
       .skip(skip)
-      .limit(parseInt(limit));
+  .limit(limit);
     
     // Contar total de empresas que cumplen con los filtros
     const total = await Empresa.countDocuments(filtros);
     
     // Calcular información de paginación
-    const totalPages = Math.ceil(total / parseInt(limit));
+  const totalPages = Math.ceil(total / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
     
     res.json({
       empresas,
       paginacion: {
-        paginaActual: parseInt(page),
+        pagina: page,
+        paginaActual: page,
         totalPaginas: totalPages,
         totalRegistros: total,
-        registrosPorPagina: parseInt(limit),
+        registrosPorPagina: limit,
         tieneSiguiente: hasNextPage,
         tieneAnterior: hasPrevPage
       }
@@ -80,7 +87,7 @@ exports.obtenerEmpresaPorId = async (req, res) => {
   try {
     console.log(`🔍 Controlador: Obteniendo empresa con ID: ${req.params.id}`);
     
-    const empresa = await Empresa.findById(req.params.id);
+  const empresa = await Empresa.findById(req.params.id).populate('tipo');
     if (!empresa) {
       console.log(`❌ Empresa no encontrada con ID: ${req.params.id}`);
       return res.status(404).json({ message: 'Empresa no encontrada' });
@@ -99,7 +106,7 @@ exports.verEmpresa = async (req, res) => {
   try {
     console.log(`👁️ Controlador: Visualizando empresa con ID: ${req.params.id}`);
     
-    const empresa = await Empresa.findById(req.params.id);
+  const empresa = await Empresa.findById(req.params.id).populate('tipo');
     if (!empresa) {
       console.log(`❌ Empresa no encontrada con ID: ${req.params.id}`);
       return res.status(404).json({ message: 'Empresa no encontrada' });
@@ -127,7 +134,8 @@ exports.crearEmpresa = async (req, res) => {
       telefono,
       correo,
       notificaciones,
-      representanteLegal
+      representanteLegal,
+      tipo
     } = req.body;
 
     // Validar campos requeridos
@@ -191,6 +199,7 @@ exports.crearEmpresa = async (req, res) => {
       },
       telefono,
       correo: correo.toLowerCase(),
+      tipo: tipo || undefined,
               notificaciones: {
           calle: notificaciones?.calle || '',
           noExterior: notificaciones?.noExterior || '',
@@ -240,7 +249,8 @@ exports.actualizarEmpresa = async (req, res) => {
       correo,
       notificaciones,
       representanteLegal,
-      status
+      status,
+      tipo
     } = req.body;
 
     const empresa = await Empresa.findById(req.params.id);
@@ -272,6 +282,7 @@ exports.actualizarEmpresa = async (req, res) => {
     if (telefono) empresa.telefono = telefono;
     if (correo) empresa.correo = correo.toLowerCase();
     if (typeof status !== 'undefined') empresa.status = status;
+  if (typeof tipo !== 'undefined') empresa.tipo = tipo || undefined;
 
     // Actualizar dirección si se proporciona
     if (direccion) {

@@ -253,15 +253,47 @@ class Sidebar {
   }
   
   shouldHideFunction(func) {
-    // Ocultar si es del área 5 o 6 y no puede crear usuarios, y el item se llama "Usuarios" o "Usuarios Financieros"
+    // Ocultar si es del área 5 o 6 y no puede crear usuarios, y el item se llama "Usuarios" / "Usuarios financieros" / "Configuraciones"
     if (
-      this.infoUser && 
+      this.infoUser &&
       (this.infoUser.area === 5 || this.infoUser.area === 6) &&
       this.infoUser.puedeCrearUsuarios === false &&
-      (func.name === 'Usuarios' || func.name === 'Usuarios financieros')
+      (func.name === 'Usuarios' || func.name === 'Usuarios financieros' || func.name === 'Configuraciones')
     ) {
       return true;
     }
+
+    // Restricción específica para Gestión Ambiental (área 6):
+    // Mostrar solo lo permitido por el campo gestionAmbiental del usuario:
+    // 1 = Empresas, 2 = Trámites, 3 = Notificaciones, 4 = Todos
+    if (this.infoUser && this.infoUser.area === 6 && this.infoUser.puedeCrearUsuarios === false) {
+      const tipo = parseInt(this.infoUser.gestionAmbiental, 10) || 4;
+      if (tipo !== 4) {
+        const rawName = (func?.name || '');
+        // Normalizar para comparar sin acentos
+        const name = rawName
+          .toString()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+        const isEmpresas = name.includes('empresa');
+        const isTramites = name.includes('tramite');
+        const isNotificaciones = name.includes('notificacion');
+
+        if (tipo === 1) {
+          // Solo Empresas
+          return !isEmpresas;
+        } else if (tipo === 2) {
+          // Solo Trámites
+          return !isTramites;
+        } else if (tipo === 3) {
+          // Solo Notificaciones
+          return !isNotificaciones;
+        }
+      }
+    }
+
     return false;
   }
 
@@ -299,6 +331,8 @@ class Sidebar {
       'Solicitudes': 'fa-paste',
       'Registros UA': 'fa-paste',
       'Calendario': 'fa-calendar-days',
+      'Notificaciones': 'fa-bell',
+      'Configuraciones': 'fa-cogs',
       'default': 'fa-leaf'
     };
 

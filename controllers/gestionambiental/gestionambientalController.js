@@ -54,7 +54,7 @@ exports.obtenerUsuarioPorId = async (req, res) => {
 // Crear un nuevo usuario
 exports.crearUsuario = async (req, res) => {
   try {
-    const { name, username, password, status } = req.body;
+    const { name, username, password, status, gestionAmbiental } = req.body;
 
     console.log(req.body)
 
@@ -69,6 +69,10 @@ exports.crearUsuario = async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
 
+    // Normalizar tipo de GA (1=Empresas,2=Trámites,3=Notificaciones,4=Todos)
+    let gaTipo = parseInt(gestionAmbiental, 10);
+    if (![1, 2, 3, 4].includes(gaTipo)) gaTipo = 4;
+
     const nuevoUsuario = new Usuario({
       name,
       username,
@@ -76,7 +80,8 @@ exports.crearUsuario = async (req, res) => {
       status,
       rol: 6,
       area: 6, // área fija para gestión ambiental
-      puedeCrearUsuarios: false // no puede crear usuarios
+      puedeCrearUsuarios: false, // no puede crear usuarios
+      gestionAmbiental: gaTipo
     });
 
     await nuevoUsuario.save();
@@ -90,7 +95,7 @@ exports.crearUsuario = async (req, res) => {
 // Actualizar un usuario existente
 exports.actualizarUsuario = async (req, res) => {
   try {
-    const { name, username, password, status } = req.body;
+    const { name, username, password, status, gestionAmbiental } = req.body;
 
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -98,6 +103,13 @@ exports.actualizarUsuario = async (req, res) => {
     usuario.name = name || usuario.name;
     usuario.username = username || usuario.username;
     usuario.status = typeof status !== 'undefined' ? status : usuario.status;
+
+    // Actualizar tipo GA si viene en el body
+    if (typeof gestionAmbiental !== 'undefined') {
+      let gaTipo = parseInt(gestionAmbiental, 10);
+      if (![1, 2, 3, 4].includes(gaTipo)) gaTipo = 4;
+      usuario.gestionAmbiental = gaTipo;
+    }
 
     // Solo actualiza la contraseña si se envió
     if (password) {

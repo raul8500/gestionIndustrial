@@ -25,6 +25,8 @@ const financierosCorrespondenciaController = require('../controllers/financieros
 const gestionambientalController = require('../controllers/gestionambiental/gestionambientalController');
 const empresasController = require('../controllers/gestionambiental/empresasController');
 const tramitesController = require('../controllers/gestionambiental/tramitesController');
+const tiposEmpresaController = require('../controllers/gestionambiental/tiposEmpresaController');
+const tecnicosAmbientalesController = require('../controllers/gestionambiental/tecnicosAmbientalesController');
 const calendarController = require('../controllers/calendarController/calendarController');
 const migrationController = require('../controllers/tools/migrationController');
 
@@ -98,7 +100,25 @@ router.get('/tramites', authenticated.isAuthenticated, verifyToken.verifyToken, 
     res.render('gestionambiental/tramites');
 });
 
+// Panel de configuraciones de Gestión Ambiental
+router.get('/configuracionesGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+    res.render('gestionambiental/configuraciones');
+});
 
+// Vista Tipos de Empresa (ruta canónica)
+router.get('/gestionambientaltiposempresa', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+    res.render('gestionambiental/tiposEmpresa');
+});
+
+// Vista Técnicos Ambientales
+router.get('/gestionambientaltecnicosambientales', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+    res.render('gestionambiental/tecnicosAmbientales');
+});
+
+// Vista Notificaciones (Trámites en Resguardo para notificar)
+router.get('/notificacionTramite', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+    res.render('gestionambiental/notificaciones');
+});
 
 
 //API
@@ -203,6 +223,19 @@ router.get('/api/gestionambiental/empresas/:id', empresasController.obtenerEmpre
 router.post('/api/gestionambiental/empresas/', empresasController.crearEmpresa);
 router.put('/api/gestionambiental/empresas/:id', empresasController.actualizarEmpresa);
 router.delete('/api/gestionambiental/empresas/:id', empresasController.eliminarEmpresa);
+
+// Gestión Ambiental - Tipos de Empresa (vista + API)
+router.get('/api/gestionambiental/tipos-empresa', tiposEmpresaController.listarTipos);
+router.post('/api/gestionambiental/tipos-empresa', tiposEmpresaController.crearTipo);
+router.put('/api/gestionambiental/tipos-empresa/:id', tiposEmpresaController.actualizarTipo);
+router.delete('/api/gestionambiental/tipos-empresa/:id', tiposEmpresaController.eliminarTipo);
+
+// Gestión Ambiental - Técnicos Ambientales (API)
+router.get('/api/gestionambiental/tecnicos-ambientales', tecnicosAmbientalesController.listar);
+router.get('/api/gestionambiental/tecnicos-ambientales/:id', tecnicosAmbientalesController.obtenerPorId);
+router.post('/api/gestionambiental/tecnicos-ambientales', tecnicosAmbientalesController.crear);
+router.put('/api/gestionambiental/tecnicos-ambientales/:id', tecnicosAmbientalesController.actualizar);
+router.delete('/api/gestionambiental/tecnicos-ambientales/:id', tecnicosAmbientalesController.eliminar);
 
 // Gestión Ambiental - Trámites
 router.get('/api/gestionambiental/tramites/', rolVerify.isGestionAmbiental, verifyToken.verifyToken, tramitesController.obtenerTramites);

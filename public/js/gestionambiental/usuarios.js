@@ -106,7 +106,8 @@ $('#formUsuario').on('submit', async function (e) {
     name: $('#nameControl').val(),
     username: $('#username').val(),
     password: $('#password').val(),
-    status: parseInt($('#status').val())
+    status: parseInt($('#status').val()),
+    gestionAmbiental: parseInt($('#gestionAmbiental').val())
   };
 
   try {
@@ -140,6 +141,7 @@ $('#tablaUsuarios').on('click', '.btn-editar', async function () {
     $('#editName').val(data.name);
     $('#editUsername').val(data.username);
     $('#editStatus').val(data.status);
+  $('#editGestionAmbiental').val(parseInt(data.gestionAmbiental ?? 4));
 
     $('#modalEditarUsuario').modal('show');
   } catch (err) {
@@ -154,7 +156,8 @@ $('#formEditarUsuario').on('submit', async function (e) {
   const datos = {
     name: $('#editName').val(),
     username: $('#editUsername').val(),
-    status: parseInt($('#editStatus').val())
+    status: parseInt($('#editStatus').val()),
+    gestionAmbiental: parseInt($('#editGestionAmbiental').val())
   };
 
   try {

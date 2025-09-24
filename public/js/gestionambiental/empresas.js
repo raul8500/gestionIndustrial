@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (hasUI) {
     initializeEventListeners();
     loadEmpresas();
+    // Cargar catálogo de Tipos de Empresa para selects
+    cargarTiposEmpresa();
   } else {
     console.warn('UI de empresas no encontrada en esta página. Se omite la inicialización de tabla/listeners.');
   }
@@ -545,6 +547,59 @@ function showError(message) {
 }
 
 // Utilidades
+// Cargar Tipos de Empresa en selects de creación y edición
+async function cargarTiposEmpresa(preselectedId = null) {
+  try {
+    const res = await fetch('/api/gestionambiental/tipos-empresa?soloActivos=1');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error al cargar tipos de empresa');
+
+    const opciones = Array.isArray(data) ? data : (data.tipos || []);
+
+    const crearSelect = document.getElementById('tipoEmpresa');
+    const editarSelect = document.getElementById('editTipoEmpresa');
+
+    const renderOptions = (select, selected) => {
+      if (!select) return;
+      const current = select.value; // preservar si ya había uno
+      let html = '<option value="">-- Sin tipo --</option>';
+      for (const t of opciones) {
+        const id = t._id || t.id;
+        const nombre = t.nombre || 'Sin nombre';
+        const sel = selected ? (selected === id) : (current && current === id);
+        html += `<option value="${id}" ${sel ? 'selected' : ''}>${nombre}</option>`;
+      }
+      select.innerHTML = html;
+      // Disparar change para UI
+      select.dispatchEvent(new Event('change'));
+    };
+
+    renderOptions(crearSelect, preselectedId);
+    renderOptions(editarSelect, preselectedId);
+  } catch (e) {
+    console.error('Error cargando Tipos de Empresa:', e);
+  }
+}
+
+// Intentar seleccionar un tipo en el select de edición considerando distintas formas
+function preseleccionarTipoEdicion(empresa) {
+  const editarSelect = document.getElementById('editTipoEmpresa');
+  if (!editarSelect) return;
+  let tipoId = null;
+  if (empresa.tipo) {
+    if (typeof empresa.tipo === 'string') tipoId = empresa.tipo;
+    else if (empresa.tipo._id) tipoId = empresa.tipo._id;
+    else if (empresa.tipo.id) tipoId = empresa.tipo.id;
+  }
+  // Si aún no hay opciones cargadas, cargarlas con preselección
+  if (!editarSelect.options || editarSelect.options.length <= 1) {
+    cargarTiposEmpresa(tipoId);
+  } else if (tipoId) {
+    editarSelect.value = tipoId;
+    editarSelect.dispatchEvent(new Event('change'));
+  }
+}
+
 function getStatusBadge(status) {
   const statusMap = {
     '1': { text: 'Activo', class: 'bg-success' },
@@ -688,6 +743,9 @@ function openEditModal(empresa) {
   
   // Poblar los campos del formulario
   populateFormFields(empresa);
+
+  // Preseleccionar tipo si existe
+  preseleccionarTipoEdicion(empresa);
   
   // Mostrar el modal sin afectar el layout
   openModalWithoutLayoutChange(modal);
@@ -739,6 +797,9 @@ function populateFormFields(empresa) {
   console.log('Campos poblados - ID:', document.getElementById('editEmpresaId')?.value);
   console.log('Campos poblados - Razón Social:', document.getElementById('editRazonSocial')?.value);
   console.log('Campos poblados - RFC:', document.getElementById('editRfc')?.value);
+
+  // Asegurar que el catálogo esté cargado y el tipo preseleccionado
+  preseleccionarTipoEdicion(empresa);
 }
 
 // Función para manejar campos especiales
@@ -830,6 +891,8 @@ function initializeFormHandlers() {
   if (formEmpresa) {
     console.log('Formulario encontrado, agregando event listener');
     formEmpresa.addEventListener('submit', handleFormSubmit);
+    // Asegurar que el select de tipos esté cargado para el modal de creación
+    cargarTiposEmpresa();
   } else {
     console.error('Formulario no encontrado');
   }
@@ -838,6 +901,8 @@ function initializeFormHandlers() {
   if (formEditarEmpresa) {
     console.log('Formulario de edición encontrado, agregando event listener');
     formEditarEmpresa.addEventListener('submit', handleEditFormSubmit);
+    // Cargar catálogo para el modal de edición (sin preselección por ahora)
+    cargarTiposEmpresa();
   } else {
     console.error('Formulario de edición no encontrado');
   }
@@ -852,6 +917,7 @@ async function handleFormSubmit(e) {
   
   const formData = {
     razonSocial: document.getElementById('razonSocial').value.trim(),
+    tipo: (document.getElementById('tipoEmpresa')?.value || '').trim() || null,
     sucursal: document.getElementById('sucursal').value.trim(),
     rfc: document.getElementById('rfc').value.trim(),
     telefono: document.getElementById('telefono').value.trim(),
@@ -996,6 +1062,7 @@ async function handleEditFormSubmit(e) {
   
   const formData = {
     razonSocial: document.getElementById('editRazonSocial').value.trim(),
+    tipo: (document.getElementById('editTipoEmpresa')?.value || '').trim() || null,
     sucursal: document.getElementById('editSucursal').value.trim(),
     rfc: document.getElementById('editRfc').value.trim(),
     telefono: document.getElementById('editTelefono').value.trim(),
@@ -1194,6 +1261,10 @@ function mostrarModalVerEmpresa(empresa) {
               <div class="col-md-6">
                 <label class="form-label fw-bold">Razón Social:</label>
                 <p class="form-control-plaintext">${empresa.razonSocial || '-'}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Tipo:</label>
+                <p class="form-control-plaintext">${empresa.tipo?.nombre || empresa.tipo || '-'}</p>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold">Sucursal:</label>

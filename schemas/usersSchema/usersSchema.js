@@ -24,6 +24,10 @@ const userModel = new mongoose.Schema(
       default: false
     },
 
+    gestionAmbiental: {
+      type: Number,
+    },
+
     area: {
       type: Number,
       default: null

@@ -66,10 +66,6 @@ exports.migrateMySQLToMongo = async (req, res) => {
     let insertedTotal = 0;
     let readTotal = 0;
   const totalObjetivo = (maxRows != null && totalRows) ? Math.min(maxRows, totalRows - currentOffset) : (totalRows || null);
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  // Demora por inserción: 0.5s
-  const delayMs = 500;
-  const perInsertSeconds = delayMs / 1000;
 
     while (true) {
       // Si se definió limit máximo y ya alcanzamos/ superamos, detener
@@ -87,26 +83,36 @@ exports.migrateMySQLToMongo = async (req, res) => {
       currentOffset += count;
       console.log(`[MIG] Leídas ${count} filas (acumuladas: ${readTotal})…`);
 
-      // Transformación y guardado 1x1 con demora de 0.5s por inserción
-      for (const r of rows) {
-        const doc = serializeRow(r);
-        try {
-          await collection.insertOne(doc);
-          insertedTotal += 1;
-        } catch (err) {
-          console.warn('[MIG] Error insertOne (continuando):', err.message);
+      // Transformación y guardado en lote SIN demoras (sin restricciones de tiempo artificiales)
+      const docs = rows.map(serializeRow);
+      try {
+        const ops = docs.map(d => ({ insertOne: { document: d } }));
+        const bulkRes = await collection.bulkWrite(ops, { ordered: false });
+        const inserted = bulkRes.insertedCount ?? 0;
+        insertedTotal += inserted;
+      } catch (err) {
+        console.warn('[MIG] bulkWrite con errores, intentando contabilizar inserciones parciales:', err.message);
+        // Intentar recuperar número insertado en errores de bulk
+        const partialInserted = err?.result?.nInserted || err?.result?.result?.nInserted || 0;
+        insertedTotal += partialInserted;
+        // Fallback: intentar insertar de forma rápida 1x1 las que faltan (sin delays)
+        if (partialInserted < docs.length) {
+          for (const d of docs) {
+            try { await collection.insertOne(d); insertedTotal += 1; } catch (_) { /* duplicados u otros, continuar */ }
+          }
         }
-        // Calcular ETA
-        if (totalObjetivo) {
-          const restantes = Math.max(totalObjetivo - insertedTotal, 0);
-          const horas = (restantes * perInsertSeconds) / 3600; // basada en delay configurable
-          const horasFmt = horas.toFixed(2);
-          console.log(`[MIG] Insertado ${insertedTotal} / ${totalObjetivo}. ETA: faltan ~${horasFmt} horas (${perInsertSeconds}s/ins)`);
-        } else {
-          console.log(`[MIG] Insertado ${insertedTotal}. ETA: desconocida (total no disponible)`);
-        }
-        // Esperar 0.5 segundos entre inserciones
-        await sleep(delayMs);
+      }
+
+      // Log de progreso por lote con ETA basada en throughput real
+      if (totalObjetivo) {
+        const elapsedSec = (Date.now() - startedAt) / 1000;
+        const speed = elapsedSec > 0 ? (insertedTotal / elapsedSec) : 0; // docs/seg
+        const restantes = Math.max(totalObjetivo - insertedTotal, 0);
+        const etaSec = speed > 0 ? (restantes / speed) : null;
+        const etaMin = etaSec != null ? (etaSec / 60).toFixed(1) : 'desconocida';
+        console.log(`[MIG] Progreso: ${insertedTotal}/${totalObjetivo} insertados | Velocidad ~${speed.toFixed(1)} doc/s | ETA ~${etaMin} min`);
+      } else {
+        console.log(`[MIG] Progreso: ${insertedTotal} insertados (total objetivo desconocido)`);
       }
     }
 
