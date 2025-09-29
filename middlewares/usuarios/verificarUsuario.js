@@ -2,6 +2,18 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const ModelUser = require('../../schemas/usersSchema/usersSchema');
 
+function mapRolToDepartment(rol) {
+  switch (rol) {
+    case 1: return 'Administración';
+    case 2: return 'Unidad de Género';
+    case 3: return 'Tecnologías';
+    case 4: return 'Secretaría';
+    case 5: return 'Recursos Financieros';
+    case 6: return 'Gestión Ambiental';
+    default: return 'General';
+  }
+}
+
 async function verificarToken(req, res, next, rolesPermitidos) {
   try {
     const token = req.cookies.jwt;
@@ -11,10 +23,14 @@ async function verificarToken(req, res, next, rolesPermitidos) {
     const user = await ModelUser.findById(decoded.id);
 
     if (!user || !rolesPermitidos.includes(user.rol)) {
-      return res.redirect('/main'); // o res.status(403).send('Acceso denegado');
+      return res.redirect('/main');
     }
 
     req.user = user;
+    if (res && res.locals) {
+      res.locals.userName = user.name || user.username || 'Usuario';
+      res.locals.userDepartment = mapRolToDepartment(user.rol);
+    }
     next();
   } catch (error) {
     next(error);

@@ -135,7 +135,15 @@ exports.crearTramite = async (req, res) => {
       status,
       tecnicos,
       numeroPaginas,
-      tiempoEstimadoSalida
+      tiempoEstimadoSalida,
+      hologramaAplica,
+      numeroHolograma,
+      fechaNotificacion,
+      hojasNotificacion,
+      mesNotificacion,
+      anioNotificacion,
+      vigenciaInicio,
+      vigenciaFin
     } = req.body;
 
     // Validar campos obligatorios
@@ -244,7 +252,15 @@ exports.actualizarTramite = async (req, res) => {
       status,
       tecnicos,
       numeroPaginas,
-      tiempoEstimadoSalida
+      tiempoEstimadoSalida,
+      hologramaAplica,
+      numeroHolograma,
+      fechaNotificacion,
+      hojasNotificacion,
+      mesNotificacion,
+      anioNotificacion,
+      vigenciaInicio,
+      vigenciaFin
     } = req.body;
 
     // Verificar que la empresa existe si se va a actualizar (acepta ID o código)
@@ -277,7 +293,33 @@ exports.actualizarTramite = async (req, res) => {
     if (tipoTramite) { tramite.tipoTramite = tipoTramite; cambios.push('tipoTramite'); }
     if (asuntoEspecifico) { tramite.asuntoEspecifico = asuntoEspecifico; cambios.push('asuntoEspecifico'); }
     if (observaciones !== undefined) { tramite.observaciones = observaciones; cambios.push('observaciones'); }
-    if (observacionesNotificacion !== undefined) { tramite.observacionesNotificacion = observacionesNotificacion; cambios.push('observacionesNotificacion'); }
+  if (observacionesNotificacion !== undefined) { tramite.observacionesNotificacion = observacionesNotificacion; cambios.push('observacionesNotificacion'); }
+    if (hologramaAplica !== undefined) { tramite.hologramaAplica = !!hologramaAplica; cambios.push('hologramaAplica'); }
+    if (numeroHolograma !== undefined) { tramite.numeroHolograma = numeroHolograma || null; cambios.push('numeroHolograma'); }
+    if (fechaNotificacion !== undefined) { tramite.fechaNotificacion = fechaNotificacion ? new Date(fechaNotificacion) : null; cambios.push('fechaNotificacion'); }
+    if (hojasNotificacion !== undefined) { tramite.hojasNotificacion = hojasNotificacion ? Number(hojasNotificacion) : null; cambios.push('hojasNotificacion'); }
+    if (mesNotificacion !== undefined) { tramite.mesNotificacion = mesNotificacion || null; cambios.push('mesNotificacion'); }
+    if (anioNotificacion !== undefined) { tramite.anioNotificacion = anioNotificacion ? Number(anioNotificacion) : null; cambios.push('anioNotificacion'); }
+    if (vigenciaInicio !== undefined) { tramite.vigenciaInicio = vigenciaInicio ? new Date(vigenciaInicio) : null; cambios.push('vigenciaInicio'); }
+    if (vigenciaFin !== undefined) { tramite.vigenciaFin = vigenciaFin ? new Date(vigenciaFin) : null; cambios.push('vigenciaFin'); }
+
+    // Validación de vigencia sólo si el tipo lo requiere
+    const tiposConVigencia = ['GRME','PM'];
+    if (!tiposConVigencia.includes(tramite.tipoTramite)) {
+      // Limpiar vigencia si no aplica
+      if (tramite.vigenciaInicio || tramite.vigenciaFin) {
+        tramite.vigenciaInicio = null;
+        tramite.vigenciaFin = null;
+        cambios.push('vigenciaInicio','vigenciaFin');
+      }
+    } else {
+      if ((vigenciaInicio || vigenciaFin) && !(vigenciaInicio && vigenciaFin)) {
+        return res.status(400).json({ message: 'Debe proporcionar fecha de inicio y fin de vigencia' });
+      }
+      if (vigenciaInicio && vigenciaFin && new Date(vigenciaFin) < new Date(vigenciaInicio)) {
+        return res.status(400).json({ message: 'La vigencia fin no puede ser anterior a la de inicio' });
+      }
+    }
     if (status) {
       tramite.status = status; cambios.push('status');
       if (status === 'Notificado') {

@@ -66,6 +66,19 @@
   justify-content: center;
 }
 
+/* Override cuando el header es el bloque de usuario */
+.sidebar-header.user-info {
+  background: #7c1241; /* color primario */
+  border-bottom: 1px solid #5a0d2f;
+  flex-direction: row;
+  height: auto;
+  min-height: 130px; /* Altura ampliada */
+  text-align: left;
+  padding: 22px 70px 18px 26px; /* Más espacio a la derecha para despegar toggle */
+  align-items: center;
+  position: relative;
+}
+
 .logo-container {
   display: flex;
   flex-direction: column;
@@ -96,31 +109,46 @@
 .sidebar-toggle {
   position: absolute;
   top: 50%;
-  right: -12px;
+  right: -13px;
   transform: translateY(-50%);
   background: #7c1241;
-  color: white;
+  color: #ffffff;
   border: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  border-radius: 14px; /* píldora circular compacta */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  transition: background .18s ease, color .18s ease;
   z-index: 1001;
 }
 
 .sidebar-toggle:hover {
-  background: #9c1d5a;
-  transform: translateY(-50%) scale(1.1);
+  background: #5a0d2f; /* tono más oscuro */
+  color: #fff;
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #f8d7e8;
+  outline-offset: 2px;
+}
+
+/* Ajustes cuando header es versión usuario para asegurar contraste */
+.sidebar-header.user-info .sidebar-toggle {
+  right: -16px; /* un poco afuera pero no tanto */
+  top: 50%;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  right: -14px;
 }
 
 .sidebar-toggle i {
-  font-size: 12px;
-  transition: transform 0.3s ease;
+  font-size: 11px;
+  transition: transform 0.25s ease;
 }
 
 .sidebar-nav {
@@ -288,6 +316,66 @@
   opacity: 0.7;
 }
 
+/* Información del usuario en el sidebar */
+/* Bloque de usuario (estándar) */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.sidebar-header.user-info .user-avatar {
+  font-size: 54px; /* Más grande */
+  color: #ffffff;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-right: 18px; /* Separación adicional del texto */
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header.user-info .user-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px; /* Mayor legibilidad */
+  line-height: 1.2;
+}
+
+.sidebar-header.user-info .user-dept {
+  font-size: 12px;
+  color: #f8d7e8; /* tono claro derivado del primario */
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 2px;
+}
+
+/* Ajustes cuando sidebar está colapsada: mantener avatar centrado y reducir padding */
+.sidebar.collapsed .sidebar-header.user-info {
+  min-height: 90px;
+  padding: 14px 10px;
+  justify-content: center;
+}
+.sidebar.collapsed .sidebar-header.user-info .user-avatar {
+  font-size: 48px;
+}
+
+/* Ajustes para sidebar colapsada */
+.sidebar.collapsed .datetime-info {
+  display: none;
+}
+
+.sidebar.collapsed .user-meta {
+  display: none;
+}
+
+.sidebar.collapsed .user-avatar {
+  margin: 0 auto;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
@@ -373,11 +461,6 @@
   color: #7c1241;
   font-weight: 700;
   font-family: Arial, sans-serif;
-}
-
-/* Ajustes para sidebar colapsada */
-.sidebar.collapsed .datetime-info {
-  display: none;
 }
 
 /* Indicador de página actual */

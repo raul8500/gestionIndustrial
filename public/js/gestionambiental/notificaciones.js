@@ -221,36 +221,143 @@
   }
 
   async function marcar(id){
-    try{
-      // Opcional: pedir observaciones
-  let observaciones = '';
-      if (window.Swal){
-        const { value } = await Swal.fire({
-          title: 'Marcar como Notificado',
-          input: 'textarea',
-          inputLabel: 'Observaciones (opcional)',
-          inputPlaceholder: 'Notas de notificación... (opcional)',
-          inputAttributes: { 'aria-label': 'Observaciones' },
-          showCancelButton: true,
-          confirmButtonText: 'Confirmar',
-          cancelButtonText: 'Cancelar',
-          inputValidator: () => undefined
-        });
-        if (value === undefined) return; // cancelado
-        observaciones = value || '';
-      }
+    try {
+      if (!window.Swal) { return alert('SweetAlert requerido'); }
+
+      // Obtener el trámite para saber tipo (para vigencia)
+      const detalleRes = await fetch(`/api/gestionambiental/tramites/${id}`);
+      if (!detalleRes.ok) throw new Error('No se pudo obtener el trámite');
+      const tramite = await detalleRes.json();
+      const requiereVigencia = ['GRME','PM'].includes(tramite.tipoTramite);
+
+      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const mesActual = meses[new Date().getMonth()];
+      const anioActual = new Date().getFullYear();
+
+      const htmlForm = `
+        <form id="formNotificar" class="text-start">
+          <div class="mb-2">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones" rows="2" placeholder="Notas (opcional)"></textarea>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Fecha de Notificación</label>
+              <input type="date" name="fechaNotificacion" class="form-control" value="${new Date().toISOString().substring(0,10)}" required />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Mes</label>
+              <select name="mesNotificacion" class="form-select" required>
+                ${meses.map(m => `<option value="${m}" ${m===mesActual ? 'selected' : ''}>${m}</option>`).join('')}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Año</label>
+              <input type="number" name="anioNotificacion" class="form-control" value="${anioActual}" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Hojas</label>
+              <input type="number" name="hojasNotificacion" class="form-control" min="1" placeholder="Nº" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">¿Lleva Holograma?</label>
+              <select name="hologramaAplica" class="form-select" id="selHolograma">
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+              </select>
+            </div>
+            <div class="col-md-4 d-none" id="grpNumeroHolograma">
+              <label class="form-label">Número de Holograma</label>
+              <input type="text" name="numeroHolograma" class="form-control" placeholder="Ej. HG-123" />
+            </div>
+          </div>
+          ${ requiereVigencia ? `
+          <hr class="my-3"/>
+          <div class="row g-2">
+            <div class="col-12"><label class="form-label fw-semibold">Vigencia (sólo para ${tramite.tipoTramite})</label></div>
+            <div class="col-md-6">
+              <label class="form-label">Inicio</label>
+              <input type="date" name="vigenciaInicio" class="form-control" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fin</label>
+              <input type="date" name="vigenciaFin" class="form-control" />
+            </div>
+          </div>` : '' }
+        </form>`;
+
+      const { dismiss, isConfirmed } = await Swal.fire({
+        title: 'Marcar como Notificado',
+        html: htmlForm,
+        width: 700,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        didOpen: () => {
+          const sel = document.getElementById('selHolograma');
+          const grp = document.getElementById('grpNumeroHolograma');
+          sel.addEventListener('change', () => {
+            if (sel.value === 'si') grp.classList.remove('d-none'); else grp.classList.add('d-none');
+          });
+        },
+        preConfirm: () => {
+          const form = document.getElementById('formNotificar');
+          if (!form) return;
+          const fd = new FormData(form);
+          const data = Object.fromEntries(fd.entries());
+          // Normalizar
+          data.hologramaAplica = data.hologramaAplica === 'si';
+          if (!data.hologramaAplica) data.numeroHolograma = null;
+          if (data.hojasNotificacion) data.hojasNotificacion = Number(data.hojasNotificacion);
+          // Validaciones
+            if (!data.fechaNotificacion) {
+              Swal.showValidationMessage('Debe seleccionar la fecha de notificación');
+              return false;
+            }
+            if (data.hologramaAplica && !data.numeroHolograma) {
+              Swal.showValidationMessage('Debe capturar el número de holograma o seleccionar No');
+              return false;
+            }
+            if (requiereVigencia && (data.vigenciaInicio || data.vigenciaFin) && !(data.vigenciaInicio && data.vigenciaFin)) {
+              Swal.showValidationMessage('Debe proporcionar inicio y fin de vigencia');
+              return false;
+            }
+          return data;
+        }
+      });
+      if (dismiss || !isConfirmed) return;
+      const formData = Swal.getPopup().querySelector('form') ? Swal.getPopup().querySelector('form') : null;
+      let payload = Swal.getInput ? {} : {};
+      // Recuperar datos procesados de preConfirm almacenados en "value" no es directo, reconstruimos
+      const fd = new FormData(document.getElementById('formNotificar'));
+      payload = Object.fromEntries(fd.entries());
+      payload.hologramaAplica = payload.hologramaAplica === 'si';
+      if (payload.hojasNotificacion) payload.hojasNotificacion = Number(payload.hojasNotificacion);
+      if (!payload.hologramaAplica) payload.numeroHolograma = null;
+
+      // Añadir campos fijos
+      payload.status = 'Notificado';
+      payload.observacionesNotificacion = payload.observaciones || '';
+      payload.fechaNotificacion = payload.fechaNotificacion;
+      payload.mesNotificacion = payload.mesNotificacion;
+      payload.anioNotificacion = payload.anioNotificacion ? Number(payload.anioNotificacion) : undefined;
+      if (!['GRME','PM'].includes(tramite.tipoTramite)) { delete payload.vigenciaInicio; delete payload.vigenciaFin; }
+
       const res = await fetch(`/api/gestionambiental/tramites/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Notificado', observacionesNotificacion: observaciones })
+        body: JSON.stringify(payload)
       });
-      if(!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Error al actualizar' }));
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({message:'Error al actualizar'}));
         throw new Error(err.message || 'Error al actualizar');
       }
-      if(window.Swal){ await Swal.fire({ icon:'success', title:'Actualizado', text:'Trámite marcado como Notificado', timer:1500, showConfirmButton:false }); }
+      await Swal.fire({ icon:'success', title:'Notificado', text:'Trámite actualizado correctamente', timer:1600, showConfirmButton:false });
       cargar();
-    }catch(e){ if(window.Swal){ Swal.fire('Error', e.message, 'error'); } else alert(e.message); }
+    } catch(e){
+      if (window.Swal) Swal.fire('Error', e.message, 'error'); else alert(e.message);
+    }
   }
 
   function escapeHtml(str=''){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }

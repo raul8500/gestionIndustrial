@@ -1,8 +1,12 @@
 <!-- Sidebar Component -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="logo-container">
-      <img src="img/logos.png" alt="Logo SEDEMA" class="logo" />
+  <div class="sidebar-header user-info">
+    <div class="user-avatar">
+      <i class="fas fa-user-circle"></i>
+    </div>
+    <div class="user-meta">
+      <div class="user-name"><%= typeof userName !== 'undefined' ? userName : 'Usuario' %></div>
+      <div class="user-dept"><%= typeof userDepartment !== 'undefined' ? userDepartment : 'Departamento' %></div>
     </div>
     <button class="sidebar-toggle" id="sidebarToggle" title="Colapsar/Expandir">
       <i class="fas fa-chevron-left"></i>
