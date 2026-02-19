@@ -38,8 +38,10 @@ exports.obtenerTramites = async (req, res) => {
       return res.status(403).json({ message: 'Acceso denegado. Área no autorizada.' });
     }
 
-    const { page = 1, limit = 20, search, status, tipoTramite, empresa } = req.query;
-    const skip = (page - 1) * limit;
+  let { page = 1, limit = 20, search, status, tipoTramite, empresa } = req.query;
+  page = parseInt(page, 10) || 1;
+  limit = parseInt(limit, 10) || 20;
+  const skip = (page - 1) * limit;
 
     let filtros = { isDeleted: false };
 
@@ -61,15 +63,15 @@ exports.obtenerTramites = async (req, res) => {
       .populate('lastModifiedBy', 'name username')
       .sort({ fechaEntrada: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+  .limit(limit);
 
     const total = await Tramite.countDocuments(filtros);
 
     res.json({
       tramites,
       total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit)
+      page,
+      totalPages: Math.ceil(total / limit) || 1
     });
   } catch (err) {
     console.error(err);
@@ -143,7 +145,8 @@ exports.crearTramite = async (req, res) => {
       mesNotificacion,
       anioNotificacion,
       vigenciaInicio,
-      vigenciaFin
+      vigenciaFin,
+      numeroAutorizacion
     } = req.body;
 
     // Validar campos obligatorios
@@ -182,6 +185,15 @@ exports.crearTramite = async (req, res) => {
   tecnicos: Array.isArray(tecnicos) ? tecnicos : [],
       numeroPaginas,
       tiempoEstimadoSalida,
+      hologramaAplica: !!hologramaAplica,
+      numeroHolograma: numeroHolograma || null,
+      fechaNotificacion: fechaNotificacion ? new Date(fechaNotificacion) : null,
+      hojasNotificacion: hojasNotificacion ? Number(hojasNotificacion) : null,
+      mesNotificacion: mesNotificacion || null,
+      anioNotificacion: anioNotificacion ? Number(anioNotificacion) : null,
+      vigenciaInicio: vigenciaInicio ? new Date(vigenciaInicio) : null,
+      vigenciaFin: vigenciaFin ? new Date(vigenciaFin) : null,
+      numeroAutorizacion: (['GRME','PM'].includes(tipoTramite) ? (numeroAutorizacion || null) : null),
       lastModifiedBy: usuario._id,
       lastModifiedAt: new Date(),
       lastChange: 'Creación de trámite'
@@ -260,7 +272,8 @@ exports.actualizarTramite = async (req, res) => {
       mesNotificacion,
       anioNotificacion,
       vigenciaInicio,
-      vigenciaFin
+      vigenciaFin,
+      numeroAutorizacion
     } = req.body;
 
     // Verificar que la empresa existe si se va a actualizar (acepta ID o código)
@@ -302,6 +315,17 @@ exports.actualizarTramite = async (req, res) => {
     if (anioNotificacion !== undefined) { tramite.anioNotificacion = anioNotificacion ? Number(anioNotificacion) : null; cambios.push('anioNotificacion'); }
     if (vigenciaInicio !== undefined) { tramite.vigenciaInicio = vigenciaInicio ? new Date(vigenciaInicio) : null; cambios.push('vigenciaInicio'); }
     if (vigenciaFin !== undefined) { tramite.vigenciaFin = vigenciaFin ? new Date(vigenciaFin) : null; cambios.push('vigenciaFin'); }
+    if (numeroAutorizacion !== undefined) {
+      if (['GRME','PM'].includes(tramite.tipoTramite)) {
+        tramite.numeroAutorizacion = numeroAutorizacion || null;
+      } else {
+        // Limpiar si tipo ya no aplica
+        if (tramite.numeroAutorizacion) {
+          tramite.numeroAutorizacion = null;
+        }
+      }
+      cambios.push('numeroAutorizacion');
+    }
 
     // Validación de vigencia sólo si el tipo lo requiere
     const tiposConVigencia = ['GRME','PM'];
@@ -312,6 +336,10 @@ exports.actualizarTramite = async (req, res) => {
         tramite.vigenciaFin = null;
         cambios.push('vigenciaInicio','vigenciaFin');
       }
+      if (tramite.numeroAutorizacion) {
+        tramite.numeroAutorizacion = null;
+        cambios.push('numeroAutorizacion');
+      }
     } else {
       if ((vigenciaInicio || vigenciaFin) && !(vigenciaInicio && vigenciaFin)) {
         return res.status(400).json({ message: 'Debe proporcionar fecha de inicio y fin de vigencia' });
@@ -319,6 +347,7 @@ exports.actualizarTramite = async (req, res) => {
       if (vigenciaInicio && vigenciaFin && new Date(vigenciaFin) < new Date(vigenciaInicio)) {
         return res.status(400).json({ message: 'La vigencia fin no puede ser anterior a la de inicio' });
       }
+      // Si es GRME o PM y no hay numeroAutorizacion, podemos permitir null pero queda listo el campo
     }
     if (status) {
       tramite.status = status; cambios.push('status');

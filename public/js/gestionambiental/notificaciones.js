@@ -283,6 +283,10 @@
               <label class="form-label">Fin</label>
               <input type="date" name="vigenciaFin" class="form-control" />
             </div>
+            <div class="col-md-6">
+              <label class="form-label">Número de Autorización</label>
+              <input type="text" name="numeroAutorizacion" class="form-control" placeholder="Ej. AUT-12345" />
+            </div>
           </div>` : '' }
         </form>`;
 
@@ -343,6 +347,7 @@
       payload.mesNotificacion = payload.mesNotificacion;
       payload.anioNotificacion = payload.anioNotificacion ? Number(payload.anioNotificacion) : undefined;
       if (!['GRME','PM'].includes(tramite.tipoTramite)) { delete payload.vigenciaInicio; delete payload.vigenciaFin; }
+  if (!['GRME','PM'].includes(tramite.tipoTramite)) { delete payload.numeroAutorizacion; }
 
       const res = await fetch(`/api/gestionambiental/tramites/${id}`, {
         method: 'PUT',

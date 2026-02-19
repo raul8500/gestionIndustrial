@@ -677,6 +677,167 @@ extraStyles=`
      color: white;
    }
    
+  /* ── Tracking Cards ── */
+  .tracking-card {
+    background: white;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.2s ease;
+  }
+  .tracking-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .tracking-card.st-ingresado  { border-left-color: #3b82f6; }
+  .tracking-card.st-turnado    { border-left-color: #f59e0b; }
+  .tracking-card.st-firma      { border-left-color: #ec4899; }
+  .tracking-card.st-direccion  { border-left-color: #0ea5e9; }
+  .tracking-card.st-resguardo  { border-left-color: #f97316; }
+  .tracking-card.st-notificado { border-left-color: #22c55e; }
+
+  /* Fila 1 */
+  .tc-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .tc-id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .tc-folio {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+  }
+  .tc-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .tc-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+  .tc-actions { display: flex; gap: 3px; }
+  .tc-actions .btn {
+    width: 28px; height: 28px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 0.75rem;
+  }
+
+  /* Fila 2: Empresa */
+  .tc-empresa {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tc-empresa i { font-size: 0.7rem; color: #94a3b8; }
+  .tc-empresa strong { color: #334155; }
+  .tc-empresa span { color: #64748b; }
+
+  /* Fila 3: Progreso + % */
+  .tc-progress-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .tc-progress-bar {
+    flex: 1; height: 5px;
+    background: #f1f5f9; border-radius: 5px; overflow: hidden;
+  }
+  .tc-progress-fill {
+    height: 100%; border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+  .tc-pct {
+    font-size: 0.7rem; font-weight: 700;
+    color: #475569; min-width: 32px; text-align: right;
+  }
+  .tc-fill-ingresado  { background: #3b82f6; }
+  .tc-fill-turnado    { background: #f59e0b; }
+  .tc-fill-firma      { background: #ec4899; }
+  .tc-fill-direccion  { background: #0ea5e9; }
+  .tc-fill-resguardo  { background: #f97316; }
+  .tc-fill-notificado { background: #22c55e; }
+
+  /* Fila 4: Stepper */
+  .tc-stepper {
+    display: flex; align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .tc-step {
+    display: flex; flex-direction: column;
+    align-items: center; flex: 1; min-width: 0;
+  }
+  .tc-step-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #e2e8f0; border: 2px solid #e2e8f0;
+    z-index: 1; transition: all 0.3s;
+  }
+  .tc-step.done .tc-step-dot { background: #22c55e; border-color: #22c55e; }
+  .tc-step.active .tc-step-dot {
+    background: white; border: 2.5px solid #7c1241;
+    box-shadow: 0 0 0 2px rgba(124,18,65,0.15);
+    width: 12px; height: 12px;
+  }
+  .tc-step-label {
+    font-size: 0.58rem; color: #cbd5e1;
+    text-align: center; margin-top: 3px;
+    line-height: 1.1; max-width: 68px; word-wrap: break-word;
+  }
+  .tc-step.done .tc-step-label  { color: #64748b; font-weight: 500; }
+  .tc-step.active .tc-step-label { color: #1e293b; font-weight: 700; }
+  .tc-step-line {
+    flex: 1; height: 2px; background: #e2e8f0;
+    min-width: 8px; align-self: flex-start; margin-top: 5px;
+  }
+  .tc-step-line.done { background: #22c55e; }
+
+  /* Fila 5: Tecnicos */
+  .tc-tecnicos {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding-top: 6px; border-top: 1px solid #f1f5f9;
+  }
+
+  /* Tags */
+  .tc-tag {
+    font-size: 0.68rem; padding: 2px 8px;
+    border-radius: 4px; font-weight: 500; white-space: nowrap;
+  }
+  .tc-tag.tipo    { background: #f0fdfa; color: #0f766e; }
+  .tc-tag.asunto  { background: #eff6ff; color: #2563eb; }
+  .tc-tag.tecnico { background: #fffbeb; color: #b45309; }
+  .tc-tag.tecnico i { font-size: 0.6rem; margin-right: 3px; }
+
+  .tc-locked { color: #ef4444; font-size: 0.72rem; }
+
+  .tc-empty {
+    text-align: center; padding: 48px 20px; color: #94a3b8;
+  }
+  .tc-empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+  @media (max-width: 768px) {
+    .tracking-card { padding: 12px 14px; }
+    .tc-row-top { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .tc-meta { width: 100%; justify-content: space-between; }
+    .tc-folio { font-size: 0.82rem; }
+    .tc-step-label { font-size: 0.5rem; max-width: 48px; }
+    .tc-actions .btn { width: 26px; height: 26px; font-size: 0.7rem; }
+  }
+
    /* Estilos para el dropdown de sugerencias */
    .suggestions-dropdown {
      position: absolute;
@@ -954,7 +1115,7 @@ extraStyles=`
       </div>
     </div>
 
-    <!-- Table Section -->
+    <!-- Cards Section -->
     <div class="table-container">
       <!-- Loading indicator -->
       <div id="loadingIndicator" class="text-center py-4" style="display: none;">
@@ -963,29 +1124,13 @@ extraStyles=`
         </div>
         <p class="mt-2 text-muted">Cargando trámites...</p>
       </div>
-      
-             <!-- Table -->
-       <div id="tableContent">
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
-              <tr>
-                <th class="text-center">Folio</th>
-                <th>Empresa</th>
-                <th class="text-center">Fecha Entrada</th>
-                <th class="text-center">Tipo</th>
-                <th class="text-center">Asunto</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Técnicos</th>
-                <th class="text-center">Acciones</th>
-              </tr>
-            </thead>                        
-            <tbody id="tablaTramites">
-              <!-- Los registros se cargarán dinámicamente aquí -->
-            </tbody>
-          </table>
+
+      <div id="tableContent">
+        <!-- Tracking cards container -->
+        <div id="tablaTramites">
+          <!-- Los registros se cargarán dinámicamente aquí -->
         </div>
-        
+
         <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-3">
           <div class="d-flex align-items-center gap-2">
@@ -997,8 +1142,9 @@ extraStyles=`
               <option value="100">100</option>
             </select>
             <span class="text-muted small">registros por página</span>
+            <span id="rangeInfo" class="text-muted small ms-3"></span>
           </div>
-          
+
           <nav aria-label="Paginación de trámites">
             <ul class="pagination pagination-sm mb-0" id="pagination">
               <!-- La paginación se generará dinámicamente -->
@@ -1006,7 +1152,7 @@ extraStyles=`
           </nav>
         </div>
       </div>
-      
+
       <!-- No results message -->
       <div id="noResults" class="text-center py-5" style="display: none;">
         <i class="fas fa-search fa-3x text-muted mb-3"></i>
@@ -1129,4 +1275,4 @@ extraStyles=`
 <script src="/js/components/sidebar.js?v=1.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/gestionambiental/tramites.js?v=1.3"></script>
+<script src="/js/gestionambiental/tramites.js?v=2.2"></script>

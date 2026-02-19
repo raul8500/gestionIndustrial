@@ -103,13 +103,6 @@ const tramitesSchema = new mongoose.Schema({
     required: false,
     default: null
   },
-  // Datos adicionales al momento de notificar
-  observacionesNotificacion: { // (ya definido arriba, mantenido para compatibilidad)
-    type: String,
-    required: false,
-    trim: true,
-    default: ''
-  },
   hologramaAplica: {
     type: Boolean,
     default: false
@@ -144,6 +137,12 @@ const tramitesSchema = new mongoose.Schema({
   },
   vigenciaFin: {
     type: Date,
+    default: null
+  },
+  // Número de autorización (sólo aplica a GRME y PM)
+  numeroAutorizacion: {
+    type: String,
+    trim: true,
     default: null
   },
   mesCapturado: {

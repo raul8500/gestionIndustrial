@@ -7,6 +7,7 @@ class TramitesManager {
         this.tramiteEditando = null;
         this.paginaActual = 1;
         this.totalPaginas = 1;
+        this.limite = 20; // registros por página (default)
     this.userInfo = null; // info del usuario autenticado (para permisos)
     this._filterPortal = null; // portal para sugerencias del filtro de empresa
     this._filterPortalVisible = false;
@@ -82,8 +83,12 @@ class TramitesManager {
         if (limitSelect) {
             limitSelect.addEventListener('change', () => {
                 this.paginaActual = 1;
+                this.limite = parseInt(limitSelect.value, 10) || 20;
                 this.cargarTramites();
             });
+            // establecer valor inicial si el select existe
+            const inicial = parseInt(limitSelect.value, 10);
+            if (!isNaN(inicial)) this.limite = inicial;
         }
 
         // Búsqueda por empresa en filtros
@@ -410,7 +415,7 @@ class TramitesManager {
 
             const params = new URLSearchParams({
                 page: this.paginaActual,
-                limit: 20
+                limit: this.limite
             });
 
             // Agregar filtros si están aplicados
@@ -429,6 +434,7 @@ class TramitesManager {
                 const data = await response.json();
                 this.tramites = data.tramites || [];
                 this.totalPaginas = data.totalPages || 1;
+                this.totalRegistros = data.total || this.tramites.length;
                 
                 // Ocultar loading y mostrar contenido
                 if (loadingIndicator) loadingIndicator.style.display = 'none';
@@ -437,6 +443,7 @@ class TramitesManager {
                     if (tableContent) tableContent.style.display = 'block';
                     this.renderizarTabla();
                     this.renderizarPaginacion();
+                    this.actualizarRangeInfo();
                     this.actualizarEstadisticas();
                 } else {
                     if (noResults) noResults.style.display = 'block';
@@ -464,76 +471,102 @@ class TramitesManager {
         }
     }
 
-    // Renderizar tabla de trámites
+    // Renderizar tracking cards
     renderizarTabla() {
-        const tbody = document.getElementById('tablaTramites');
-        if (!tbody) return;
-        
+        const container = document.getElementById('tablaTramites');
+        if (!container) return;
+
         if (this.tramites.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center py-4">
-                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                        <p class="text-muted mb-0">No se encontraron trámites con los filtros aplicados</p>
-                    </td>
-                </tr>
-            `;
+            container.innerHTML = `
+                <div class="tc-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>No se encontraron trámites con los filtros aplicados</p>
+                </div>`;
             return;
         }
 
-        tbody.innerHTML = this.tramites.map(tramite => `
-            <tr>
-                <td class="text-center"><strong>${tramite.folioOficialia}</strong></td>
-                <td>
-                    <div>
-                        <strong>${tramite.empresa.codigo}</strong><br>
-                        <small class="text-muted">${tramite.empresa.razonSocial}</small>
+        const STEPS = [
+            'Ingresado al area',
+            'Turnado con tecnico evaluador',
+            'Proceso de firma con jefe de departamento',
+            'Turnado a direccion',
+            'Resguardo para notificar',
+            'Notificado'
+        ];
+        const STEP_SHORT = ['Ingresado', 'Técnico', 'Firma', 'Dirección', 'Resguardo', 'Notificado'];
+
+        container.innerHTML = this.tramites.map(tramite => {
+            const statusIdx = STEPS.indexOf(tramite.status);
+            const pct = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STEPS.length) * 100) : 0;
+
+            // Build stepper
+            let stepper = '';
+            STEPS.forEach((s, i) => {
+                const isDone = i < statusIdx;
+                const isActive = i === statusIdx;
+                const cls = isDone ? 'done' : isActive ? 'active' : '';
+                stepper += `<div class="tc-step ${cls}"><div class="tc-step-dot"></div><span class="tc-step-label">${STEP_SHORT[i]}</span></div>`;
+                if (i < STEPS.length - 1) {
+                    stepper += `<div class="tc-step-line ${isDone ? 'done' : ''}"></div>`;
+                }
+            });
+
+            // Técnicos
+            const arr = Array.isArray(tramite.tecnicos) ? tramite.tecnicos : [];
+            const tecnicos = arr.map(t => {
+                if (typeof t === 'object') return t.nombre || '';
+                const found = this.catalogoTecnicos.find(x => String(x._id) === String(t));
+                if (found) return found.nombre || '';
+                const num = Number(t);
+                if (!Number.isNaN(num) && this.legacyTecnicosMap[num]) return this.legacyTecnicosMap[num];
+                return String(t);
+            }).filter(Boolean);
+
+            const stClass = this.obtenerClaseStatus(tramite.status);
+
+            return `
+            <div class="tracking-card st-${stClass}">
+                <!-- Fila 1: Folio + Tags | Fecha + Acciones -->
+                <div class="tc-row-top">
+                    <div class="tc-id">
+                        <span class="tc-folio">${tramite.folioOficialia}</span>
+                        <span class="tc-tag tipo">${tramite.tipoTramite}</span>
+                        <span class="tc-tag asunto">${tramite.asuntoEspecifico}</span>
+                        ${tramite.lockedBy ? '<span class="tc-locked"><i class="fas fa-lock"></i></span>' : ''}
                     </div>
-                </td>
-                <td class="text-center">${this.formatearFecha(tramite.fechaEntrada)}</td>
-                <td class="text-center">${tramite.tipoTramite}</td>
-                <td class="text-center">${tramite.asuntoEspecifico}</td>
-                <td class="text-center">
-                    <span class="status-badge status-${this.obtenerClaseStatus(tramite.status)}">
-                        ${tramite.status}
-                    </span>
-                </td>
-                <td class="text-center">
-                    ${(() => {
-                        const arr = Array.isArray(tramite.tecnicos) ? tramite.tecnicos : [];
-                        // si viene poblado: objetos con nombre, si no: ids
-                        if (arr.length === 0) return '<em class="text-muted">Sin asignar</em>';
-                        const etiquetas = arr.map(t => {
-                            if (typeof t === 'object') return t.nombre || '';
-                            const found = this.catalogoTecnicos.find(x => String(x._id)===String(t));
-                            if (found) return found.nombre || '';
-                            const num = Number(t);
-                            if (!Number.isNaN(num) && this.legacyTecnicosMap[num]) return this.legacyTecnicosMap[num];
-                            return String(t);
-                        });
-                        return etiquetas.filter(Boolean).join(', ');
-                    })()}
-                </td>
-                <td class="text-center">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-outline-info btn-sm" onclick="tramitesManager.verTramite('${tramite._id}')" title="Ver">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-warning btn-sm" ${tramite.lockedBy ? 'disabled title="Bloqueado"' : ''} onclick="tramitesManager.editarTramite('${tramite._id}')" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm" ${tramite.lockedBy ? 'disabled title="Bloqueado"' : ''} onclick="tramitesManager.eliminarTramite('${tramite._id}')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        ${this.userInfo && this.userInfo.puedeCrearUsuarios ? `
-                        <button class="btn btn-outline-secondary btn-sm" onclick="tramitesManager.verCambiosTramite('${tramite._id}')" title="Ver cambios">
-                            <i class=\"fas fa-history\"></i>
-                        </button>` : ''}
+                    <div class="tc-meta">
+                        <span class="tc-date">${this.formatearFecha(tramite.fechaEntrada)}</span>
+                        <div class="tc-actions">
+                            <button class="btn btn-outline-info" onclick="tramitesManager.verTramite('${tramite._id}')" title="Ver"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-outline-warning" ${tramite.lockedBy ? 'disabled' : ''} onclick="tramitesManager.editarTramite('${tramite._id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger" ${tramite.lockedBy ? 'disabled' : ''} onclick="tramitesManager.eliminarTramite('${tramite._id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            ${this.userInfo && this.userInfo.puedeCrearUsuarios ? `<button class="btn btn-outline-secondary" onclick="tramitesManager.verCambiosTramite('${tramite._id}')" title="Historial"><i class="fas fa-history"></i></button>` : ''}
+                        </div>
                     </div>
-                    ${tramite.lockedBy ? '<div><span class="badge bg-secondary mt-1">Bloqueado</span></div>' : ''}
-                </td>
-            </tr>
-        `).join('');
+                </div>
+
+                <!-- Fila 2: Empresa -->
+                <div class="tc-empresa">
+                    <i class="fas fa-building"></i>
+                    <strong>${tramite.empresa?.codigo || '-'}</strong>
+                    <span>${tramite.empresa?.razonSocial || ''}</span>
+                </div>
+
+                <!-- Fila 3: Barra de progreso + porcentaje -->
+                <div class="tc-progress-section">
+                    <div class="tc-progress-bar">
+                        <div class="tc-progress-fill tc-fill-${stClass}" style="width:${pct}%"></div>
+                    </div>
+                    <span class="tc-pct">${pct}%</span>
+                </div>
+
+                <!-- Fila 4: Stepper -->
+                <div class="tc-stepper">${stepper}</div>
+
+                <!-- Fila 5: Tecnicos (solo si hay) -->
+                ${tecnicos.length ? `<div class="tc-tecnicos">${tecnicos.map(n => `<span class="tc-tag tecnico"><i class="fas fa-user-tie"></i>${n}</span>`).join('')}</div>` : ''}
+            </div>`;
+        }).join('');
     }
 
     // Mostrar auditoría del último cambio
@@ -672,6 +705,17 @@ class TramitesManager {
         if (pagina < 1 || pagina > this.totalPaginas) return;
         this.paginaActual = pagina;
         this.cargarTramites();
+    }
+
+    // Mostrar información de rango: "Mostrando X - Y de Z"
+    actualizarRangeInfo() {
+        const span = document.getElementById('rangeInfo');
+        if (!span) return;
+        const total = this.totalRegistros || 0;
+        if (!total) { span.textContent = ''; return; }
+        const inicio = ((this.paginaActual - 1) * this.limite) + 1;
+        const fin = Math.min(this.paginaActual * this.limite, total);
+        span.textContent = `(${inicio}-${fin} de ${total})`;
     }
 
     // Aplicar filtros
@@ -914,7 +958,28 @@ class TramitesManager {
                         const direccion = empresa.direccion || {};
                         const rep = empresa.representanteLegal || {};
 
-                        const html = `
+                                                const fechaNotificacion = tramite.fechaNotificacion ? this.formatearFecha(tramite.fechaNotificacion) : '-';
+                                                const vigenciaInicio = tramite.vigenciaInicio ? this.formatearFecha(tramite.vigenciaInicio) : '-';
+                                                const vigenciaFin = tramite.vigenciaFin ? this.formatearFecha(tramite.vigenciaFin) : '-';
+                                                const tieneVigencia = ['GRME','PM'].includes(tramite.tipoTramite);
+                                                const infoNotificacionHTML = `
+                                                    <div class="mb-3">
+                                                        <h5 class="mb-2">Información de Notificación</h5>
+                                                        <div class="row g-2">
+                                                            <div class="col-md-4"><strong>Fecha Notificación:</strong> ${fechaNotificacion}</div>
+                                                            <div class="col-md-4"><strong>Mes/Año:</strong> ${tramite.mesNotificacion || '-'} / ${tramite.anioNotificacion || '-'}</div>
+                                                            <div class="col-md-4"><strong>Hojas:</strong> ${tramite.hojasNotificacion ?? '-'}</div>
+                                                            <div class="col-md-4"><strong>Holograma:</strong> ${tramite.hologramaAplica ? 'Sí' : 'No'}</div>
+                                                            <div class="col-md-4"><strong>Número Holograma:</strong> ${tramite.hologramaAplica ? (tramite.numeroHolograma || '-') : '-'}</div>
+                                                            <div class="col-md-4"><strong>Núm. Autorización:</strong> ${tieneVigencia ? (tramite.numeroAutorizacion || '-') : '-'}</div>
+                                                            ${tieneVigencia ? `
+                                                                <div class="col-md-6"><strong>Vigencia Inicio:</strong> ${vigenciaInicio}</div>
+                                                                <div class="col-md-6"><strong>Vigencia Fin:</strong> ${vigenciaFin}</div>
+                                                            ` : ''}
+                                                        </div>
+                                                    </div>`;
+
+                                                const html = `
                                 <div class="text-start">
                                     <div class="mb-3">
                                         <h5 class="mb-2">Información del Trámite</h5>
@@ -933,6 +998,7 @@ class TramitesManager {
                                             <div class="col-12"><strong>Técnicos:</strong> ${this._escapeHtml(tecnicosTexto)}</div>
                                         </div>
                                     </div>
+                                    ${infoNotificacionHTML}
                                     <hr/>
                                     <div class="mb-2">
                                         <h5 class="mb-2">Información de la Empresa</h5>
