@@ -1,6 +1,13 @@
 node_modules/
-/public/archivos/
-/public/correspondencia/
-/database/
 .env
+.DS_Store
 backups/
+
+# Backend específicos
+backend/public/archivos/
+backend/public/correspondencia/
+backend/database/
+
+# Frontend build
+frontend/.svelte-kit/
+frontend/build/
