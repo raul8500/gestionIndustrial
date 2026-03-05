@@ -36,6 +36,24 @@ export function getSocket(): Socket | null {
 }
 
 /**
+ * Join a user-specific room so the server can send targeted events.
+ */
+export function joinUser(userId: string): void {
+  if (socket && userId) {
+    socket.emit('join', userId);
+  }
+}
+
+/**
+ * Listen for a forced logout event from the server.
+ */
+export function onForceLogout(callback: (message: string) => void): void {
+  if (socket) {
+    socket.on('forceLogout', callback);
+  }
+}
+
+/**
  * Disconnect and clean up the socket.
  */
 export function disconnectSocket(): void {

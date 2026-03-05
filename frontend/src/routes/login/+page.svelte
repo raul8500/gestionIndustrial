@@ -1,12 +1,26 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
   import { toast } from '$lib/stores/toast';
+  import { onMount } from 'svelte';
 
   let username = $state('');
   let password = $state('');
   let loading = $state(false);
   let errorMessage = $state('');
+  let deactivatedMessage = $state('');
+
+  onMount(() => {
+    const unsub = page.subscribe(p => {
+      if (p.url.searchParams.get('reason') === 'deactivated') {
+        deactivatedMessage = 'Tu cuenta ha sido desactivada por un administrador.';
+        // Clean URL without reloading
+        history.replaceState({}, '', '/login');
+      }
+    });
+    unsub();
+  });
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -47,6 +61,13 @@
     </div>
 
     <h1 class="login-title">Sistema Integral SEDEMA</h1>
+
+    {#if deactivatedMessage}
+      <div class="deactivated-banner">
+        <i class="fas fa-user-slash"></i>
+        <span>{deactivatedMessage}</span>
+      </div>
+    {/if}
 
     <p class="login-subtitle">
       <i class="fas fa-shield-alt"></i>
@@ -114,6 +135,33 @@
 </div>
 
 <style>
+  .deactivated-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #dc2626;
+    color: #991b1b;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .deactivated-banner i {
+    font-size: 1.1rem;
+    color: #dc2626;
+    flex-shrink: 0;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .login-bg {
     min-height: 100vh;
     background: transparent;

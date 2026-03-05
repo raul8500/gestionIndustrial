@@ -9,13 +9,26 @@
 </div>
 
 <div class="config-grid">
-  <a href="/gestionambientaltiposempresa" class="config-card card">
+  <a href="/gestionambientalsectores" class="config-card card">
     <div class="card-body">
       <div class="config-icon">
-        <i class="fas fa-tags"></i>
+        <i class="fas fa-industry"></i>
       </div>
-      <h4 class="card-title">Tipos de Empresa</h4>
-      <p class="card-text">Administra el catálogo de tipos de empresa para clasificación.</p>
+      <h4 class="card-title">Sectores</h4>
+      <p class="card-text">Administra el catálogo de sectores de empresa.</p>
+      <span class="config-link">
+        Gestionar <i class="fas fa-arrow-right"></i>
+      </span>
+    </div>
+  </a>
+
+  <a href="/gestionambientalactividadeseconomicas" class="config-card card">
+    <div class="card-body">
+      <div class="config-icon">
+        <i class="fas fa-briefcase"></i>
+      </div>
+      <h4 class="card-title">Actividades Económicas</h4>
+      <p class="card-text">Administra el catálogo de actividades económicas.</p>
       <span class="config-link">
         Gestionar <i class="fas fa-arrow-right"></i>
       </span>

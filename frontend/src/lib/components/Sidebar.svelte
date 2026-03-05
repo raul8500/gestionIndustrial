@@ -43,6 +43,29 @@
       closeMobile();
     }
   }
+
+  function getFunctionIcon(name: string): string {
+    const icons: Record<string, string> = {
+      'Empresas': 'fa-building',
+      'Trámites': 'fa-file-lines',
+      'Tramites': 'fa-file-lines',
+      'Usuarios': 'fa-users-cog',
+      'Configuraciones': 'fa-gear',
+      'Sectores': 'fa-layer-group',
+      'Actividades Económicas': 'fa-briefcase',
+      'Técnicos Ambientales': 'fa-user-tie',
+      'Notificaciones': 'fa-bell',
+      'Calendario': 'fa-calendar-days',
+      'Tickets': 'fa-ticket',
+      'Correspondencia': 'fa-envelope',
+      'Inventario': 'fa-boxes-stacked',
+      'Registros': 'fa-clipboard-list',
+      'Solicitudes': 'fa-file-circle-question',
+      'Viáticos': 'fa-money-bill-wave',
+    };
+    const key = Object.keys(icons).find(k => name.toLowerCase().includes(k.toLowerCase()));
+    return key ? icons[key] : 'fa-circle';
+  }
 </script>
 
 <!-- Mobile toggle button -->
@@ -105,7 +128,7 @@
               (func.name === 'Usuarios' || func.name === 'Usuarios Financieros')
             )}
               <a href={func.path} class="function-link" onclick={handleNavClick} title={func.name}>
-                <i class="fas fa-circle" style="font-size: 6px;"></i>
+                <i class="fas {getFunctionIcon(func.name)}"></i>
                 {#if !collapsed}<span>{func.name}</span>{/if}
               </a>
             {/if}

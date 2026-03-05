@@ -89,7 +89,7 @@ exports.obtenerEmpresaPorId = async (req, res) => {
   try {
     console.log(`🔍 Controlador: Obteniendo empresa con ID: ${req.params.id}`);
     
-  const empresa = await Empresa.findById(req.params.id).populate('tipo');
+  const empresa = await Empresa.findById(req.params.id).populate('sector').populate('actividadEconomica');
     if (!empresa) {
       console.log(`❌ Empresa no encontrada con ID: ${req.params.id}`);
       return res.status(404).json({ message: 'Empresa no encontrada' });
@@ -108,7 +108,7 @@ exports.verEmpresa = async (req, res) => {
   try {
     console.log(`👁️ Controlador: Visualizando empresa con ID: ${req.params.id}`);
     
-  const empresa = await Empresa.findById(req.params.id).populate('tipo');
+  const empresa = await Empresa.findById(req.params.id).populate('sector').populate('actividadEconomica');
     if (!empresa) {
       console.log(`❌ Empresa no encontrada con ID: ${req.params.id}`);
       return res.status(404).json({ message: 'Empresa no encontrada' });
@@ -137,7 +137,8 @@ exports.crearEmpresa = async (req, res) => {
       correo,
       notificaciones,
       representanteLegal,
-      tipo
+      sector,
+      actividadEconomica
     } = req.body;
 
     // Validar campos requeridos
@@ -180,7 +181,7 @@ exports.crearEmpresa = async (req, res) => {
 
     // Generar código único
     console.log('🔍 Generando código único...');
-    const codigo = await Empresa.generarCodigoUnico(razonSocial);
+    const codigo = await Empresa.generarCodigoUnico();
     console.log(`✅ Código generado: ${codigo}`);
 
     // Crear la nueva empresa
@@ -197,11 +198,14 @@ exports.crearEmpresa = async (req, res) => {
         cp: direccion.cp,
         localidad: direccion.localidad || '',
         municipio: direccion.municipio,
-        estado: direccion.estado
+        estado: direccion.estado,
+        latitud: direccion.latitud || '',
+        longitud: direccion.longitud || ''
       },
       telefono,
       correo: correo.toLowerCase(),
-      tipo: tipo || undefined,
+      sector: sector || undefined,
+      actividadEconomica: actividadEconomica || undefined,
               notificaciones: {
           calle: notificaciones?.calle || '',
           noExterior: notificaciones?.noExterior || '',
@@ -252,7 +256,8 @@ exports.actualizarEmpresa = async (req, res) => {
       notificaciones,
       representanteLegal,
       status,
-      tipo
+      sector,
+      actividadEconomica
     } = req.body;
 
     const empresa = await Empresa.findById(req.params.id);
@@ -284,7 +289,8 @@ exports.actualizarEmpresa = async (req, res) => {
     if (telefono) empresa.telefono = telefono;
     if (correo) empresa.correo = correo.toLowerCase();
     if (typeof status !== 'undefined') empresa.status = status;
-  if (typeof tipo !== 'undefined') empresa.tipo = tipo || undefined;
+  if (typeof sector !== 'undefined') empresa.sector = sector || undefined;
+  if (typeof actividadEconomica !== 'undefined') empresa.actividadEconomica = actividadEconomica || undefined;
 
     // Actualizar dirección si se proporciona
     if (direccion) {
@@ -296,6 +302,8 @@ exports.actualizarEmpresa = async (req, res) => {
       if (direccion.localidad !== undefined) empresa.direccion.localidad = direccion.localidad;
       if (direccion.municipio) empresa.direccion.municipio = direccion.municipio;
       if (direccion.estado) empresa.direccion.estado = direccion.estado;
+      if (direccion.latitud !== undefined) empresa.direccion.latitud = direccion.latitud;
+      if (direccion.longitud !== undefined) empresa.direccion.longitud = direccion.longitud;
     }
 
     // Actualizar notificaciones si se proporciona

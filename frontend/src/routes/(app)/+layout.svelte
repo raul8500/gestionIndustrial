@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth';
   import Sidebar from '$lib/components/Sidebar.svelte';
-  import { getSocket, disconnectSocket } from '$lib/socket';
+  import { getSocket, disconnectSocket, joinUser, onForceLogout } from '$lib/socket';
   import type { Snippet } from 'svelte';
 
   let { children }: { children: Snippet } = $props();
@@ -18,6 +18,19 @@
       loading = false;
       // Establish shared Socket.IO connection
       getSocket();
+
+      // Join user room for targeted events
+      let currentUser: import('$lib/stores/auth').UserInfo | null = null;
+      auth.subscribe(s => { currentUser = s.user; })();
+      const userId = currentUser?._id || currentUser?.id;
+      if (userId) joinUser(userId);
+
+      // Listen for forced logout
+      onForceLogout(async (message) => {
+        disconnectSocket();
+        await auth.logout();
+        goto('/login?reason=deactivated');
+      });
     }
   });
 

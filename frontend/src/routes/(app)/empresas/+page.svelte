@@ -14,6 +14,8 @@
     localidad: string;
     municipio: string;
     estado: string;
+    latitud: string;
+    longitud: string;
   }
 
   interface Notificaciones {
@@ -43,7 +45,8 @@
     telefono: string;
     correo: string;
     direccion: Direccion;
-    tipo?: any;
+    sector?: any;
+    actividadEconomica?: any;
     notificaciones?: Notificaciones;
     representanteLegal: RepresentanteLegal;
     status?: number | string;
@@ -85,7 +88,8 @@
     rfc: '',
     telefono: '',
     correo: '',
-    tipo: '',
+    sector: '',
+    actividadEconomica: '',
     status: 1 as number,
     direccion: {
       calle: '', noExterior: '', noInterior: '', colonia: '',
@@ -100,13 +104,14 @@
     }
   });
 
-  let tiposEmpresa: { _id: string; nombre: string }[] = $state([]);
+  let sectores: { _id: string; nombre: string }[] = $state([]);
+  let actividadesEconomicas: { _id: string; nombre: string }[] = $state([]);
 
   function emptyForm() {
     return {
       razonSocial: '', sucursal: '', rfc: '', telefono: '', correo: '',
-      tipo: '', status: 1 as number,
-      direccion: { calle: '', noExterior: '', noInterior: '', colonia: '', cp: '', localidad: '', municipio: '', estado: '' },
+      sector: '', actividadEconomica: '', status: 1 as number,
+      direccion: { calle: '', noExterior: '', noInterior: '', colonia: '', cp: '', localidad: '', municipio: '', estado: '', latitud: '', longitud: '' },
       notificaciones: { calle: '', noExterior: '', noInterior: '', colonia: '', cp: '', localidad: '', municipio: '', telefono: '', correo: '' },
       representanteLegal: { nombre: '', correo: '', telefono: '' }
     };
@@ -114,7 +119,8 @@
 
   onMount(() => {
     fetchEmpresas();
-    fetchTiposEmpresa();
+    fetchSectores();
+    fetchActividadesEconomicas();
   });
 
   async function fetchEmpresas() {
@@ -141,10 +147,19 @@
     }
   }
 
-  async function fetchTiposEmpresa() {
+  async function fetchSectores() {
     try {
-      const data = await api.get<any>('/gestionambiental/tipos-empresa');
-      tiposEmpresa = data || [];
+      const data = await api.get<any>('/gestionambiental/sectores');
+      sectores = data || [];
+    } catch {
+      // silent
+    }
+  }
+
+  async function fetchActividadesEconomicas() {
+    try {
+      const data = await api.get<any>('/gestionambiental/actividades-economicas');
+      actividadesEconomicas = data || [];
     } catch {
       // silent
     }
@@ -190,7 +205,8 @@
       rfc: empresa.rfc || '',
       telefono: empresa.telefono || '',
       correo: empresa.correo || '',
-      tipo: empresa.tipo?._id || empresa.tipo || '',
+      sector: empresa.sector?._id || empresa.sector || '',
+      actividadEconomica: empresa.actividadEconomica?._id || empresa.actividadEconomica || '',
       status: typeof empresa.status === 'number' ? empresa.status : 1,
       direccion: {
         calle: empresa.direccion?.calle || '',
@@ -237,8 +253,8 @@
         await api.put(`/gestionambiental/empresas/${editingId}`, payload);
         toast.success('Empresa actualizada correctamente');
       } else {
-        await api.post('/gestionambiental/empresas/', payload);
-        toast.success('Empresa creada correctamente');
+        const data = await api.post('/gestionambiental/empresas/', payload) as any;
+        toast.success('Empresa creada', `Código asignado: ${data.empresa?.codigo || ''}`);
       }
       showModal = false;
       fetchEmpresas();
@@ -258,9 +274,16 @@
     }
   }
 
-  function getTipoNombre(empresa: Empresa): string {
-    if (empresa.tipo && typeof empresa.tipo === 'object' && empresa.tipo.nombre) {
-      return empresa.tipo.nombre;
+  function getSectorNombre(empresa: Empresa): string {
+    if (empresa.sector && typeof empresa.sector === 'object' && empresa.sector.nombre) {
+      return empresa.sector.nombre;
+    }
+    return '-';
+  }
+
+  function getActividadNombre(empresa: Empresa): string {
+    if (empresa.actividadEconomica && typeof empresa.actividadEconomica === 'object' && empresa.actividadEconomica.nombre) {
+      return empresa.actividadEconomica.nombre;
     }
     return '-';
   }
@@ -390,189 +413,200 @@
 <!-- Create/Edit Modal -->
 <Modal open={showModal} title={modalTitle} size="lg" onclose={() => showModal = false}>
   <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-    <!-- Información de la Empresa -->
-    <h5 class="section-title"><i class="fas fa-building"></i> Información de la Empresa</h5>
-    <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Razón Social *</label>
-          <input class="form-input" bind:value={form.razonSocial} required />
-        </div>
+
+    <!-- Información General -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <i class="fas fa-building"></i> Información General
       </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Tipo de Empresa</label>
-          <select class="form-select" bind:value={form.tipo}>
-            <option value="">Seleccionar...</option>
-            {#each tiposEmpresa as tipo}
-              <option value={tipo._id}>{tipo.nombre}</option>
-            {/each}
-          </select>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Sucursal</label>
-          <input class="form-input" bind:value={form.sucursal} />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">RFC *</label>
-          <input class="form-input" bind:value={form.rfc} required />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Teléfono *</label>
-          <input class="form-input" type="tel" bind:value={form.telefono} required />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Correo Electrónico *</label>
-          <input class="form-input" type="email" bind:value={form.correo} required />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Calle *</label>
-          <input class="form-input" bind:value={form.direccion.calle} required />
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="form-group">
-          <label class="form-label">No. Exterior</label>
-          <input class="form-input" bind:value={form.direccion.noExterior} />
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="form-group">
-          <label class="form-label">No. Interior</label>
-          <input class="form-input" bind:value={form.direccion.noInterior} />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Colonia *</label>
-          <input class="form-input" bind:value={form.direccion.colonia} required />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Código Postal *</label>
-          <input class="form-input" bind:value={form.direccion.cp} required />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Localidad</label>
-          <input class="form-input" bind:value={form.direccion.localidad} />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Municipio *</label>
-          <input class="form-input" bind:value={form.direccion.municipio} required />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Estado *</label>
-          <input class="form-input" bind:value={form.direccion.estado} required />
-        </div>
-      </div>
-      {#if editingId}
-        <div class="col-4">
+      <div class="form-section-body">
+        <div class="form-grid cols-2">
           <div class="form-group">
-            <label class="form-label">Estatus</label>
-            <select class="form-select" bind:value={form.status}>
-              <option value={1}>Activo</option>
-              <option value={0}>Inactivo</option>
+            <label class="form-label">Razón Social *</label>
+            <input class="form-input" bind:value={form.razonSocial} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">RFC *</label>
+            <input class="form-input" bind:value={form.rfc} required maxlength="13" style="text-transform: uppercase;" />
+          </div>
+        </div>
+        <div class="form-grid cols-3">
+          <div class="form-group">
+            <label class="form-label">Sucursal</label>
+            <input class="form-input" bind:value={form.sucursal} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono *</label>
+            <input class="form-input" type="tel" bind:value={form.telefono} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo Electrónico *</label>
+            <input class="form-input" type="email" bind:value={form.correo} required />
+          </div>
+        </div>
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label class="form-label">Sector</label>
+            <select class="form-select" bind:value={form.sector}>
+              <option value="">Seleccionar...</option>
+              {#each sectores as s}
+                <option value={s._id}>{s.nombre}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Actividad Económica</label>
+            <select class="form-select" bind:value={form.actividadEconomica}>
+              <option value="">Seleccionar...</option>
+              {#each actividadesEconomicas as act}
+                <option value={act._id}>{act.nombre}</option>
+              {/each}
             </select>
           </div>
         </div>
-      {/if}
+        {#if editingId}
+          <div class="form-grid cols-3">
+            <div class="form-group">
+              <label class="form-label">Estatus</label>
+              <select class="form-select" bind:value={form.status}>
+                <option value={1}>Activo</option>
+                <option value={0}>Inactivo</option>
+              </select>
+            </div>
+          </div>
+        {/if}
+      </div>
+    </div>
+
+    <!-- Dirección -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <i class="fas fa-map-marker-alt"></i> Dirección
+      </div>
+      <div class="form-section-body">
+        <div class="form-grid cols-2-1-1">
+          <div class="form-group">
+            <label class="form-label">Calle *</label>
+            <input class="form-input" bind:value={form.direccion.calle} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Ext.</label>
+            <input class="form-input" bind:value={form.direccion.noExterior} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Int.</label>
+            <input class="form-input" bind:value={form.direccion.noInterior} />
+          </div>
+        </div>
+        <div class="form-grid cols-3">
+          <div class="form-group">
+            <label class="form-label">Colonia *</label>
+            <input class="form-input" bind:value={form.direccion.colonia} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">C.P. *</label>
+            <input class="form-input" bind:value={form.direccion.cp} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Localidad</label>
+            <input class="form-input" bind:value={form.direccion.localidad} />
+          </div>
+        </div>
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label class="form-label">Municipio *</label>
+            <input class="form-input" bind:value={form.direccion.municipio} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado *</label>
+            <input class="form-input" bind:value={form.direccion.estado} required />
+          </div>
+        </div>
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label class="form-label">Latitud</label>
+            <input class="form-input" bind:value={form.direccion.latitud} placeholder="Ej: 19.4326" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Longitud</label>
+            <input class="form-input" bind:value={form.direccion.longitud} placeholder="Ej: -99.1332" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Datos para Notificaciones -->
-    <h5 class="section-title"><i class="fas fa-bell"></i> Datos para Notificaciones</h5>
-    <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Calle para Notificaciones</label>
-          <input class="form-input" bind:value={form.notificaciones.calle} />
-        </div>
+    <div class="form-section">
+      <div class="form-section-header">
+        <i class="fas fa-bell"></i> Datos para Notificaciones
       </div>
-      <div class="col-3">
-        <div class="form-group">
-          <label class="form-label">No. Exterior</label>
-          <input class="form-input" bind:value={form.notificaciones.noExterior} />
+      <div class="form-section-body">
+        <div class="form-grid cols-2-1-1">
+          <div class="form-group">
+            <label class="form-label">Calle</label>
+            <input class="form-input" bind:value={form.notificaciones.calle} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Ext.</label>
+            <input class="form-input" bind:value={form.notificaciones.noExterior} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Int.</label>
+            <input class="form-input" bind:value={form.notificaciones.noInterior} />
+          </div>
         </div>
-      </div>
-      <div class="col-3">
-        <div class="form-group">
-          <label class="form-label">No. Interior</label>
-          <input class="form-input" bind:value={form.notificaciones.noInterior} />
+        <div class="form-grid cols-3">
+          <div class="form-group">
+            <label class="form-label">Colonia</label>
+            <input class="form-input" bind:value={form.notificaciones.colonia} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">C.P.</label>
+            <input class="form-input" bind:value={form.notificaciones.cp} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Localidad</label>
+            <input class="form-input" bind:value={form.notificaciones.localidad} />
+          </div>
         </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Colonia</label>
-          <input class="form-input" bind:value={form.notificaciones.colonia} />
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label class="form-label">Municipio</label>
+            <input class="form-input" bind:value={form.notificaciones.municipio} />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" bind:value={form.notificaciones.telefono} />
+          </div>
         </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Código Postal</label>
-          <input class="form-input" bind:value={form.notificaciones.cp} />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Localidad</label>
-          <input class="form-input" bind:value={form.notificaciones.localidad} />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Municipio</label>
-          <input class="form-input" bind:value={form.notificaciones.municipio} />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Teléfono para Notificaciones</label>
-          <input class="form-input" type="tel" bind:value={form.notificaciones.telefono} />
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="form-group">
-          <label class="form-label">Correo para Notificaciones</label>
-          <input class="form-input" type="email" bind:value={form.notificaciones.correo} />
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label class="form-label">Correo</label>
+            <input class="form-input" type="email" bind:value={form.notificaciones.correo} />
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Representante Legal -->
-    <h5 class="section-title"><i class="fas fa-user-tie"></i> Información del Representante Legal</h5>
-    <div class="row">
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Nombre del Representante *</label>
-          <input class="form-input" bind:value={form.representanteLegal.nombre} required />
-        </div>
+    <div class="form-section">
+      <div class="form-section-header">
+        <i class="fas fa-user-tie"></i> Representante Legal
       </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Correo del Representante *</label>
-          <input class="form-input" type="email" bind:value={form.representanteLegal.correo} required />
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="form-group">
-          <label class="form-label">Teléfono del Representante *</label>
-          <input class="form-input" type="tel" bind:value={form.representanteLegal.telefono} required />
+      <div class="form-section-body">
+        <div class="form-grid cols-3">
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input class="form-input" bind:value={form.representanteLegal.nombre} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo *</label>
+            <input class="form-input" type="email" bind:value={form.representanteLegal.correo} required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono *</label>
+            <input class="form-input" type="tel" bind:value={form.representanteLegal.telefono} required />
+          </div>
         </div>
       </div>
     </div>
@@ -616,8 +650,12 @@
         <span class="detail-value">{viewingEmpresa.correo || '-'}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Tipo de Empresa</span>
-        <span class="detail-value">{getTipoNombre(viewingEmpresa)}</span>
+        <span class="detail-label">Sector</span>
+        <span class="detail-value">{getSectorNombre(viewingEmpresa)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Actividad Económica</span>
+        <span class="detail-value">{getActividadNombre(viewingEmpresa)}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Status</span>
@@ -662,6 +700,14 @@
       <div class="detail-item">
         <span class="detail-label">Estado</span>
         <span class="detail-value">{viewingEmpresa.direccion?.estado || '-'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Latitud</span>
+        <span class="detail-value">{viewingEmpresa.direccion?.latitud || '-'}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Longitud</span>
+        <span class="detail-value">{viewingEmpresa.direccion?.longitud || '-'}</span>
       </div>
     </div>
 
@@ -729,32 +775,50 @@
     gap: 0.25rem;
   }
 
-  .section-title {
-    font-size: 0.95rem;
+  /* Form Section Cards */
+  .form-section {
+    border: 1px solid var(--gray-200);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .form-section-header {
+    background: var(--gray-100);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--primary-color);
-    margin: 1.25rem 0 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--gray-200);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    border-bottom: 1px solid var(--gray-200);
   }
 
-  .section-title:first-child {
-    margin-top: 0;
+  .form-section-body {
+    padding: 0.75rem 1rem;
   }
 
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+  /* Form Grid Layouts */
+  .form-grid {
+    display: grid;
+    gap: 0.6rem 0.75rem;
+    margin-bottom: 0.25rem;
   }
 
-  .col-3 { flex: 0 0 calc(25% - 0.75rem); min-width: 120px; }
-  .col-4 { flex: 0 0 calc(33.333% - 0.75rem); min-width: 150px; }
-  .col-6 { flex: 0 0 calc(50% - 0.75rem); min-width: 200px; }
+  .form-grid.cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
 
+  .form-grid.cols-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .form-grid.cols-2-1-1 {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  /* Detail View */
   .detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -778,5 +842,13 @@
   .detail-value {
     font-size: 0.9rem;
     color: var(--gray-900);
+  }
+
+  @media (max-width: 600px) {
+    .form-grid.cols-2,
+    .form-grid.cols-3,
+    .form-grid.cols-2-1-1 {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

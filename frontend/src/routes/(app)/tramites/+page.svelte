@@ -53,12 +53,15 @@
   let form = $state<Partial<Tramite>>({
     folio: '', empresa: '', fechaEntrada: '', fechaSalida: '',
     tipo: '', asunto: '', status: 'Ingresado', paginas: 0,
+    sector: '', actividadEconomica: '',
     tecnicos: [], observaciones: ''
   });
 
   // Catalogs
   let empresasList: { _id: string; razonSocial: string }[] = $state([]);
   let tecnicosList: { _id: string; nombre: string }[] = $state([]);
+  let sectoresList: { _id: string; nombre: string }[] = $state([]);
+  let actividadesList: { _id: string; nombre: string }[] = $state([]);
 
   const statusOptions = ['Ingresado', 'Turnado', 'Firma', 'Dirección', 'Resguardo', 'Notificado'];
 
@@ -68,6 +71,8 @@
     fetchTramites();
     fetchEmpresas();
     fetchTecnicos();
+    fetchSectores();
+    fetchActividades();
     setupSocket();
   });
 
@@ -179,6 +184,20 @@
     } catch { /* silent */ }
   }
 
+  async function fetchSectores() {
+    try {
+      const data = await api.get<any>('/gestionambiental/sectores');
+      sectoresList = data || [];
+    } catch { /* silent */ }
+  }
+
+  async function fetchActividades() {
+    try {
+      const data = await api.get<any>('/gestionambiental/actividades-economicas');
+      actividadesList = data || [];
+    } catch { /* silent */ }
+  }
+
   function handleSearch() {
     currentPage = 1;
     fetchTramites();
@@ -195,6 +214,7 @@
     form = {
       folio: '', empresa: '', fechaEntrada: '', fechaSalida: '',
       tipo: '', asunto: '', status: 'Ingresado', paginas: 0,
+      sector: '', actividadEconomica: '',
       tecnicos: [], observaciones: ''
     };
     showModal = true;
@@ -498,6 +518,28 @@
         <div class="form-group">
           <label class="form-label">Asunto</label>
           <input class="form-input" bind:value={form.asunto} />
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label class="form-label">Sector</label>
+          <select class="form-select" bind:value={form.sector}>
+            <option value="">Seleccionar...</option>
+            {#each sectoresList as s}
+              <option value={s._id}>{s.nombre}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label class="form-label">Actividad Económica</label>
+          <select class="form-select" bind:value={form.actividadEconomica}>
+            <option value="">Seleccionar...</option>
+            {#each actividadesList as act}
+              <option value={act._id}>{act.nombre}</option>
+            {/each}
+          </select>
         </div>
       </div>
       <div class="col-6">

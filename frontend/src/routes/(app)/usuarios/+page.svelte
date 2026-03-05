@@ -9,7 +9,7 @@
     name: string;
     username: string;
     rol: number;
-    status?: string;
+    status?: number;
     area?: number;
   }
 
@@ -18,6 +18,8 @@
 
   let showModal = $state(false);
   let showPasswordModal = $state(false);
+  let showStatusModal = $state(false);
+  let statusTarget = $state<Usuario | null>(null);
   let modalTitle = $state('');
   let editingId = $state<string | null>(null);
 
@@ -27,7 +29,7 @@
     password: '',
     confirmPassword: '',
     rol: 1,
-    status: 'Activo'
+    status: 1 as number
   });
 
   let passwordForm = $state({ userId: '', newPassword: '', confirmPassword: '' });
@@ -51,12 +53,10 @@
   function getRolLabel(rol: number): string {
     const roles: Record<number, string> = {
       1: 'Administrador',
-      2: 'Supervisor UA',
-      3: 'Supervisor TI',
-      4: 'Supervisor Secretaria',
-      5: 'Financieros',
-      6: 'Gestión Ambiental',
-      7: 'Transparencia'
+      2: 'Supervisor',
+      3: 'Oficialía',
+      4: 'Trámites',
+      5: 'Notificaciones'
     };
     return roles[rol] || `Rol ${rol}`;
   }
@@ -64,14 +64,14 @@
   function openCreateModal() {
     editingId = null;
     modalTitle = 'Registrar Usuario';
-    form = { name: '', username: '', password: '', confirmPassword: '', rol: 1, status: 'Activo' };
+    form = { name: '', username: '', password: '', confirmPassword: '', rol: 1, status: 1 as number };
     showModal = true;
   }
 
   function openEditModal(usuario: Usuario) {
     editingId = usuario._id;
     modalTitle = 'Editar Usuario';
-    form = { name: usuario.name, username: usuario.username, password: '', confirmPassword: '', rol: usuario.rol, status: usuario.status || 'Activo' };
+    form = { name: usuario.name, username: usuario.username, password: '', confirmPassword: '', rol: usuario.rol, status: usuario.status ?? 1 };
     showModal = true;
   }
 
@@ -110,7 +110,7 @@
       return;
     }
     try {
-      await api.put(`/auth/users/passwords/${passwordForm.userId}`, { password: passwordForm.newPassword });
+      await api.put(`/auth/users/passwords/${passwordForm.userId}`, { newPassword: passwordForm.newPassword });
       toast.success('Contraseña actualizada');
       showPasswordModal = false;
     } catch (err: any) {
@@ -119,14 +119,21 @@
   }
 
   async function toggleStatus(usuario: Usuario) {
-    const newStatus = usuario.status === 'Activo' ? 'Inactivo' : 'Activo';
+    const newStatus = usuario.status === 1 ? 0 : 1;
     try {
       await api.put(`/auth/users/status/${usuario._id}`, { status: newStatus });
-      toast.success(`Usuario ${newStatus === 'Activo' ? 'activado' : 'desactivado'}`);
+      toast.success(`Usuario ${newStatus === 1 ? 'activado' : 'desactivado'}`);
+      showStatusModal = false;
+      statusTarget = null;
       fetchUsuarios();
     } catch (err: any) {
       toast.error('Error', err.message);
     }
+  }
+
+  function openStatusModal(usuario: Usuario) {
+    statusTarget = usuario;
+    showStatusModal = true;
   }
 
   async function handleDelete(id: string) {
@@ -180,23 +187,23 @@
             <td>{usuario.username}</td>
             <td>{getRolLabel(usuario.rol)}</td>
             <td>
-              <span class="badge" class:badge-success={usuario.status === 'Activo'} class:badge-danger={usuario.status !== 'Activo'}>
-                {usuario.status || 'N/A'}
+              <span class="badge" class:badge-success={usuario.status === 1} class:badge-danger={usuario.status !== 1}>
+                {usuario.status === 1 ? 'Activo' : usuario.status === 0 ? 'Inactivo' : 'N/A'}
               </span>
             </td>
             <td>
               <div class="action-buttons">
-                <button class="btn btn-sm btn-primary" onclick={() => openEditModal(usuario)} title="Editar">
-                  <i class="fas fa-edit"></i>
+                <button class="action-btn action-edit" onclick={() => openEditModal(usuario)} title="Editar usuario">
+                  <i class="fas fa-pen-to-square"></i>
                 </button>
-                <button class="btn btn-sm btn-warning" onclick={() => openPasswordModal(usuario)} title="Contraseña">
-                  <i class="fas fa-key"></i>
+                <button class="action-btn action-password" onclick={() => openPasswordModal(usuario)} title="Cambiar contraseña">
+                  <i class="fas fa-lock"></i>
                 </button>
-                <button class="btn btn-sm" class:btn-success={usuario.status !== 'Activo'} class:btn-secondary={usuario.status === 'Activo'} onclick={() => toggleStatus(usuario)} title="Cambiar estado">
-                  <i class="fas fa-power-off"></i>
+                <button class="action-btn" class:action-deactivate={usuario.status === 1} class:action-activate={usuario.status !== 1} onclick={() => openStatusModal(usuario)} title={usuario.status === 1 ? 'Desactivar usuario' : 'Activar usuario'}>
+                  <i class="fas" class:fa-toggle-off={usuario.status === 1} class:fa-toggle-on={usuario.status !== 1}></i>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick={() => handleDelete(usuario._id)} title="Eliminar">
-                  <i class="fas fa-trash"></i>
+                <button class="action-btn action-delete" onclick={() => handleDelete(usuario._id)} title="Eliminar usuario">
+                  <i class="fas fa-trash-can"></i>
                 </button>
               </div>
             </td>
@@ -237,19 +244,17 @@
       <label class="form-label">Rol</label>
       <select class="form-select" bind:value={form.rol}>
         <option value={1}>Administrador</option>
-        <option value={2}>Supervisor UA</option>
-        <option value={3}>Supervisor TI</option>
-        <option value={4}>Supervisor Secretaria</option>
-        <option value={5}>Financieros</option>
-        <option value={6}>Gestión Ambiental</option>
-        <option value={7}>Transparencia</option>
+        <option value={2}>Supervisor</option>
+        <option value={3}>Oficialía</option>
+        <option value={4}>Trámites</option>
+        <option value={5}>Notificaciones</option>
       </select>
     </div>
     <div class="form-group">
       <label class="form-label">Estado</label>
       <select class="form-select" bind:value={form.status}>
-        <option value="Activo">Activo</option>
-        <option value="Inactivo">Inactivo</option>
+        <option value={1}>Activo</option>
+        <option value={0}>Inactivo</option>
       </select>
     </div>
     <div class="modal-footer" style="padding: 1rem 0 0; border-top: 1px solid var(--gray-200); margin-top: 1rem;">
@@ -257,6 +262,45 @@
       <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
     </div>
   </form>
+</Modal>
+
+<Modal open={showStatusModal} title={statusTarget?.status === 1 ? 'Desactivar Usuario' : 'Activar Usuario'} onclose={() => { showStatusModal = false; statusTarget = null; }}>
+  {#if statusTarget}
+    <div class="status-modal-content">
+      <div class="status-icon" class:status-icon-danger={statusTarget.status === 1} class:status-icon-success={statusTarget.status !== 1}>
+        <i class="fas" class:fa-user-slash={statusTarget.status === 1} class:fa-user-check={statusTarget.status !== 1}></i>
+      </div>
+      <p class="status-message">
+        {#if statusTarget.status === 1}
+          ¿Estás seguro de que deseas <strong>desactivar</strong> la cuenta de este usuario? Ya no podrá acceder al sistema y su sesión se cerrará automáticamente.
+        {:else}
+          ¿Estás seguro de que deseas <strong>activar</strong> la cuenta de este usuario? Podrá acceder al sistema nuevamente.
+        {/if}
+      </p>
+      <div class="status-user-card">
+        <div class="status-user-info">
+          <span class="status-user-name"><i class="fas fa-user"></i> {statusTarget.name}</span>
+          <span class="status-user-detail"><i class="fas fa-at"></i> {statusTarget.username}</span>
+          <span class="status-user-detail"><i class="fas fa-id-badge"></i> {getRolLabel(statusTarget.rol)}</span>
+        </div>
+        <span class="badge" class:badge-success={statusTarget.status === 1} class:badge-danger={statusTarget.status !== 1}>
+          {statusTarget.status === 1 ? 'Activo' : 'Inactivo'}
+        </span>
+      </div>
+      <div class="status-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick={() => { showStatusModal = false; statusTarget = null; }}>Cancelar</button>
+        {#if statusTarget.status === 1}
+          <button type="button" class="btn btn-danger" onclick={() => statusTarget && toggleStatus(statusTarget)}>
+            <i class="fas fa-user-slash"></i> Desactivar
+          </button>
+        {:else}
+          <button type="button" class="btn btn-success" onclick={() => statusTarget && toggleStatus(statusTarget)}>
+            <i class="fas fa-user-check"></i> Activar
+          </button>
+        {/if}
+      </div>
+    </div>
+  {/if}
 </Modal>
 
 <Modal open={showPasswordModal} title="Cambiar Contraseña" onclose={() => showPasswordModal = false}>
@@ -279,6 +323,157 @@
 <style>
   .action-buttons {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .action-btn:active {
+    transform: translateY(0);
+  }
+
+  .action-edit {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+  .action-edit:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  .action-password {
+    background: #fefce8;
+    color: #ca8a04;
+  }
+  .action-password:hover {
+    background: #ca8a04;
+    color: #fff;
+  }
+
+  .action-deactivate {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+  .action-deactivate:hover {
+    background: #64748b;
+    color: #fff;
+  }
+
+  .action-activate {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  .action-activate:hover {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .action-delete {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  .action-delete:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .status-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .status-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+  }
+
+  .status-icon-danger {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .status-icon-success {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .status-message {
+    font-size: 0.95rem;
+    color: var(--gray-700, #374151);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 360px;
+  }
+
+  .status-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--gray-50, #f9fafb);
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+  }
+
+  .status-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .status-user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--gray-900, #111827);
+  }
+
+  .status-user-detail {
+    font-size: 0.8rem;
+    color: var(--gray-500, #6b7280);
+  }
+
+  .status-user-detail i,
+  .status-user-name i {
+    width: 16px;
+    text-align: center;
+    margin-right: 0.35rem;
+  }
+
+  .status-modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: flex-end;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gray-200, #e5e7eb);
+    margin-top: 0.25rem;
   }
 </style>

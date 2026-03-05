@@ -18,8 +18,9 @@ const upload = require('../middlewares/uploads');
 const gestionambientalController = require('../controllers/gestionambiental/gestionambientalController');
 const empresasController = require('../controllers/gestionambiental/empresasController');
 const tramitesController = require('../controllers/gestionambiental/tramitesController');
-const tiposEmpresaController = require('../controllers/gestionambiental/tiposEmpresaController');
 const tecnicosAmbientalesController = require('../controllers/gestionambiental/tecnicosAmbientalesController');
+const sectoresController = require('../controllers/gestionambiental/sectoresController');
+const actividadesEconomicasController = require('../controllers/gestionambiental/actividadesEconomicasController');
 //Vistas generales
 router.get('/login', (req, res) => {    
     res.render('login', { hideHeader: true });
@@ -30,12 +31,12 @@ router.get('/main', authenticated.isAuthenticated, verifyToken.verifyToken,  (re
 });
 
 //UA
-router.get('/registros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isUnidad,  (req, res) => {    
+router.get('/registros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSupervisor,  (req, res) => {    
     res.render('oficios/oficiosRegistros');
 });
 
 //Tics
-router.get('/tickets', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTecnologias,  (req, res) => {    
+router.get('/tickets', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSupervisor,  (req, res) => {    
     res.render('tickets/tickets');
 });
 
@@ -43,12 +44,12 @@ router.get('/usuarios', authenticated.isAuthenticated, verifyToken.verifyToken, 
     res.render('usuarios/usuarios');
 });
 
-router.get('/inventarioTics', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTecnologias,  (req, res) => {    
+router.get('/inventarioTics', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSupervisor,  (req, res) => {    
     res.render('inventariotics/inventarioTics');
 });
 
 //Area de la secretaria
-router.get('/correspondenciaSecretaria', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isSecretaria,  (req, res) => {    
+router.get('/correspondenciaSecretaria', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isOficialia,  (req, res) => {    
     res.render('secretaria/correspondencia');
 });
 
@@ -59,24 +60,24 @@ router.get('/solicitudesInfo', authenticated.isAuthenticated, verifyToken.verify
 
 
 //Recursos financieros
-router.get('/usuariosFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros, rolVerify.puedeCrearUsuarios,  (req, res) => {    
+router.get('/usuariosFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTramites, rolVerify.puedeCrearUsuarios,  (req, res) => {    
     res.render('financieros/usuarios');
 });
 
-router.get('/correspondenciaFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros,   (req, res) => {    
+router.get('/correspondenciaFinancieros', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTramites,   (req, res) => {    
     res.render('financieros/correspondencia');
 });
 
-router.get('/controlViaticos', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isFinancieros,  (req, res) => {    
+router.get('/controlViaticos', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTramites,  (req, res) => {    
     res.render('financieros/viaticos');
 });
 
 //Gestión Ambiental
-router.get('/usuariosGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, rolVerify.puedeCrearUsuarios,  (req, res) => {    
+router.get('/usuariosGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isNotificaciones, rolVerify.puedeCrearUsuarios,  (req, res) => {    
     res.render('gestionambiental/usuarios');
 });
 
-router.get('/empresas', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental,  (req, res) => {    
+router.get('/empresas', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isNotificaciones,  (req, res) => {    
     res.render('gestionambiental/empresas');
 });
 
@@ -85,32 +86,46 @@ router.get('/calendario', authenticated.isAuthenticated, verifyToken.verifyToken
 });
 
 // Trámites - Gestión Ambiental
-router.get('/tramites', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+router.get('/tramites', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isTramites, (req, res) => {
     res.render('gestionambiental/tramites');
 });
 
 // Panel de configuraciones de Gestión Ambiental
-router.get('/configuracionesGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+router.get('/configuracionesGestionAmbiental', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isAdmin, (req, res) => {
     res.render('gestionambiental/configuraciones');
 });
 
-// Vista Tipos de Empresa (ruta canónica)
-router.get('/gestionambientaltiposempresa', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
-    res.render('gestionambiental/tiposEmpresa');
+// Vista Sectores
+router.get('/gestionambientalsectores', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isAdmin, (req, res) => {
+    res.render('gestionambiental/sectores');
+});
+
+// Vista Actividades Económicas
+router.get('/gestionambientalactividadeseconomicas', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isAdmin, (req, res) => {
+    res.render('gestionambiental/actividadesEconomicas');
 });
 
 // Vista Técnicos Ambientales
-router.get('/gestionambientaltecnicosambientales', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+router.get('/gestionambientaltecnicosambientales', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isAdmin, (req, res) => {
     res.render('gestionambiental/tecnicosAmbientales');
 });
 
 // Vista Notificaciones (Trámites en Resguardo para notificar)
-router.get('/notificacionTramite', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isGestionAmbiental, (req, res) => {
+router.get('/notificacionTramite', authenticated.isAuthenticated, verifyToken.verifyToken, rolVerify.isNotificaciones, (req, res) => {
     res.render('gestionambiental/notificaciones');
 });
 
 
 //API
+router.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        service: 'backend',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 //Funciones al API
 router.post('/api/auth/register', auth.registerUser)
 router.post('/api/auth/login', auth.login)
@@ -156,11 +171,17 @@ router.post('/api/gestionambiental/empresas/:id/unlock', empresasController.desb
 router.put('/api/gestionambiental/empresas/:id', empresasController.actualizarEmpresa);
 router.delete('/api/gestionambiental/empresas/:id', empresasController.eliminarEmpresa);
 
-// Gestión Ambiental - Tipos de Empresa (vista + API)
-router.get('/api/gestionambiental/tipos-empresa', tiposEmpresaController.listarTipos);
-router.post('/api/gestionambiental/tipos-empresa', tiposEmpresaController.crearTipo);
-router.put('/api/gestionambiental/tipos-empresa/:id', tiposEmpresaController.actualizarTipo);
-router.delete('/api/gestionambiental/tipos-empresa/:id', tiposEmpresaController.eliminarTipo);
+// Gestión Ambiental - Sectores (API)
+router.get('/api/gestionambiental/sectores', sectoresController.listar);
+router.post('/api/gestionambiental/sectores', sectoresController.crear);
+router.put('/api/gestionambiental/sectores/:id', sectoresController.actualizar);
+router.delete('/api/gestionambiental/sectores/:id', sectoresController.eliminar);
+
+// Gestión Ambiental - Actividades Económicas (API)
+router.get('/api/gestionambiental/actividades-economicas', actividadesEconomicasController.listar);
+router.post('/api/gestionambiental/actividades-economicas', actividadesEconomicasController.crear);
+router.put('/api/gestionambiental/actividades-economicas/:id', actividadesEconomicasController.actualizar);
+router.delete('/api/gestionambiental/actividades-economicas/:id', actividadesEconomicasController.eliminar);
 
 // Gestión Ambiental - Técnicos Ambientales (API)
 router.get('/api/gestionambiental/tecnicos-ambientales', tecnicosAmbientalesController.listar);

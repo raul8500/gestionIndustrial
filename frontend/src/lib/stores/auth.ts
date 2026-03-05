@@ -101,12 +101,10 @@ function createAuthStore() {
 export function getRoleName(rol: number): string {
   switch (rol) {
     case 1: return 'Administrador';
-    case 2: return 'Supervisor UA';
-    case 3: return 'Supervisor TI';
-    case 4: return 'Supervisor Secretaria';
-    case 5: return 'Financieros';
-    case 6: return 'Gestion Ambiental';
-    case 7: return 'Transparencia';
+    case 2: return 'Supervisor';
+    case 3: return 'Oficialia';
+    case 4: return 'Tramites';
+    case 5: return 'Notificaciones';
     default: return 'Rol desconocido';
   }
 }

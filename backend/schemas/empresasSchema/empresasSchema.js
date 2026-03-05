@@ -63,6 +63,16 @@ const empresasSchema = new mongoose.Schema({
       type: String,
       required: true,
       trim: true
+    },
+    latitud: {
+      type: String,
+      required: false,
+      trim: true
+    },
+    longitud: {
+      type: String,
+      required: false,
+      trim: true
     }
   },
   telefono: {
@@ -76,10 +86,16 @@ const empresasSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  // Tipo de empresa (catálogo gestionable)
-  tipo: {
+  // Sector de la empresa (catálogo gestionable)
+  sector: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'TipoEmpresa',
+    ref: 'Sector',
+    required: false
+  },
+  // Actividad económica (catálogo gestionable)
+  actividadEconomica: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ActividadEconomica',
     required: false
   },
   // Datos para notificaciones
@@ -180,15 +196,13 @@ const empresasSchema = new mongoose.Schema({
 });
 
 // Middleware pre-save para generar código automáticamente
-empresasSchema.pre('save', function(next) {
+empresasSchema.pre('save', async function(next) {
   if (this.isNew && !this.codigo) {
-    // Generar código: DGRI + Razón Social (sin espacios, máximo 20 caracteres)
-    const razonSocialClean = this.razonSocial
-      .replace(/\s+/g, '') // Eliminar espacios
-      .replace(/[^a-zA-Z0-9]/g, '') // Solo letras y números
-      .substring(0, 20); // Máximo 20 caracteres
-    
-    this.codigo = `DGRI${razonSocialClean}`;
+    // Generar código DGRI-XXXXX no consecutivo
+    const base = Date.now() % 100000;
+    const rand = Math.floor(Math.random() * 90000) + 10000;
+    const num = ((base + rand) % 90000) + 10000;
+    this.codigo = `DGRI-${num}`;
   }
   
   // Inicializar campos de notificaciones si no existen
@@ -236,22 +250,20 @@ empresasSchema.index({ area: 1 }, { name: 'areaEmpresas' });
 // Índice compuesto para validaciones de RFC + status
 empresasSchema.index({ rfc: 1, status: 1 }, { name: 'rfcStatusEmpresas' });
 
-// Método estático para generar código único
-empresasSchema.statics.generarCodigoUnico = async function(razonSocial) {
-  let codigo = `DGRI-${razonSocial
-    .replace(/\s+/g, '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .substring(0, 20)}`;
-  
-  let contador = 1;
-  let codigoOriginal = codigo;
-  
-  // Verificar si el código ya existe y generar uno único
-  while (await this.findOne({ codigo })) {
-    codigo = `${codigoOriginal}${contador}`;
-    contador++;
+// Método estático para generar código único DGRI-XXXXX (no consecutivo)
+empresasSchema.statics.generarCodigoUnico = async function() {
+  let codigo;
+  let existe = true;
+
+  while (existe) {
+    // Generar número de 5 dígitos combinando timestamp y random
+    const base = Date.now() % 100000;
+    const rand = Math.floor(Math.random() * 90000) + 10000;
+    const num = ((base + rand) % 90000) + 10000; // Siempre 5 dígitos (10000-99999)
+    codigo = `DGRI-${num}`;
+    existe = !!(await this.findOne({ codigo }));
   }
-  
+
   return codigo;
 };
 

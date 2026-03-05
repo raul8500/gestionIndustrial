@@ -6,11 +6,10 @@ const ModelUser = require('../schemas/usersSchema/usersSchema'); // Modelo de us
 function mapRolToDepartment(rol) {
     switch (rol) {
         case 1: return 'Administración';
-        case 2: return 'Unidad de Género';
-        case 3: return 'Tecnologías';
-        case 4: return 'Secretaría';
-        case 5: return 'Recursos Financieros';
-        case 6: return 'Gestión Ambiental';
+        case 2: return 'Supervisor';
+        case 3: return 'Oficialía';
+        case 4: return 'Trámites';
+        case 5: return 'Notificaciones';
         default: return 'General';
     }
 }

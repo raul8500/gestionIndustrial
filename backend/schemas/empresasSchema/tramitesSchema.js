@@ -170,6 +170,18 @@ const tramitesSchema = new mongoose.Schema({
     default: false,
     required: true
   },
+  // Sector de la empresa (catálogo gestionable)
+  sector: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Sector',
+    required: false
+  },
+  // Actividad económica (catálogo gestionable)
+  actividadEconomica: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ActividadEconomica',
+    required: false
+  },
   // Auditoría del último cambio
   lastModifiedBy: {
     type: mongoose.Schema.Types.ObjectId,

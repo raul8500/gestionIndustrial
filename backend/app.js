@@ -33,7 +33,15 @@ app.set('io', io);
 // Manejo de conexión de WebSocket
 io.on('connection', (socket) => {
   console.log('✅ Cliente conectado:', socket.id);
-  
+
+  // El cliente envía su userId para unirse a una sala privada
+  socket.on('join', (userId) => {
+    if (userId) {
+      socket.join(`user_${userId}`);
+      console.log(`👤 Socket ${socket.id} unido a sala user_${userId}`);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('❌ Cliente desconectado:', socket.id);
   });
@@ -58,7 +66,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Seteamos las variables de entorno
-dotenv.config({ path: './env/.env' });
+dotenv.config({ path: './.env' });
 
 // Para poder trabajar con las cookies
 app.use(cookieParser());

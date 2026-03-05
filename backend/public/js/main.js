@@ -63,17 +63,13 @@ function obtenerNombreRol(rol) {
         case 1:
             return "Administrador";
         case 2:
-            return "Supervisor UA";
+            return "Supervisor";
         case 3:
-            return "Supervisor TI";
+            return "Oficialía";
         case 4:
-            return "Supervisor Secretaria";
+            return "Trámites";
         case 5:
-            return "Financieros";
-        case 6:
-            return "Gestion Ambiental";
-        case 7:
-            return "Transparencia";
+            return "Notificaciones";
         default:
             return "Rol desconocido";
     }

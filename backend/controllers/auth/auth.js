@@ -73,7 +73,8 @@ exports.login = async (req, res) => {
 
         const cookiesOptions = {
             expires: expiresDate,
-            httpOnly: true
+            httpOnly: true,
+            path: '/'
         };
 
         res.cookie('jwt', token, cookiesOptions);
@@ -126,7 +127,7 @@ exports.updateUserById = async (req, res) => {
     try {
         console.log(req.body)
         const { id } = req.params; // Extraer el ID directamente
-        const { name, username, rol, img, sucursalId } = req.body;
+        const { name, username, rol, status, img, sucursalId } = req.body;
 
         // Verificar si el nombre de usuario ya está en uso por otro usuario
         const existingUser = await ModelUser.findOne({ username });
@@ -141,6 +142,7 @@ exports.updateUserById = async (req, res) => {
             name,
             username,
             rol,
+            status,
             img,
             sucursalId
         }, { new: true });
@@ -171,7 +173,7 @@ exports.updatePassword = async (req, res) => {
             return res.status(404).send('Usuario no encontrado');
         }
 
-        res.send('Contraseña actualizada correctamente');
+        res.json({ message: 'Contraseña actualizada correctamente' });
     } catch (error) {
         console.log(error);
         res.status(500).send('Error interno del servidor');
@@ -199,17 +201,22 @@ exports.deleteUserById = async (req, res) => {
 
 exports.updateUserStatus = async (req, res) => {
     try {
-        const { status } = req.body; // Obtener el estado (1 o 2) desde el cuerpo de la solicitud
-        const { id } = req.params; // Obtener el ID del usuario desde los parámetros de la URL
+        const { status } = req.body;
+        const { id } = req.params;
 
-        // Actualizar el estado del usuario
         const user = await ModelUser.findByIdAndUpdate(id, { status: status }, { new: true });
 
         if (!user) {
             return res.status(404).send('Usuario no encontrado');
         }
 
-        res.send('Estado del usuario actualizado correctamente');
+        // Si se desactivó la cuenta, forzar cierre de sesión vía WebSocket
+        if (status === 0) {
+            const io = req.app.get('io');
+            io.to(`user_${id}`).emit('forceLogout', 'Tu cuenta ha sido desactivada por un administrador.');
+        }
+
+        res.json({ message: 'Estado del usuario actualizado correctamente' });
     } catch (error) {
         console.log(error);
         res.status(500).send('Error interno del servidor');
