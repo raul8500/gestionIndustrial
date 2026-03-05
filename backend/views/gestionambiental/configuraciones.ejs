@@ -1,0 +1,77 @@
+<% 
+extraStyles=`
+<link rel="stylesheet" href="css/sidebar.css" />
+<style>
+  .app-container { display: flex; min-height: 100vh; flex-direction: row; }
+  .main-content { flex: 1; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; overflow-x: hidden; }
+  .content-header { background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,.1); border-left: 5px solid #7c1241; }
+  .content-header h3 { color: #2c3e50; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 12px; }
+  .content-header .icon { background: linear-gradient(135deg, #7c1241, #9c1a5a); color: #fff; padding: 12px; border-radius: 12px; font-size: 1.2em; }
+  .card-link { text-decoration: none; color: inherit; }
+  .config-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,.1); transition: transform .2s ease, box-shadow .2s ease; height: 100%; display:flex; align-items:center; gap:16px; border-left: 5px solid transparent; }
+  .config-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
+  .config-card .icon { width: 48px; height: 48px; border-radius: 12px; display:flex; align-items:center; justify-content:center; color:#fff; font-size: 1.2em; }
+  .config-card .info { display:flex; flex-direction:column; }
+  .config-card .title { font-weight: 700; color: #2c3e50; }
+  .config-card .desc { color: #7f8c8d; font-size: .9em; }
+  .bg-gradient-purple { background: linear-gradient(135deg, #7c1241, #9c1a5a); }
+  .bg-gradient-green { background: linear-gradient(135deg, #27ae60, #1e8449); }
+</style>
+`;
+%>
+
+<div class="app-container">
+  <%- include('../components/sidebar', { 
+    currentPage: '/configuracionesGestionAmbiental', 
+    pageTitle: 'Configuraciones - Gestión Ambiental', 
+    isAdmin: true
+  }) %>
+
+  <main class="main-content">
+    <div class="content-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3>
+            <i class="fas fa-cogs icon"></i>
+            Configuraciones de Gestión Ambiental
+          </h3>
+          <p class="text-muted mb-0 mt-2">Administre catálogos y ajustes del módulo</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row g-3">
+        <div class="col-lg-6 col-md-6 col-sm-12">
+          <a class="card-link" href="gestionambientaltiposempresa">
+            <div class="config-card" style="border-left-color:#7c1241;">
+              <div class="icon bg-gradient-purple">
+                <i class="fas fa-tags"></i>
+              </div>
+              <div class="info">
+                <span class="title">Tipos de Empresa</span>
+                <span class="desc">Gestione el catálogo de tipos para Empresas</span>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12">
+          <a class="card-link" href="gestionambientaltecnicosambientales">
+            <div class="config-card" style="border-left-color:#27ae60;">
+              <div class="icon bg-gradient-green">
+                <i class="fas fa-user-hard-hat"></i>
+              </div>
+              <div class="info">
+                <span class="title">Técnicos Ambientales</span>
+                <span class="desc">Gestione los técnicos ambientales</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/components/sidebar.js"></script>
+<% extraScripts=``; %>
