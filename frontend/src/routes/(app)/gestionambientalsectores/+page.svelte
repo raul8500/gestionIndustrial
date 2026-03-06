@@ -3,6 +3,7 @@
   import api from '$lib/api';
   import Modal from '$lib/components/Modal.svelte';
   import { toast } from '$lib/stores/toast';
+  import { confirmDelete } from '$lib/utils/confirmDialog';
 
   interface Sector {
     _id: string;
@@ -65,7 +66,7 @@
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este sector?')) return;
+    if (!(await confirmDelete('sector'))) return;
     try {
       await api.delete(`/gestionambiental/sectores/${id}`);
       toast.success('Sector eliminado');

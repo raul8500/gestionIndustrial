@@ -3,6 +3,7 @@
   import api from '$lib/api';
   import Modal from '$lib/components/Modal.svelte';
   import { toast } from '$lib/stores/toast';
+   import { confirmDelete } from '$lib/utils/confirmDialog';
 
   interface TipoEmpresa {
     _id: string;
@@ -65,7 +66,7 @@
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este tipo de empresa?')) return;
+      if (!(await confirmDelete('tipo de empresa'))) return;
     try {
       await api.delete(`/gestionambiental/tipos-empresa/${id}`);
       toast.success('Tipo de empresa eliminado');

@@ -3,6 +3,7 @@
   import api from '$lib/api';
   import Modal from '$lib/components/Modal.svelte';
   import { toast } from '$lib/stores/toast';
+  import { confirmDelete } from '$lib/utils/confirmDialog';
 
   interface Usuario {
     _id: string;
@@ -11,6 +12,7 @@
     rol: number;
     status?: number;
     area?: number;
+    departamento?: number | null;
   }
 
   let usuarios: Usuario[] = $state([]);
@@ -29,7 +31,8 @@
     password: '',
     confirmPassword: '',
     rol: 1,
-    status: 1 as number
+    status: 1 as number,
+    departamento: null as number | null
   });
 
   let passwordForm = $state({ userId: '', newPassword: '', confirmPassword: '' });
@@ -61,17 +64,33 @@
     return roles[rol] || `Rol ${rol}`;
   }
 
+  const DEPARTAMENTOS: Record<number, string> = {
+    1: 'Industrial',
+    2: 'Agua y Aire',
+    3: 'Impacto',
+    4: 'Residuos',
+    5: 'Dirección'
+  };
+
+  function getDepartamentoLabel(depto: number | null | undefined): string {
+    if (!depto) return 'Sin asignar';
+    return DEPARTAMENTOS[depto] || 'Sin asignar';
+  }
+
+  // Roles que NO requieren departamento
+  const ROLES_SIN_DEPTO = [1, 2, 5];
+
   function openCreateModal() {
     editingId = null;
     modalTitle = 'Registrar Usuario';
-    form = { name: '', username: '', password: '', confirmPassword: '', rol: 1, status: 1 as number };
+    form = { name: '', username: '', password: '', confirmPassword: '', rol: 1, status: 1 as number, departamento: null };
     showModal = true;
   }
 
   function openEditModal(usuario: Usuario) {
     editingId = usuario._id;
     modalTitle = 'Editar Usuario';
-    form = { name: usuario.name, username: usuario.username, password: '', confirmPassword: '', rol: usuario.rol, status: usuario.status ?? 1 };
+    form = { name: usuario.name, username: usuario.username, password: '', confirmPassword: '', rol: usuario.rol, status: usuario.status ?? 1, departamento: usuario.departamento ?? null };
     showModal = true;
   }
 
@@ -88,12 +107,14 @@
     try {
       if (editingId) {
         await api.put(`/auth/users/${editingId}`, {
-          name: form.name, username: form.username, rol: form.rol, status: form.status
+          name: form.name, username: form.username, rol: form.rol, status: form.status,
+          departamento: ROLES_SIN_DEPTO.includes(form.rol) ? null : form.departamento
         });
         toast.success('Usuario actualizado');
       } else {
         await api.post('/auth/register', {
-          name: form.name, username: form.username, password: form.password, rol: form.rol
+          name: form.name, username: form.username, password: form.password, rol: form.rol,
+          departamento: ROLES_SIN_DEPTO.includes(form.rol) ? null : form.departamento
         });
         toast.success('Usuario creado');
       }
@@ -137,7 +158,7 @@
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este usuario?')) return;
+    if (!(await confirmDelete('usuario'))) return;
     try {
       await api.delete(`/auth/users/${id}`);
       toast.success('Usuario eliminado');
@@ -175,6 +196,7 @@
           <th>Nombre</th>
           <th>Usuario</th>
           <th>Rol</th>
+          <th>Departamento</th>
           <th>Estado</th>
           <th>Acciones</th>
         </tr>
@@ -186,6 +208,7 @@
             <td>{usuario.name}</td>
             <td>{usuario.username}</td>
             <td>{getRolLabel(usuario.rol)}</td>
+            <td>{ROLES_SIN_DEPTO.includes(usuario.rol) ? '—' : getDepartamentoLabel(usuario.departamento)}</td>
             <td>
               <span class="badge" class:badge-success={usuario.status === 1} class:badge-danger={usuario.status !== 1}>
                 {usuario.status === 1 ? 'Activo' : usuario.status === 0 ? 'Inactivo' : 'N/A'}
@@ -210,7 +233,7 @@
           </tr>
         {:else}
           <tr>
-            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
+            <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
               No se encontraron usuarios
             </td>
           </tr>
@@ -257,6 +280,19 @@
         <option value={0}>Inactivo</option>
       </select>
     </div>
+    {#if !ROLES_SIN_DEPTO.includes(form.rol)}
+      <div class="form-group">
+        <label class="form-label">Departamento *</label>
+        <select class="form-select" bind:value={form.departamento}>
+          <option value={null}>-- Seleccionar --</option>
+          <option value={1}>Industrial</option>
+          <option value={2}>Agua y Aire</option>
+          <option value={3}>Impacto</option>
+          <option value={4}>Residuos</option>
+          <option value={5}>Dirección</option>
+        </select>
+      </div>
+    {/if}
     <div class="modal-footer" style="padding: 1rem 0 0; border-top: 1px solid var(--gray-200); margin-top: 1rem;">
       <button type="button" class="btn btn-secondary" onclick={() => showModal = false}>Cancelar</button>
       <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>

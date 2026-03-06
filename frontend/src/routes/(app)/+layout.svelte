@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
+  import { get } from 'svelte/store';
   import { auth } from '$lib/stores/auth';
   import Sidebar from '$lib/components/Sidebar.svelte';
   import { getSocket, disconnectSocket, joinUser, onForceLogout } from '$lib/socket';
@@ -20,8 +21,7 @@
       getSocket();
 
       // Join user room for targeted events
-      let currentUser: import('$lib/stores/auth').UserInfo | null = null;
-      auth.subscribe(s => { currentUser = s.user; })();
+      const currentUser = get(auth).user;
       const userId = currentUser?._id || currentUser?.id;
       if (userId) joinUser(userId);
 
@@ -29,7 +29,8 @@
       onForceLogout(async (message) => {
         disconnectSocket();
         await auth.logout();
-        goto('/login?reason=deactivated');
+        const reason = message.includes('expirado') ? 'expired' : 'deactivated';
+        goto(`/login?reason=${reason}`);
       });
     }
   });

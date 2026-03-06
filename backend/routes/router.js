@@ -163,11 +163,13 @@ router.put('/api/gestionambiental/usuarios/password/:id', gestionambientalContro
 router.get('/api/gestionambiental/empresas/', empresasController.obtenerEmpresas);
 router.get('/api/gestionambiental/empresas/buscar', empresasController.buscarEmpresas);
 router.get('/api/gestionambiental/empresas/estadisticas', empresasController.obtenerEstadisticas);
+router.get('/api/gestionambiental/empresas/:id/auditoria', empresasController.obtenerAuditoriaEmpresa);
 router.get('/api/gestionambiental/empresas/ver/:id', empresasController.verEmpresa);
 router.get('/api/gestionambiental/empresas/:id', empresasController.obtenerEmpresaPorId);
 router.post('/api/gestionambiental/empresas/', empresasController.crearEmpresa);
 router.post('/api/gestionambiental/empresas/:id/lock', empresasController.bloquearEmpresa);
 router.post('/api/gestionambiental/empresas/:id/unlock', empresasController.desbloquearEmpresa);
+router.post('/api/gestionambiental/empresas/:id/restaurar', empresasController.restaurarEmpresa);
 router.put('/api/gestionambiental/empresas/:id', empresasController.actualizarEmpresa);
 router.delete('/api/gestionambiental/empresas/:id', empresasController.eliminarEmpresa);
 

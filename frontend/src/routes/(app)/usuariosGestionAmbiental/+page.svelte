@@ -3,6 +3,7 @@
   import api from '$lib/api';
   import Modal from '$lib/components/Modal.svelte';
   import { toast } from '$lib/stores/toast';
+  import { confirmDelete } from '$lib/utils/confirmDialog';
 
   interface Usuario {
     _id: string;
@@ -10,6 +11,7 @@
     username: string;
     status?: string;
     rolGestionAmbiental?: number;
+    departamento?: number | null;
   }
 
   let usuarios: Usuario[] = $state([]);
@@ -27,7 +29,8 @@
     password: '',
     confirmPassword: '',
     status: 'Activo',
-    rolGestionAmbiental: 1
+    rolGestionAmbiental: 1,
+    departamento: null as number | null
   });
 
   let passwordForm = $state({
@@ -42,6 +45,19 @@
     { value: 3, label: 'Tipo 3 - Administrador' },
     { value: 4, label: 'Tipo 4 - Supervisor' }
   ];
+
+  const DEPARTAMENTOS: Record<number, string> = {
+    1: 'Industrial',
+    2: 'Agua y Aire',
+    3: 'Impacto',
+    4: 'Residuos',
+    5: 'Dirección'
+  };
+
+  function getDepartamentoLabel(depto: number | null | undefined): string {
+    if (!depto) return 'Sin asignar';
+    return DEPARTAMENTOS[depto] || 'Sin asignar';
+  }
 
   onMount(() => {
     fetchUsuarios();
@@ -62,7 +78,7 @@
   function openCreateModal() {
     editingId = null;
     modalTitle = 'Registrar Usuario';
-    form = { name: '', username: '', password: '', confirmPassword: '', status: 'Activo', rolGestionAmbiental: 1 };
+    form = { name: '', username: '', password: '', confirmPassword: '', status: 'Activo', rolGestionAmbiental: 1, departamento: null };
     showModal = true;
   }
 
@@ -75,7 +91,8 @@
       password: '',
       confirmPassword: '',
       status: usuario.status || 'Activo',
-      rolGestionAmbiental: usuario.rolGestionAmbiental || 1
+      rolGestionAmbiental: usuario.rolGestionAmbiental || 1,
+      departamento: usuario.departamento ?? null
     };
     showModal = true;
   }
@@ -97,7 +114,8 @@
           name: form.name,
           username: form.username,
           status: form.status,
-          rolGestionAmbiental: form.rolGestionAmbiental
+          rolGestionAmbiental: form.rolGestionAmbiental,
+          departamento: form.departamento
         });
         toast.success('Usuario actualizado');
       } else {
@@ -110,7 +128,8 @@
           username: form.username,
           password: form.password,
           status: form.status,
-          rolGestionAmbiental: form.rolGestionAmbiental
+          rolGestionAmbiental: form.rolGestionAmbiental,
+          departamento: form.departamento
         });
         toast.success('Usuario creado');
       }
@@ -142,7 +161,7 @@
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+    if (!(await confirmDelete('usuario'))) return;
     try {
       await api.delete(`/gestionambiental/usuarios/${id}`);
       toast.success('Usuario eliminado');
@@ -179,6 +198,7 @@
           <th>No.</th>
           <th>Nombre</th>
           <th>Usuario</th>
+          <th>Departamento</th>
           <th>Estado</th>
           <th>Acciones</th>
         </tr>
@@ -189,6 +209,7 @@
             <td>{i + 1}</td>
             <td>{usuario.name}</td>
             <td>{usuario.username}</td>
+            <td>{getDepartamentoLabel(usuario.departamento)}</td>
             <td>
               <span class="badge" class:badge-success={usuario.status === 'Activo'} class:badge-danger={usuario.status !== 'Activo'}>
                 {usuario.status || 'N/A'}
@@ -210,7 +231,7 @@
           </tr>
         {:else}
           <tr>
-            <td colspan="5" class="text-center text-muted" style="padding: 2rem;">
+            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
               No se encontraron usuarios
             </td>
           </tr>
@@ -255,6 +276,17 @@
         {#each rolTypes as rol}
           <option value={rol.value}>{rol.label}</option>
         {/each}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Departamento *</label>
+      <select class="form-select" bind:value={form.departamento}>
+        <option value={null}>-- Seleccionar --</option>
+        <option value={1}>Industrial</option>
+        <option value={2}>Agua y Aire</option>
+        <option value={3}>Impacto</option>
+        <option value={4}>Residuos</option>
+        <option value={5}>Dirección</option>
       </select>
     </div>
 

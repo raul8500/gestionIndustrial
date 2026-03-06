@@ -170,6 +170,38 @@ const empresasSchema = new mongoose.Schema({
     default: 1, // 1: Activo, 0: Inactivo
     enum: [0, 1]
   },
+  auditoria: [{
+    accion: {
+      type: String,
+      required: true,
+      enum: ['CREACION', 'ACTUALIZACION', 'BORRADO_LOGICO', 'RESTAURACION']
+    },
+    fecha: {
+      type: Date,
+      default: Date.now,
+      required: true
+    },
+    usuario: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+      default: null
+    },
+    usuarioNombre: {
+      type: String,
+      trim: true,
+      default: 'Sistema'
+    },
+    descripcion: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    cambios: [{
+      campo: { type: String, trim: true },
+      antes: { type: mongoose.Schema.Types.Mixed, default: null },
+      despues: { type: mongoose.Schema.Types.Mixed, default: null }
+    }]
+  }],
   // Campos para bloqueo durante edición
   lockedBy: {
     type: mongoose.Schema.Types.ObjectId,

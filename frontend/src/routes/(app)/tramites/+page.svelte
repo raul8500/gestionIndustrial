@@ -6,6 +6,7 @@
   import { toast } from '$lib/stores/toast';
   import { auth } from '$lib/stores/auth';
   import { getSocket } from '$lib/socket';
+  import { confirmDelete } from '$lib/utils/confirmDialog';
   import type { Socket } from 'socket.io-client';
 
   // Current user ID for lock ownership checks
@@ -30,6 +31,8 @@
     paginas?: number;
     tecnicos?: string[];
     observaciones?: string;
+    sector?: string;
+    actividadEconomica?: string;
     lockedBy?: string | { _id: string; name?: string; username?: string };
     lockedByName?: string;
   }
@@ -276,7 +279,7 @@
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este trámite?')) return;
+    if (!(await confirmDelete('tramite'))) return;
     try {
       await api.delete(`/gestionambiental/tramites/${id}`);
       toast.success('Trámite eliminado');

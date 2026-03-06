@@ -54,7 +54,7 @@ exports.obtenerUsuarioPorId = async (req, res) => {
 // Crear un nuevo usuario
 exports.crearUsuario = async (req, res) => {
   try {
-    const { name, username, password, status, gestionAmbiental } = req.body;
+    const { name, username, password, status, gestionAmbiental, departamento } = req.body;
 
     console.log(req.body)
 
@@ -81,7 +81,8 @@ exports.crearUsuario = async (req, res) => {
       rol: 6,
       area: 6, // área fija para gestión ambiental
       puedeCrearUsuarios: false, // no puede crear usuarios
-      gestionAmbiental: gaTipo
+      gestionAmbiental: gaTipo,
+      departamento: departamento || null
     });
 
     await nuevoUsuario.save();
@@ -95,7 +96,7 @@ exports.crearUsuario = async (req, res) => {
 // Actualizar un usuario existente
 exports.actualizarUsuario = async (req, res) => {
   try {
-    const { name, username, password, status, gestionAmbiental } = req.body;
+    const { name, username, password, status, gestionAmbiental, departamento } = req.body;
 
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -109,6 +110,11 @@ exports.actualizarUsuario = async (req, res) => {
       let gaTipo = parseInt(gestionAmbiental, 10);
       if (![1, 2, 3, 4].includes(gaTipo)) gaTipo = 4;
       usuario.gestionAmbiental = gaTipo;
+    }
+
+    // Actualizar departamento si viene en el body
+    if (typeof departamento !== 'undefined') {
+      usuario.departamento = departamento || null;
     }
 
     // Solo actualiza la contraseña si se envió

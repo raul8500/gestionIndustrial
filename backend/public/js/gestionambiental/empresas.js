@@ -11,6 +11,22 @@ let currentFilters = {
 let socket = null;
 let empresaEditando = null; // ID de la empresa que está editando este usuario
 let tieneLock = false; // Flag para saber si tenemos el bloqueo activo
+let realtimeRefreshTimeout = null;
+
+function scheduleRealtimeRefresh() {
+  if (realtimeRefreshTimeout) {
+    clearTimeout(realtimeRefreshTimeout);
+  }
+
+  realtimeRefreshTimeout = setTimeout(() => {
+    realtimeRefreshTimeout = null;
+    const hasUI = !!document.getElementById('tablaEmpresas');
+    if (hasUI) {
+      loadEmpresas(currentPage);
+    }
+    loadStats();
+  }, 250);
+}
 
 // Inicializar socket
 function initializeSocket() {
@@ -62,6 +78,27 @@ function initializeSocket() {
       btn.innerHTML = '<i class="fas fa-edit"></i>';
       btn.title = 'Editar';
     });
+  });
+
+  // Cambios CRUD en tiempo real
+  socket.on('empresa:create', () => {
+    console.log('📡 Evento tiempo real: empresa:create');
+    scheduleRealtimeRefresh();
+  });
+
+  socket.on('empresa:update', () => {
+    console.log('📡 Evento tiempo real: empresa:update');
+    scheduleRealtimeRefresh();
+  });
+
+  socket.on('empresa:delete', () => {
+    console.log('📡 Evento tiempo real: empresa:delete');
+    scheduleRealtimeRefresh();
+  });
+
+  socket.on('empresa:restore', () => {
+    console.log('📡 Evento tiempo real: empresa:restore');
+    scheduleRealtimeRefresh();
   });
 }
 
@@ -339,6 +376,9 @@ function renderEmpresas(empresas) {
     console.log(`Empresa ${empresa.codigo}: razonSocial = "${empresa.razonSocial}" (tipo: ${typeof empresa.razonSocial})`);
     
     const row = document.createElement('tr');
+    if (empresa.isDeleted) {
+      row.classList.add('table-secondary');
+    }
     row.innerHTML = `
       <td class="text-center">
         <div class="fw-bold text-info" title="${empresa.codigo || '-'}">
@@ -357,7 +397,7 @@ function renderEmpresas(empresas) {
         <small class="text-muted">${empresa.telefono || '-'}</small>
       </td>
       <td class="text-center">
-        ${getStatusBadge(empresa.status)}
+        ${getStatusBadge(empresa.status, empresa.isDeleted)}
       </td>
       <td class="text-center">
         <div class="btn-group btn-group-sm" role="group">
@@ -667,14 +707,15 @@ function preseleccionarTipoEdicion(empresa) {
   }
 }
 
-function getStatusBadge(status) {
+function getStatusBadge(status, isDeleted = false) {
   const statusMap = {
     '1': { text: 'Activo', class: 'bg-success' },
     '0': { text: 'Inactivo', class: 'bg-danger' }
   };
   
   const statusInfo = statusMap[status] || { text: 'Desconocido', class: 'bg-secondary' };
-  return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
+  const deletedBadge = isDeleted ? '<span class="badge bg-secondary ms-1">Borrado</span>' : '';
+  return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>${deletedBadge}`;
 }
 
 function debounce(func, wait) {

@@ -34,6 +34,29 @@ app.set('io', io);
 io.on('connection', (socket) => {
   console.log('✅ Cliente conectado:', socket.id);
 
+  let sessionCheckInterval = null;
+
+  // Extraer el token JWT de las cookies del handshake
+  const cookies = socket.handshake.headers.cookie || '';
+  const tokenMatch = cookies.match(/(?:^|;\s*)jwt=([^;]*)/);
+  const token = tokenMatch ? tokenMatch[1] : null;
+
+  // Si hay token, verificar periódicamente su validez
+  if (token) {
+    sessionCheckInterval = setInterval(() => {
+      try {
+        jwt.verify(token, process.env.JWT_SECRETO);
+      } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+          console.log(`⏰ Token expirado para socket ${socket.id}`);
+          socket.emit('forceLogout', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          clearInterval(sessionCheckInterval);
+          sessionCheckInterval = null;
+        }
+      }
+    }, 15000);
+  }
+
   // El cliente envía su userId para unirse a una sala privada
   socket.on('join', (userId) => {
     if (userId) {
@@ -43,6 +66,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    if (sessionCheckInterval) {
+      clearInterval(sessionCheckInterval);
+      sessionCheckInterval = null;
+    }
     console.log('❌ Cliente desconectado:', socket.id);
   });
 });
@@ -66,7 +93,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Seteamos las variables de entorno
-dotenv.config({ path: './.env' });
+dotenv.config({ path: './env/.env' });
 
 // Para poder trabajar con las cookies
 app.use(cookieParser());

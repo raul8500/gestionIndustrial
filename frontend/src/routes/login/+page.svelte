@@ -13,9 +13,12 @@
 
   onMount(() => {
     const unsub = page.subscribe(p => {
-      if (p.url.searchParams.get('reason') === 'deactivated') {
+      const reason = p.url.searchParams.get('reason');
+      if (reason === 'deactivated') {
         deactivatedMessage = 'Tu cuenta ha sido desactivada por un administrador.';
-        // Clean URL without reloading
+        history.replaceState({}, '', '/login');
+      } else if (reason === 'expired') {
+        deactivatedMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
         history.replaceState({}, '', '/login');
       }
     });

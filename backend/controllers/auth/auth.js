@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 exports.registerUser = async (req, res) => {
     try {
-        const { name, username, email, rol, password, area, puedeCrearUsuarios } = req.body;
+        const { name, username, email, rol, password, area, puedeCrearUsuarios, departamento } = req.body;
         let status = 1;
 
         // Verificar si ya existe un usuario con el mismo nombre
@@ -27,7 +27,8 @@ exports.registerUser = async (req, res) => {
             password: passHash,
             status,
             area,
-            puedeCrearUsuarios
+            puedeCrearUsuarios,
+            departamento: [1, 2].includes(rol) ? null : (departamento || null)
         });
 
         res.status(201).json(newUser);
@@ -67,9 +68,10 @@ exports.login = async (req, res) => {
         });
 
         // Establecer la cookie con el token JWT
-        const expiresInDays = parseInt(process.env.JWT_COOKIE_EXPIRES, 10);
+        // JWT_COOKIE_EXPIRES está en minutos
+        const expiresInMinutes = parseInt(process.env.JWT_COOKIE_EXPIRES, 10);
         const expiresDate = new Date();
-        expiresDate.setDate(expiresDate.getDate() + expiresInDays);
+        expiresDate.setTime(expiresDate.getTime() + expiresInMinutes * 60 * 1000);
 
         const cookiesOptions = {
             expires: expiresDate,
@@ -127,7 +129,7 @@ exports.updateUserById = async (req, res) => {
     try {
         console.log(req.body)
         const { id } = req.params; // Extraer el ID directamente
-        const { name, username, rol, status, img, sucursalId } = req.body;
+        const { name, username, rol, status, img, sucursalId, departamento } = req.body;
 
         // Verificar si el nombre de usuario ya está en uso por otro usuario
         const existingUser = await ModelUser.findOne({ username });
@@ -144,7 +146,8 @@ exports.updateUserById = async (req, res) => {
             rol,
             status,
             img,
-            sucursalId
+            sucursalId,
+            departamento: [1, 2].includes(rol) ? null : (departamento || null)
         }, { new: true });
 
         if (!updatedUser) {

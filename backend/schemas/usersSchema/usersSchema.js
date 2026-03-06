@@ -37,6 +37,12 @@ const userModel = new mongoose.Schema(
     area: {
       type: Number,
       default: null
+    },
+
+    // Departamento para trámites (1=Industrial, 2=Agua y Aire, 3=Impacto, 4=Residuos, 5=Dirección)
+    departamento: {
+      type: Number,
+      default: null
     }
   },
   {
